@@ -1,2 +1,2 @@
-export declare function init(): void;
+export {};
 //# sourceMappingURL=client.d.ts.map
