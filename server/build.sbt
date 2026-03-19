@@ -2,7 +2,7 @@ import Dependencies._
 
 ThisBuild / organization := "castlegame"
 ThisBuild / version := "0.0.1"
-ThisBuild / scalaVersion      := "3.8.1"
+ThisBuild / scalaVersion      := "3.8.2"
 ThisBuild / fork              := true
 ThisBuild / scalacOptions     := optionsOnOrElse("2.13", "2.12")("-Ywarn-unused")("").value
 ThisBuild / semanticdbEnabled := true
@@ -11,7 +11,7 @@ ThisBuild / scalafixDependencies ++= List("com.github.liancheng" %% "organize-im
 
 def settingsApp = Seq(
   name := "server",
-  Compile / run / mainClass := Option("castlegame.server.MainApp"),
+  Compile / run / mainClass := Option("game.MainApp"),
   testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
   libraryDependencies ++= Seq(
     zioHttp, 

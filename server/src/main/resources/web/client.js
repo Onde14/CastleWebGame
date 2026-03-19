@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 let message = "Hello World!";
 console.log(message);
 var WINDOW;
@@ -17,5 +19,4 @@ ctx.fillStyle = "gray";
 ctx.fillRect(225, 400, 50, 50);
 ctx.fillStyle = "brown";
 ctx.fillRect(245, 100, 10, 300);
-export {};
 //# sourceMappingURL=client.js.map
