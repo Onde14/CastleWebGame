@@ -2,147 +2,81 @@ package game
 
 import zio._
 import zio.http._
-import zio.http.endpoint._
-import zio.http.html.{html => html5, _}
+import zio.http.template2._
 
 object MainApp extends ZIOAppDefault {
-
-
 
   //
   // Application HTML-Layout 
   //
 
-  def withContentHtml(contentTitle:zio.http.html.Html)(content: zio.http.html.Html) = 
-    html5(
+
+  val gamePage: Dom = 
+    html(
       head(
         title("Castlegame"), 
-        link(relAttr := "stylesheet", href := "/assets/styles.css"), 
-        meta(charsetAttr := "utf-8")
+        //link(relAttr := "stylesheet", href := "/assets/styles.css"),
+        
+        //script(src("scripts/dist/client.js"),`type`("module")),
+        meta(charset("utf-8"))
       ), 
       body(
-        header(
-          a(href := "/", img(srcAttr := "/assets/zio.png")),
-        ),
-        zio.http.html.main(
-          div(
-            contentTitle,
-            content,
-          )
-        )
-      )
-    ) 
-
-
-
-  //
-  // Web Assets
-  //
-
-  def makeWebAssets: Http[Any, Throwable, Request, Response] = 
-    Http.collectHttp[Request] {
-      case Method.GET -> !! / "assets" / asset =>
-        Http.fromResource(asset)
-    }
-
-
-
-  //
-  // Web Application
-  //
-
-  def makeWebApp:App[Any] = 
-    Http.collect[Request] {
-
-      case Method.GET -> !! => 
-        Response.html(
-          withContentHtml(h2(styleAttr := List("border" -> "none"), "You're running on ZIO Http!")) {
-            div(
-              h1("Game"), 
-              p("Lets start gaming"),
-              canvas(id := "canvas", width := "500", height := "500"), 
-              script(src := "client.js"),
-            )           
-          }
-        )
-    }
-
-
-  //
-  // Web API
-  //
-
-  def makeWebAPI:App[Any] = {
-    import zio.http.codec.HttpCodec._
-    Endpoint
-      .get("api" / "users" / int("userId"))
-      .query(queryBool("show-details"))
-      .out[String]
-      .implement { 
-        case (userId, showDetails) => 
-          ZIO.succeed("user " + userId + " with details? " + showDetails)
-      }.toApp
-  }
-
-
-
-  //
-  // Render a Http Not Found
-  //
-
-  def makeNotFound = 
-    Http.collect[Request] {
-      case req => 
-        Response.html(
-          withContentHtml(h2("""Customized <br />Http Not Found"""))(
-            div(
-              div(
-                p(s"""Sorry, your requested page "${req.path.encode}" does not exist."""), 
-                p("This is a customized page for any non-existing endpoints in your application"),
-                a(href := "/and-another-not-found", "Try one more")
-              )
-            )
-          ), 
-          Status.NotFound
-        )
-    }
-
-
-
-  //
-  // Compose your separate http apps to a larger http app 
-  //
-
-  val routes = (
-    makeWebApp    ++ 
-    makeWebAPI    ++ 
-    makeWebAssets ++ 
-    makeNotFound
-  )
-    .catchAllCauseZIO(_ => ZIO.succeed(
-        Response.html(
-          withContentHtml(h2("""Customized <br />Http Internal Server Error"""))(
-            div(
-              div(
-                p("Sorry, we did not expect this failure."), 
-                p("This is a customized page for any errors that may happen unexpectedly"),
-              ),           
-              a(classAttr := List("next"), href := "/show-not-found", "Next")
-            )
-          ), 
-          Status.InternalServerError
-        )
+          h1("GAME"),
+          p("Game time started"),
+          canvas(id("canvas"), width("500"), height("500")),
+          script.externalModule("scripts/dist/client.js")
       )
     )
 
+  
+ /* val staticRoutes =
+    Method.GET / "assets" / trailing -> handler {
+      Routes.empty @@ Middleware.serveResources(Path.empty / "assets")
+    }
+  */
+
+  val helloRoute =
+    Method.GET / "hello" -> 
+      handler(Response.text("Hello, World!"))
+
+  val htmlRoutes =
+    Method.GET / Root -> handler(Response.html(gamePage))
+
+  val staticRoutes =
+    Method.GET / "scripts" -> handler(Handler.fromResource("scripts").orElse(Handler.notFound))
+
+  val jsRoute =
+    Method.GET / "scripts" / "dist" / "client.js" -> handler(Handler.fromResource("scripts/dist/client.js").orElse(Handler.notFound))
+
+  val jsMapRoute =
+    Method.GET / "scripts" / "dist" / "client.js.map" -> handler(Handler.fromResource("scripts/dist/client.js.map").orElse(Handler.notFound))
+
+  val echoRoute =
+    Method.POST / "echo" ->
+      handler { (req: Request) => req.body.asString(Charsets.Utf8).map(Response.text(_)).orDie }
+
+  val routes = 
+    Routes(htmlRoutes,
+          staticRoutes,
+          jsRoute,
+          jsMapRoute,
+          helloRoute,
+          echoRoute
+
+    ) @@ Middleware.debug
 
 
-  //
   // Start your server
+  // Serving the routes using the default server layer on port 8080
   //
-
-  override val run = {
-    Console.printLine("please visit http://localhost:8080") *> 
+  override def run = 
+    val cl = getClass.getClassLoader
+    val url = cl.getResource("scripts")
+    val url2 = cl.getResource("scripts/dist/client.js")
+    
+    Console.printLine(s"static folder found at: $url") *>
+    Console.printLine(s"client.js found at: $url2") *>
+    //val testpath = Root / "scripts"
+    //println("ROOT STRINGIKSI: " + script.inlineResource("scripts/dist/client.js"))
     Server.serve(routes).provide(Server.default)
-  }
-}
+} 

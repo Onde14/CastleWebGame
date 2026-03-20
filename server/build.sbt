@@ -12,6 +12,7 @@ ThisBuild / scalafixDependencies ++= List("com.github.liancheng" %% "organize-im
 def settingsApp = Seq(
   name := "server",
   Compile / run / mainClass := Option("game.MainApp"),
+  Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "resources",
   testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
   libraryDependencies ++= Seq(
     zioHttp, 

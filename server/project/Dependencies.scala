@@ -2,8 +2,8 @@ import sbt._
 
 object Dependencies {
 
-  val zioVersion = "2.0.13"
-  val zioHttpVersion = "3.0.0-RC1"
+  val zioVersion = "2.1.24"
+  val zioHttpVersion = "3.10.1"
 
   val zioHttp     = "dev.zio" %% "zio-http"     % zioHttpVersion
 
