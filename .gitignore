@@ -4,6 +4,7 @@
 .dotty-ide*
 .idea/
 .metals/
+.metals copy/
 .scala/
 .vscode/
 *.worksheet.sc
