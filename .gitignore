@@ -10,3 +10,4 @@
 *.worksheet.sc
 metals.sbt
 target/
+src/main/resources/scripts/dist/.
