@@ -1,11 +1,12 @@
-import { Unit } from "./units.js";
 import { DisplayDriver } from "./display-driver.js";
+import { Vector } from "./vector.js";
 export declare class Game {
     displayDriver: DisplayDriver;
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
-    Units: Unit[];
+    units: never[];
     constructor();
+    roadBuild(start: Vector, end: Vector): void;
     buildGame(): void;
 }
-//# sourceMappingURL=client.d.ts.map
+//# sourceMappingURL=game.d.ts.map

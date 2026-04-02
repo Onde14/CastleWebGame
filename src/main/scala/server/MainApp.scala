@@ -1,4 +1,4 @@
-package game
+package server
 
 import zio._
 import zio.http._
@@ -15,16 +15,15 @@ object MainApp extends ZIOAppDefault {
     html(
       head(
         title("Castlegame"),
+        link(href("styles/styles.css"), rel("stylesheet")),
         //link(relAttr := "stylesheet", href := "/assets/styles.css"),
 
         //script(src("scripts/dist/client.js"),`type`("module")),
         meta(charset("utf-8"))
       ),
       body(
-          h1("GAME"),
-          p("Game time started"),
-          canvas(id("canvas"), width("500"), height("500")),
-          script.externalModule("scripts/dist/client.js")
+          canvas(id("canvas"), width("1920"), height("1080")),
+          script.externalModule("scripts/dist/game.js")
       )
     )
 
@@ -99,7 +98,12 @@ val jsRoute =
   )
   */
 
-  val app = Routes(helloRoute,htmlRoute) @@ Middleware.serveResources(path = Path.empty / "scripts" / "dist", resourcePrefix = "scripts/dist") @@ Middleware.serveResources(path = Path.empty / "scripts" , resourcePrefix = "scripts") @@ Middleware.debug
+  val app =
+    Routes(helloRoute,htmlRoute) @@
+    Middleware.serveResources(path = Path.empty / "scripts" / "dist", resourcePrefix = "scripts/dist") @@
+    Middleware.serveResources(path = Path.empty / "scripts" , resourcePrefix = "scripts") @@
+    Middleware.serveResources(path = Path.empty / "styles", resourcePrefix = "styles") @@
+    Middleware.debug
 
   override def run =
     val cl = getClass.getClassLoader

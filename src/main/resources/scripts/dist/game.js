@@ -1,5 +1,7 @@
-import { Unit } from "./units.js";
+import { Soldier, Castle, Road } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
+import { Vector } from "./vector.js";
+import { RoadSize } from "./config.js";
 let message = "Hello World!";
 console.log(message);
 const canvas = document.getElementById("canvas");
@@ -14,11 +16,17 @@ export class Game {
     displayDriver;
     canvas;
     ctx;
-    Units = [];
+    units = [];
     constructor() {
         this.displayDriver = new DisplayDriver();
         this.canvas = document.getElementById("canvas");
         this.ctx = this.canvas.getContext("2d");
+    }
+    roadBuild(start, end) {
+        let road_height = Math.hypot((end.x - start.x), (end.y - start.y));
+        let road_rotation = Math.atan2((end.y - start.y), (end.x - start.x));
+        this.ctx.fillStyle = "brown";
+        this.ctx.fillRect(start.x, start.y, RoadSize.width, road_height);
     }
     buildGame() {
         //header =
@@ -30,7 +38,7 @@ export class Game {
         this.ctx.fillRect(canvas_width / 2 - 25, canvas_height - 100, 50, 50);
         this.ctx.fillStyle = "brown";
         this.ctx.fillRect(canvas_width / 2 - 5, 100, 10, canvas_height - 200);
-        const dude = new Unit();
+        const dude = new Soldier(canvas_width / 2, canvas_height / 2);
         this.ctx.beginPath();
         this.ctx.arc(canvas_width / 2, canvas_height / 2, 15, 0, Math.PI * 2);
         this.ctx.closePath();
@@ -41,4 +49,4 @@ export class Game {
 }
 const game = new Game();
 game.buildGame();
-//# sourceMappingURL=client.js.map
+//# sourceMappingURL=game.js.map

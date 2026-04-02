@@ -1,8 +1,2 @@
-export declare class Unit {
-    id: number;
-    selected: boolean;
-    type: string;
-    select(): void;
-    buildUnit(): void;
-}
+export {};
 //# sourceMappingURL=units.d.ts.map
