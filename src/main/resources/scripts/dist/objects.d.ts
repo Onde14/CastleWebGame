@@ -33,6 +33,7 @@ export declare class Soldier {
     constructor(posx: number, posy: number);
     is_selected(): boolean;
     set_selected(b: boolean): void;
+    move_to_target(target: Vector): Vector;
 }
 export {};
 //# sourceMappingURL=objects.d.ts.map

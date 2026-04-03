@@ -1,10 +1,15 @@
+export declare enum GameSize {
+    width = 1000,
+    height = 1000
+}
 export declare enum CastleSize {
     width = 250,
     height = 250
 }
-export declare enum SoldierSize {
+export declare enum SoldierConfig {
     width = 10,
-    height = 10
+    height = 10,
+    color = "black"
 }
 export declare enum RoadSize {
     width = 10

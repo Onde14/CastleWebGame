@@ -16,37 +16,61 @@ export class Game {
     displayDriver;
     canvas;
     ctx;
-    units = [];
+    units = new Map();
+    i;
     constructor() {
-        this.displayDriver = new DisplayDriver();
         this.canvas = document.getElementById("canvas");
         this.ctx = this.canvas.getContext("2d");
+        this.displayDriver = new DisplayDriver(this.canvas, this.ctx, this.canvas.width, this.canvas.height);
+        this.init_event_listeners(canvas);
+        this.displayDriver.resize();
+        console.log("Game built");
+        this.i = 0;
+        this.build_game();
     }
-    roadBuild(start, end) {
+    road_build(start, end) {
         let road_height = Math.hypot((end.x - start.x), (end.y - start.y));
         let road_rotation = Math.atan2((end.y - start.y), (end.x - start.x));
         this.ctx.fillStyle = "brown";
         this.ctx.fillRect(start.x, start.y, RoadSize.width, road_height);
     }
-    buildGame() {
-        //header =
-        this.ctx.fillStyle = "green";
-        this.ctx.fillRect(0, 0, canvas_width, canvas_height);
-        this.ctx.fillStyle = "gray";
-        this.ctx.fillRect(canvas_width / 2 - 25, 50, 50, 50);
-        this.ctx.fillStyle = "gray";
-        this.ctx.fillRect(canvas_width / 2 - 25, canvas_height - 100, 50, 50);
-        this.ctx.fillStyle = "brown";
-        this.ctx.fillRect(canvas_width / 2 - 5, 100, 10, canvas_height - 200);
-        const dude = new Soldier(canvas_width / 2, canvas_height / 2);
-        this.ctx.beginPath();
-        this.ctx.arc(canvas_width / 2, canvas_height / 2, 15, 0, Math.PI * 2);
-        this.ctx.closePath();
-        this.ctx.fillStyle = "black";
-        this.ctx.fill();
-        console.log("Game built");
+    init_event_listeners(canvas) {
+        canvas.addEventListener("mousedown", function (e) {
+            let rect = canvas.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            console.log("Coordinate x: " + x, "Coordinate y: " + y);
+        });
+        window.addEventListener("resize", () => {
+            this.displayDriver.resize();
+        });
+    }
+    build_game() {
+        let soldier = new Soldier(500, 500);
+        this.units.set(soldier.unit.id, soldier);
+    }
+    move_commands() {
+        this.units.forEach((unit, key) => {
+            let target = new Vector(0, 600);
+            console.log("Moving Unit", unit.unit.id, " from [", unit.unit.pos.x, ",", unit.unit.pos.y, "] to [", target.x, ",", target.y, "]");
+            let order = unit.move_to_target(target);
+            unit.unit.pos.x = order.x;
+            unit.unit.pos.y = order.y;
+        });
+    }
+    run() {
+        this.draw(0);
+    }
+    draw(t) {
+        //console.log(this.canvas);
+        this.move_commands();
+        this.displayDriver.draw(this.units);
+        window.requestAnimationFrame(t => {
+            this.draw(t);
+        });
     }
 }
 const game = new Game();
-game.buildGame();
+console.log(game.canvas);
+game.run();
 //# sourceMappingURL=game.js.map

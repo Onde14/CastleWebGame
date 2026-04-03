@@ -22,7 +22,7 @@ object MainApp extends ZIOAppDefault {
         meta(charset("utf-8"))
       ),
       body(
-          canvas(id("canvas"), width("1920"), height("1080")),
+          canvas(id("canvas"), width("1000"), height("1000")),
           script.externalModule("scripts/dist/game.js")
       )
     )
