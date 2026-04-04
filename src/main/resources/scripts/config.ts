@@ -14,6 +14,7 @@ export enum SoldierConfig {
     width = 10,
     height = 10,
     color = "black",
+    radius = 15,
 }
 
 export enum RoadSize {

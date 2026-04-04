@@ -13,6 +13,7 @@ export var SoldierConfig;
     SoldierConfig[SoldierConfig["width"] = 10] = "width";
     SoldierConfig[SoldierConfig["height"] = 10] = "height";
     SoldierConfig["color"] = "black";
+    SoldierConfig[SoldierConfig["radius"] = 15] = "radius";
 })(SoldierConfig || (SoldierConfig = {}));
 export var RoadSize;
 (function (RoadSize) {

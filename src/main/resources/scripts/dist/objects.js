@@ -60,7 +60,7 @@ export class Soldier {
     is_selected() {
         return this.selected;
     }
-    set_selected(b) {
+    select(b) {
         this.selected = b;
     }
     give_target(x, y) {

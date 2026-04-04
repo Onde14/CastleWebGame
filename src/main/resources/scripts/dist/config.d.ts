@@ -5,7 +5,8 @@ export declare enum CastleSize {
 export declare enum SoldierConfig {
     width = 10,
     height = 10,
-    color = "black"
+    color = "black",
+    radius = 15
 }
 export declare enum RoadSize {
     width = 10

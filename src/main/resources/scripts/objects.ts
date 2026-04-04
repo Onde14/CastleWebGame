@@ -78,7 +78,7 @@ export class Soldier {
         return this.selected;
     }
 
-    public set_selected(b: boolean){
+    public select(b: boolean){
         this.selected = b;
     }
 

@@ -30,7 +30,7 @@ export class DisplayDriver {
         this.ctx.restore();
         units.forEach((unit, key) => {
             this.ctx.beginPath();
-            this.ctx.arc(unit.unit.pos.x, unit.unit.pos.y, 15, 0, Math.PI * 2);
+            this.ctx.arc(unit.unit.pos.x, unit.unit.pos.y, SoldierConfig.radius, 0, Math.PI * 2);
             this.ctx.closePath();
             this.ctx.fillStyle = SoldierConfig.color;
             this.ctx.fill();

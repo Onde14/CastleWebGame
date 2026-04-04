@@ -34,7 +34,7 @@ export declare class Soldier {
     selected: boolean;
     constructor(posx: number, posy: number);
     is_selected(): boolean;
-    set_selected(b: boolean): void;
+    select(b: boolean): void;
     give_target(x: number, y: number): void;
     move_to_target(): Vector;
     has_found_target(): boolean;

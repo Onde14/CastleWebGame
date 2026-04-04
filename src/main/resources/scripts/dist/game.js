@@ -2,6 +2,7 @@ import { Soldier, Castle, Road } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
 import { RoadSize } from "./config.js";
+import { selecting } from "./controls.js";
 let message = "Hello World!";
 console.log(message);
 const canvas = document.getElementById("canvas");
@@ -18,16 +19,14 @@ export class Game {
     ctx;
     units = new Map();
     moving_units = new Array;
-    i;
     constructor() {
         this.canvas = document.getElementById("canvas");
         this.ctx = this.canvas.getContext("2d");
         this.displayDriver = new DisplayDriver(this.canvas, this.ctx, this.canvas.width, this.canvas.height);
-        this.init_event_listeners(canvas);
         this.displayDriver.resize();
         console.log("Game built");
-        this.i = 0;
         this.build_game();
+        this.init_event_listeners(this.canvas, this.units);
     }
     road_build(start, end) {
         let road_height = Math.hypot((end.x - start.x), (end.y - start.y));
@@ -35,12 +34,18 @@ export class Game {
         this.ctx.fillStyle = "brown";
         this.ctx.fillRect(start.x, start.y, RoadSize.width, road_height);
     }
-    init_event_listeners(canvas) {
+    init_event_listeners(canvas, units) {
         canvas.addEventListener("mousedown", function (e) {
             let rect = canvas.getBoundingClientRect();
             let x = e.clientX - rect.left;
             let y = e.clientY - rect.top;
             console.log("Coordinate x: " + x, "Coordinate y: " + y);
+            if (selecting(x, y, units)) {
+                console.log("Selected: ", true);
+            }
+            else {
+                console.log("Selected: ", false);
+            }
         });
         window.addEventListener("resize", () => {
             this.displayDriver.resize();
@@ -65,11 +70,21 @@ export class Game {
         soldier3.give_target(350, 666);
         this.units.set(soldier3.unit.id, soldier3);
         this.moving_units.push(soldier3);
+        for (let i = 0; i < 1000; i += 100) {
+            for (let j = 0; j < 1000; j += 100) {
+                //console.log("i:", i);
+                //console.log("j:", j);
+                let x = new Soldier(i, j);
+                x.give_target(1000 - j - i, 1000 - j - i);
+                this.units.set(x.unit.id, x);
+                this.moving_units.push(x);
+            }
+        }
     }
     move_commands() {
         this.moving_units.forEach((unit, i) => {
             if (unit.has_found_target()) {
-                console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y, "]");
+                //console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y,"]");
                 delete this.moving_units[i];
             }
             else {
