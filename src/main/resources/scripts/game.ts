@@ -24,6 +24,7 @@ export class Game {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   units = new Map<number,Soldier>();
+  moving_units = new Array<Soldier>;
   i: number;
   constructor() {
     this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -59,17 +60,41 @@ export class Game {
   }
 
   private build_game(){
-    let soldier = new Soldier(500,500);
-    this.units.set(soldier.unit.id,soldier);
+    this.debug_give_move_command();
+  }
+
+  found_goal(pos: Vector,target: Vector){
+    return (Math.abs(pos.x-target.x) < 0.5 && Math.abs(pos.y-target.y) < 0.5);
+  }
+
+  debug_give_move_command(){
+    let soldier1 = new Soldier(100,100);
+    soldier1.give_target(900,900);
+    this.units.set(soldier1.unit.id, soldier1);
+    this.moving_units.push(soldier1);
+    let soldier2 = new Soldier(800,250);
+    soldier2.give_target(462,132);
+    this.units.set(soldier2.unit.id, soldier2);
+    this.moving_units.push(soldier2);
+    let soldier3 = new Soldier(300,500);
+    soldier3.give_target(350,666);
+    this.units.set(soldier3.unit.id, soldier3);
+    this.moving_units.push(soldier3);
+
+
   }
 
   public move_commands(){
-    this.units.forEach((unit, key) => {
-      let target = new Vector(0,600);
-      console.log("Moving Unit", unit.unit.id, " from [", unit.unit.pos.x, ",", unit.unit.pos.y, "] to [", target.x, ",", target.y,"]")
-      let order = unit.move_to_target(target);
-      unit.unit.pos.x = order.x;
-      unit.unit.pos.y = order.y;
+    this.moving_units.forEach((unit, i) => {
+      if (unit.has_found_target()){
+        console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y,"]");
+        delete this.moving_units[i];
+      } else {
+        //console.log("Moving Unit", unit.unit.id, " from [", unit.unit.pos.x, ",", unit.unit.pos.y, "] to [", unit.unit.target.x, ",", unit.unit.target.y,"]")
+        let order = unit.move_to_target();
+        unit.unit.pos.x = order.x;
+        unit.unit.pos.y = order.y;
+      }
     });
   }
 
@@ -89,6 +114,13 @@ export class Game {
 
 
 const game = new Game();
-console.log(game.canvas);
+/*console.log("TAN2: ", Math.atan2(900,900));
+console.log("TAN1: ", Math.atan(900/900));
+console.log("x speed: ", Math.atan(100/900)/(Math.PI/2));
+console.log("y speed: ", 1-Math.atan(100/900)/(Math.PI/2));
+
+
+ */
+
 game.run();
 

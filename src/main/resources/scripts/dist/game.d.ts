@@ -6,11 +6,14 @@ export declare class Game {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
     units: Map<number, Soldier>;
+    moving_units: Soldier[];
     i: number;
     constructor();
     road_build(start: Vector, end: Vector): void;
     private init_event_listeners;
     private build_game;
+    found_goal(pos: Vector, target: Vector): boolean;
+    debug_give_move_command(): void;
     move_commands(): void;
     run(): void;
     draw(t: number): void;

@@ -13,6 +13,8 @@ declare class Unit {
     pos: Vector;
     width: number;
     height: number;
+    target: Vector;
+    is_moving: boolean;
     constructor(type: string, posx: number, posy: number, width: number, height: number);
 }
 export declare class Castle {
@@ -33,7 +35,9 @@ export declare class Soldier {
     constructor(posx: number, posy: number);
     is_selected(): boolean;
     set_selected(b: boolean): void;
-    move_to_target(target: Vector): Vector;
+    give_target(x: number, y: number): void;
+    move_to_target(): Vector;
+    has_found_target(): boolean;
 }
 export {};
 //# sourceMappingURL=objects.d.ts.map

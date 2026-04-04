@@ -20,12 +20,15 @@ class Unit {
     pos;
     width;
     height;
+    target;
+    is_moving = false;
     constructor(type, posx, posy, width, height) {
         this.id = Math.random();
         this.type = type;
         this.pos = new Vector(posx, posy);
         this.width = width;
         this.height = height;
+        this.target = new Vector(0, 0);
     }
 }
 export class Castle {
@@ -60,27 +63,47 @@ export class Soldier {
     set_selected(b) {
         this.selected = b;
     }
-    move_to_target(target) {
-        let x = this.unit.pos.x;
-        let y = this.unit.pos.y;
-        console.log(0);
-        if (this.unit.pos.x > target.x) {
-            console.log(1);
-            x = this.unit.pos.x - 1;
+    give_target(x, y) {
+        this.unit.target.x = x;
+        this.unit.target.y = y;
+        this.unit.is_moving = true;
+    }
+    move_to_target() {
+        let newX = this.unit.pos.x;
+        let newY = this.unit.pos.y;
+        let ratio = Math.abs(this.unit.target.x - this.unit.pos.x) / Math.abs(this.unit.target.y - this.unit.pos.y);
+        let baseMovement = 2;
+        let xMovementSpeed = Math.atan(ratio) / (Math.PI / 2);
+        let yMovementSpeed = 1 - xMovementSpeed;
+        if (this.unit.pos.x > this.unit.target.x) {
+            newX = this.unit.pos.x - xMovementSpeed;
         }
-        else if (this.unit.pos.x < target.x) {
-            console.log(2);
-            x = this.unit.pos.x + 1;
+        else if (this.unit.pos.x < this.unit.target.x) {
+            newX = this.unit.pos.x + xMovementSpeed;
         }
-        if (this.unit.pos.y > target.y) {
-            console.log(3);
-            y = this.unit.pos.y - 1;
+        if (this.unit.pos.y > this.unit.target.y) {
+            newY = this.unit.pos.y - yMovementSpeed;
         }
-        else if (this.unit.pos.y < target.y) {
-            console.log(4);
-            y = this.unit.pos.y + 1;
+        else if (this.unit.pos.y < this.unit.target.y) {
+            newY = this.unit.pos.y + yMovementSpeed;
         }
-        return new Vector(x, y);
+        /*console.log("RATIO = ", ratio);
+        console.log("newX = ", newX);
+        console.log("xMovementSpeed = ", xMovementSpeed);
+        console.log("newY = ", newY);
+        console.log("yMovementSpeed = ", yMovementSpeed);
+
+         */
+        return new Vector(newX, newY);
+    }
+    has_found_target() {
+        if (Math.abs(this.unit.pos.x - this.unit.target.x) < 0.5 && Math.abs(this.unit.pos.y - this.unit.target.y) < 0.5) {
+            this.unit.is_moving = false;
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 //# sourceMappingURL=objects.js.map

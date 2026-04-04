@@ -1,4 +1,4 @@
-export var GameSize;
+var GameSize;
 (function (GameSize) {
     GameSize[GameSize["width"] = 1000] = "width";
     GameSize[GameSize["height"] = 1000] = "height";
