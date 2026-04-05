@@ -21,15 +21,20 @@ console.log("PH: ", canvas_height, ", CH ", canvas_cheight);
 
 
 export class Game {
+  gameWidth: number;
+  gameHeight: number;
   displayDriver: DisplayDriver;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   units = new Map<number,Soldier>();
   moving_units = new Array<Soldier>;
   constructor() {
+
     this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
-    this.displayDriver = new DisplayDriver(this.canvas,this.ctx,this.canvas.width,this.canvas.height);
+    this.gameWidth = this.canvas.clientWidth;
+    this.gameHeight = this.canvas.clientHeight;
+    this.displayDriver = new DisplayDriver(this.canvas,this.ctx,this.gameWidth,this.gameHeight);
     this.displayDriver.resize();
     console.log("Game built");
     this.build_game();
@@ -71,11 +76,11 @@ export class Game {
   }
 
   debug_give_move_command(){
-    let soldier1 = new Soldier(100,100);
-    soldier1.give_target(900,900);
+    let soldier1 = new Soldier(500,300);
+    soldier1.give_target(100,100);
     this.units.set(soldier1.unit.id, soldier1);
     this.moving_units.push(soldier1);
-    let soldier2 = new Soldier(800,250);
+    /*let soldier2 = new Soldier(800,250);
     soldier2.give_target(462,132);
     this.units.set(soldier2.unit.id, soldier2);
     this.moving_units.push(soldier2);
@@ -94,6 +99,10 @@ export class Game {
       }
     }
 
+     */
+
+
+
 
 
   }
@@ -101,7 +110,7 @@ export class Game {
   public move_commands(){
     this.moving_units.forEach((unit, i) => {
       if (unit.has_found_target()){
-        //console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y,"]");
+        console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y,"]");
         delete this.moving_units[i];
       } else {
         //console.log("Moving Unit", unit.unit.id, " from [", unit.unit.pos.x, ",", unit.unit.pos.y, "] to [", unit.unit.target.x, ",", unit.unit.target.y,"]")

@@ -91,10 +91,10 @@ export class Soldier {
     public move_to_target(){
         let newX = this.unit.pos.x;
         let newY = this.unit.pos.y;
-        let ratio = Math.abs(this.unit.target.x-this.unit.pos.x)/Math.abs(this.unit.target.y-this.unit.pos.y);
-        let baseMovement = 2;
-        let xMovementSpeed = Math.atan(ratio)/(Math.PI/2);
-        let yMovementSpeed = 1-xMovementSpeed;
+        let ratio = (Math.abs(this.unit.target.x-this.unit.pos.x)/Math.abs(this.unit.target.y-this.unit.pos.y));
+        let movementMul = 150;
+        let xMovementSpeed = movementMul*(ratio/(ratio+1));
+        let yMovementSpeed = movementMul*(1/(ratio+1));
         if (this.unit.pos.x > this.unit.target.x){
             newX = this.unit.pos.x-xMovementSpeed;
         } else if (this.unit.pos.x < this.unit.target.x){
@@ -106,13 +106,23 @@ export class Soldier {
 
             newY = this.unit.pos.y+yMovementSpeed;
         }
-        /*console.log("RATIO = ", ratio);
+        console.log("this.unit.target.x = ", this.unit.target.x);
+        console.log("this.unit.pos.x = ", this.unit.pos.x);
+        console.log("this.unit.target.y = ", this.unit.target.y);
+        console.log("this.unit.pos.y = ", this.unit.pos.y);
+
+        console.log("RATIO = ", ratio);
         console.log("newX = ", newX);
         console.log("xMovementSpeed = ", xMovementSpeed);
         console.log("newY = ", newY);
         console.log("yMovementSpeed = ", yMovementSpeed);
 
-         */
+
+        console.log("negate: ", newX-newY);
+
+
+
+
         return new Vector(newX,newY);
     }
 

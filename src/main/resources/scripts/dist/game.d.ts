@@ -2,6 +2,8 @@ import { Soldier } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
 export declare class Game {
+    gameWidth: number;
+    gameHeight: number;
     displayDriver: DisplayDriver;
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;

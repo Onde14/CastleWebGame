@@ -14,6 +14,8 @@ const canvas_cheight = canvas.clientHeight;
 console.log("PW: ", canvas_width, ", CW: ", canvas_cwidth);
 console.log("PH: ", canvas_height, ", CH ", canvas_cheight);
 export class Game {
+    gameWidth;
+    gameHeight;
     displayDriver;
     canvas;
     ctx;
@@ -22,7 +24,9 @@ export class Game {
     constructor() {
         this.canvas = document.getElementById("canvas");
         this.ctx = this.canvas.getContext("2d");
-        this.displayDriver = new DisplayDriver(this.canvas, this.ctx, this.canvas.width, this.canvas.height);
+        this.gameWidth = this.canvas.clientWidth;
+        this.gameHeight = this.canvas.clientHeight;
+        this.displayDriver = new DisplayDriver(this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
         console.log("Game built");
         this.build_game();
@@ -58,33 +62,35 @@ export class Game {
         return (Math.abs(pos.x - target.x) < 0.5 && Math.abs(pos.y - target.y) < 0.5);
     }
     debug_give_move_command() {
-        let soldier1 = new Soldier(100, 100);
-        soldier1.give_target(900, 900);
+        let soldier1 = new Soldier(500, 300);
+        soldier1.give_target(100, 100);
         this.units.set(soldier1.unit.id, soldier1);
         this.moving_units.push(soldier1);
-        let soldier2 = new Soldier(800, 250);
-        soldier2.give_target(462, 132);
+        /*let soldier2 = new Soldier(800,250);
+        soldier2.give_target(462,132);
         this.units.set(soldier2.unit.id, soldier2);
         this.moving_units.push(soldier2);
-        let soldier3 = new Soldier(300, 500);
-        soldier3.give_target(350, 666);
+        let soldier3 = new Soldier(300,500);
+        soldier3.give_target(350,666);
         this.units.set(soldier3.unit.id, soldier3);
         this.moving_units.push(soldier3);
-        for (let i = 0; i < 1000; i += 100) {
-            for (let j = 0; j < 1000; j += 100) {
-                //console.log("i:", i);
-                //console.log("j:", j);
-                let x = new Soldier(i, j);
-                x.give_target(1000 - j - i, 1000 - j - i);
-                this.units.set(x.unit.id, x);
-                this.moving_units.push(x);
-            }
+        for (let i = 0; i < 1000; i += 100){
+          for (let j = 0; j < 1000; j += 100){
+            //console.log("i:", i);
+            //console.log("j:", j);
+            let x: Soldier = new Soldier(i,j);
+            x.give_target(1000-j-i,1000-j-i);
+            this.units.set(x.unit.id, x);
+            this.moving_units.push(x);
+          }
         }
+    
+         */
     }
     move_commands() {
         this.moving_units.forEach((unit, i) => {
             if (unit.has_found_target()) {
-                //console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y,"]");
+                console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y, "]");
                 delete this.moving_units[i];
             }
             else {
