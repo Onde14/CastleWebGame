@@ -1,5 +1,9 @@
-import { CastleSize, SoldierConfig } from "./config.js"
+import { CastleConfig, SoldierConfig } from "./config.js"
 import { Vector } from "./vector.js"
+
+class Object{
+
+}
 
 class Structure {
     id: number;
@@ -44,9 +48,13 @@ class Unit {
 export class Castle {
     structure: Structure;
     selected = false;
+    owner: number;
+    ownerColor: string;
 
-    constructor(structure: Structure, posx: number, posy: number) {
-        this.structure = new Structure("castle", posx, posy, CastleSize.width, CastleSize.height);
+    constructor(posx: number, posy: number, owner: number, ownerColor: string) {
+        this.structure = new Structure("castle", posx, posy, CastleConfig.width, CastleConfig.height);
+        this.owner = owner;
+        this.ownerColor = ownerColor;
     }
 
     is_selected(){
@@ -63,7 +71,7 @@ export class Road {
     selected = false;
 
     constructor(posx: number, posy: number) {
-        this.structure = new Structure("road", posx, posy, CastleSize.width, CastleSize.height);
+        this.structure = new Structure("road", posx, posy, CastleConfig.width, CastleConfig.height);
     }
 }
 
@@ -71,8 +79,13 @@ export class Road {
 export class Soldier {
     unit: Unit;
     selected = false;
-    constructor(posx: number, posy: number) {
+    owner: number;
+    ownerColor: string;
+    constructor(posx: number, posy: number, owner: number, ownerColor: string) {
         this.unit = new Unit("soldier", posx, posy, SoldierConfig.width, SoldierConfig.height);
+        this.owner = owner;
+        this.ownerColor = ownerColor;
+
     }
     public is_selected(){
         return this.selected;
@@ -92,7 +105,7 @@ export class Soldier {
         let newX = this.unit.pos.x;
         let newY = this.unit.pos.y;
         let ratio = (Math.abs(this.unit.target.x-this.unit.pos.x)/Math.abs(this.unit.target.y-this.unit.pos.y));
-        let movementMul = 150;
+        let movementMul = 1;
         let xMovementSpeed = movementMul*(ratio/(ratio+1));
         let yMovementSpeed = movementMul*(1/(ratio+1));
         if (this.unit.pos.x > this.unit.target.x){

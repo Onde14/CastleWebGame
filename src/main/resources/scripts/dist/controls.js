@@ -5,7 +5,7 @@ export class Controls {
 }
 export function selecting(x, y, units) {
     console.log("Clicked [", x, ",", y, "]");
-    units.forEach((unit, id) => {
+    units?.forEach((unit, id) => {
         if (x >= unit.unit.pos.x - SoldierConfig.radius &&
             x <= unit.unit.pos.x + SoldierConfig.radius &&
             y >= unit.unit.pos.y - SoldierConfig.radius &&

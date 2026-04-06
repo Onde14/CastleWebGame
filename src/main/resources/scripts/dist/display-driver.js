@@ -1,5 +1,6 @@
-import { Soldier } from "./objects.js";
-import { SoldierConfig } from "./config.js";
+import { Soldier, Castle } from "./objects.js";
+import { SoldierConfig, CastleConfig } from "./config.js";
+import { Player } from "./gamestate.js";
 export class DisplayDriver {
     canvas;
     ctx;
@@ -15,31 +16,38 @@ export class DisplayDriver {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
     }
-    initdraw() {
-    }
-    draw(units) {
+    draw(players) {
         this.ctx.fillStyle = "green";
         this.ctx.fillRect(0, 0, this.gameWidth, this.gameHeight);
-        this.ctx.fillStyle = "gray";
-        this.ctx.fillRect(this.gameWidth / 2 - 25, 50, 50, 50);
-        this.ctx.fillStyle = "gray";
-        this.ctx.fillRect(this.gameWidth / 2 - 25, this.gameHeight - 100, 50, 50);
         this.ctx.fillStyle = "brown";
         this.ctx.fillRect(this.gameWidth / 2 - 5, 100, 10, this.gameHeight - 200);
         this.ctx.save();
         this.ctx.restore();
-        units.forEach((unit, key) => {
-            this.ctx.beginPath();
-            this.ctx.arc(unit.unit.pos.x, unit.unit.pos.y, SoldierConfig.radius, 0, Math.PI * 2);
-            this.ctx.closePath();
-            this.ctx.fillStyle = SoldierConfig.color;
-            this.ctx.fill();
-            this.ctx.save();
-            this.ctx.restore();
-        });
-    }
-    update(units) {
-        units.forEach((value, key) => {
+        players.forEach(player => {
+            player.castles.forEach((castle) => {
+                this.ctx.fillStyle = CastleConfig.color;
+                this.ctx.fillRect(castle.structure.pos.x - CastleConfig.width / 2, castle.structure.pos.y, castle.structure.width, castle.structure.height);
+                this.ctx.save();
+                this.ctx.fillStyle = castle.ownerColor;
+                this.ctx.fillRect(castle.structure.pos.x - CastleConfig.ownerColorWidth / 2, castle.structure.pos.y + CastleConfig.ownerColorHeight / 2, CastleConfig.ownerColorWidth, CastleConfig.ownerColorHeight);
+                this.ctx.save();
+                this.ctx.restore();
+            });
+            player.units.forEach((unit) => {
+                this.ctx.beginPath();
+                this.ctx.arc(unit.unit.pos.x, unit.unit.pos.y, SoldierConfig.radius, 0, Math.PI * 2);
+                this.ctx.closePath();
+                this.ctx.fillStyle = SoldierConfig.color;
+                this.ctx.fill();
+                this.ctx.save();
+                this.ctx.beginPath();
+                this.ctx.arc(unit.unit.pos.x, unit.unit.pos.y, SoldierConfig.ownerColorRadius, 0, Math.PI * 2);
+                this.ctx.closePath();
+                this.ctx.fillStyle = unit.ownerColor;
+                this.ctx.fill();
+                this.ctx.save();
+                this.ctx.restore();
+            });
         });
     }
 }

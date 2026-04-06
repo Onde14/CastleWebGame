@@ -5,9 +5,12 @@ enum GameSize {
     height = 1000,
 }
 
-export enum CastleSize {
-    width = 250,
-    height = 250,
+export enum CastleConfig {
+    width = 50,
+    height = 50,
+    color = "gray",
+    ownerColorWidth = 25,
+    ownerColorHeight = 25,
 }
 
 export enum SoldierConfig {
@@ -15,6 +18,7 @@ export enum SoldierConfig {
     height = 10,
     color = "black",
     radius = 15,
+    ownerColorRadius = 8,
 }
 
 export enum RoadSize {

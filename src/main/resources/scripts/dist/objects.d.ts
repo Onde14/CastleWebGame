@@ -20,7 +20,9 @@ declare class Unit {
 export declare class Castle {
     structure: Structure;
     selected: boolean;
-    constructor(structure: Structure, posx: number, posy: number);
+    owner: number;
+    ownerColor: string;
+    constructor(posx: number, posy: number, owner: number, ownerColor: string);
     is_selected(): boolean;
     set_selected(b: boolean): void;
 }
@@ -32,7 +34,9 @@ export declare class Road {
 export declare class Soldier {
     unit: Unit;
     selected: boolean;
-    constructor(posx: number, posy: number);
+    owner: number;
+    ownerColor: string;
+    constructor(posx: number, posy: number, owner: number, ownerColor: string);
     is_selected(): boolean;
     select(b: boolean): void;
     give_target(x: number, y: number): void;

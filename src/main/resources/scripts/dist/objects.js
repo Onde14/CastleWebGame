@@ -1,5 +1,7 @@
-import { CastleSize, SoldierConfig } from "./config.js";
+import { CastleConfig, SoldierConfig } from "./config.js";
 import { Vector } from "./vector.js";
+class Object {
+}
 class Structure {
     id;
     type;
@@ -34,8 +36,12 @@ class Unit {
 export class Castle {
     structure;
     selected = false;
-    constructor(structure, posx, posy) {
-        this.structure = new Structure("castle", posx, posy, CastleSize.width, CastleSize.height);
+    owner;
+    ownerColor;
+    constructor(posx, posy, owner, ownerColor) {
+        this.structure = new Structure("castle", posx, posy, CastleConfig.width, CastleConfig.height);
+        this.owner = owner;
+        this.ownerColor = ownerColor;
     }
     is_selected() {
         return this.selected;
@@ -48,14 +54,18 @@ export class Road {
     structure;
     selected = false;
     constructor(posx, posy) {
-        this.structure = new Structure("road", posx, posy, CastleSize.width, CastleSize.height);
+        this.structure = new Structure("road", posx, posy, CastleConfig.width, CastleConfig.height);
     }
 }
 export class Soldier {
     unit;
     selected = false;
-    constructor(posx, posy) {
+    owner;
+    ownerColor;
+    constructor(posx, posy, owner, ownerColor) {
         this.unit = new Unit("soldier", posx, posy, SoldierConfig.width, SoldierConfig.height);
+        this.owner = owner;
+        this.ownerColor = ownerColor;
     }
     is_selected() {
         return this.selected;
@@ -72,7 +82,7 @@ export class Soldier {
         let newX = this.unit.pos.x;
         let newY = this.unit.pos.y;
         let ratio = (Math.abs(this.unit.target.x - this.unit.pos.x) / Math.abs(this.unit.target.y - this.unit.pos.y));
-        let movementMul = 150;
+        let movementMul = 1;
         let xMovementSpeed = movementMul * (ratio / (ratio + 1));
         let yMovementSpeed = movementMul * (1 / (ratio + 1));
         if (this.unit.pos.x > this.unit.target.x) {

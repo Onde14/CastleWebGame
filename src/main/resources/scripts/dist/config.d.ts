@@ -1,12 +1,16 @@
-export declare enum CastleSize {
-    width = 250,
-    height = 250
+export declare enum CastleConfig {
+    width = 50,
+    height = 50,
+    color = "gray",
+    ownerColorWidth = 25,
+    ownerColorHeight = 25
 }
 export declare enum SoldierConfig {
     width = 10,
     height = 10,
     color = "black",
-    radius = 15
+    radius = 15,
+    ownerColorRadius = 8
 }
 export declare enum RoadSize {
     width = 10

@@ -1,8 +1,9 @@
-import { Soldier, Castle, Road } from "./objects.js";
+import { Castle, Soldier } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
 import { RoadSize } from "./config.js";
 import { selecting } from "./controls.js";
+import { Gamestate, Player } from "./gamestate.js";
 let message = "Hello World!";
 console.log(message);
 const canvas = document.getElementById("canvas");
@@ -17,20 +18,22 @@ export class Game {
     gameWidth;
     gameHeight;
     displayDriver;
+    gameState;
     canvas;
     ctx;
-    units = new Map();
-    moving_units = new Array;
+    //units = new Map<number,Soldier>();
+    //moving_units = new Array<Soldier>;
     constructor() {
         this.canvas = document.getElementById("canvas");
         this.ctx = this.canvas.getContext("2d");
-        this.gameWidth = this.canvas.clientWidth;
-        this.gameHeight = this.canvas.clientHeight;
+        this.gameWidth = this.canvas.width;
+        this.gameHeight = this.canvas.height;
         this.displayDriver = new DisplayDriver(this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
+        this.gameState = new Gamestate(this.displayDriver, new Array);
         console.log("Game built");
         this.build_game();
-        this.init_event_listeners(this.canvas, this.units);
+        this.init_event_listeners(this.canvas, this.gameState);
     }
     road_build(start, end) {
         let road_height = Math.hypot((end.x - start.x), (end.y - start.y));
@@ -38,12 +41,13 @@ export class Game {
         this.ctx.fillStyle = "brown";
         this.ctx.fillRect(start.x, start.y, RoadSize.width, road_height);
     }
-    init_event_listeners(canvas, units) {
+    init_event_listeners(canvas, gameState) {
         canvas.addEventListener("mousedown", function (e) {
             let rect = canvas.getBoundingClientRect();
             let x = e.clientX - rect.left;
             let y = e.clientY - rect.top;
             console.log("Coordinate x: " + x, "Coordinate y: " + y);
+            const units = gameState.players.at(0)?.units;
             if (selecting(x, y, units)) {
                 console.log("Selected: ", true);
             }
@@ -55,17 +59,22 @@ export class Game {
             this.displayDriver.resize();
         });
     }
-    build_game() {
-        this.debug_give_move_command();
-    }
     found_goal(pos, target) {
         return (Math.abs(pos.x - target.x) < 0.5 && Math.abs(pos.y - target.y) < 0.5);
     }
-    debug_give_move_command() {
-        let soldier1 = new Soldier(500, 300);
-        soldier1.give_target(100, 100);
-        this.units.set(soldier1.unit.id, soldier1);
-        this.moving_units.push(soldier1);
+    build_game() {
+        let player1 = new Player(false, new Array, new Array, "blue");
+        let castle1 = new Castle(this.gameWidth / 2, this.gameHeight - 100, player1.id, player1.color);
+        player1.castles.push(castle1);
+        let soldier1 = new Soldier(this.gameWidth / 2, this.gameHeight / 2, player1.id, player1.color);
+        player1.units.push(soldier1);
+        this.gameState.players.push(player1);
+        let player2 = new Player(true, new Array, new Array, "red");
+        let castle2 = new Castle(this.gameWidth / 2, 50, player2.id, player2.color);
+        player2.castles.push(castle2);
+        this.gameState.players.push(player2);
+        let soldierx = player1.units.at(0);
+        soldierx.give_target(100, 100);
         /*let soldier2 = new Soldier(800,250);
         soldier2.give_target(462,132);
         this.units.set(soldier2.unit.id, soldier2);
@@ -87,27 +96,20 @@ export class Game {
     
          */
     }
-    move_commands() {
-        this.moving_units.forEach((unit, i) => {
-            if (unit.has_found_target()) {
-                console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y, "]");
-                delete this.moving_units[i];
-            }
-            else {
-                //console.log("Moving Unit", unit.unit.id, " from [", unit.unit.pos.x, ",", unit.unit.pos.y, "] to [", unit.unit.target.x, ",", unit.unit.target.y,"]")
-                let order = unit.move_to_target();
-                unit.unit.pos.x = order.x;
-                unit.unit.pos.y = order.y;
-            }
-        });
+    debug_print() {
+        console.log(this.gameState.players);
     }
     run() {
+        this.debug_print();
         this.draw(0);
     }
     draw(t) {
         //console.log(this.canvas);
-        this.move_commands();
-        this.displayDriver.draw(this.units);
+        this.gameState.update();
+        this.gameState.players.forEach(player => {
+            //console.log(player);
+            this.displayDriver.draw(this.gameState.players);
+        });
         window.requestAnimationFrame(t => {
             this.draw(t);
         });

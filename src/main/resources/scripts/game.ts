@@ -1,8 +1,9 @@
-import { Soldier, Castle, Road } from "./objects.js";
-import { DisplayDriver } from "./display-driver.js";
-import { Vector } from "./vector.js";
-import { RoadSize } from "./config.js";
-import { selecting } from "./controls.js";
+import {Castle, Soldier} from "./objects.js";
+import {DisplayDriver} from "./display-driver.js";
+import {Vector} from "./vector.js";
+import {RoadSize} from "./config.js";
+import {selecting} from "./controls.js";
+import {Gamestate, Player} from "./gamestate.js";
 
 let message = "Hello World!";
 console.log(message);
@@ -24,21 +25,22 @@ export class Game {
   gameWidth: number;
   gameHeight: number;
   displayDriver: DisplayDriver;
+  gameState: Gamestate;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  units = new Map<number,Soldier>();
-  moving_units = new Array<Soldier>;
+  //units = new Map<number,Soldier>();
+  //moving_units = new Array<Soldier>;
   constructor() {
-
     this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
-    this.gameWidth = this.canvas.clientWidth;
-    this.gameHeight = this.canvas.clientHeight;
+    this.gameWidth = this.canvas.width;
+    this.gameHeight = this.canvas.height;
     this.displayDriver = new DisplayDriver(this.canvas,this.ctx,this.gameWidth,this.gameHeight);
     this.displayDriver.resize();
+    this.gameState = new Gamestate(this.displayDriver,new Array<Player>);
     console.log("Game built");
     this.build_game();
-    this.init_event_listeners(this.canvas,this.units);
+    this.init_event_listeners(this.canvas,this.gameState);
   }
 
   road_build(start: Vector, end: Vector){
@@ -50,12 +52,13 @@ export class Game {
 
 
 
-  init_event_listeners(canvas: HTMLCanvasElement, units: Map<number,Soldier>){
+  init_event_listeners(canvas: HTMLCanvasElement, gameState: Gamestate){
     canvas.addEventListener("mousedown", function (e) {
       let rect = canvas.getBoundingClientRect();
       let x = e.clientX - rect.left;
       let y = e.clientY - rect.top;
       console.log("Coordinate x: " + x, "Coordinate y: " + y);
+      const units = <Soldier[]>gameState.players.at(0)?.units;
       if (selecting(x,y,units)){
         console.log("Selected: ", true);
       } else {
@@ -67,19 +70,31 @@ export class Game {
     });
   }
 
-  private build_game(){
-    this.debug_give_move_command();
-  }
-
   found_goal(pos: Vector,target: Vector){
     return (Math.abs(pos.x-target.x) < 0.5 && Math.abs(pos.y-target.y) < 0.5);
   }
 
-  debug_give_move_command(){
-    let soldier1 = new Soldier(500,300);
-    soldier1.give_target(100,100);
-    this.units.set(soldier1.unit.id, soldier1);
-    this.moving_units.push(soldier1);
+  private build_game(){
+    let player1 = new Player(false,new Array<Soldier>,new Array<Castle>,"blue");
+    let castle1 = new Castle(this.gameWidth/2,this.gameHeight-100,player1.id,player1.color);
+    player1.castles.push(castle1);
+    let soldier1 = new Soldier(this.gameWidth/2,this.gameHeight/2,player1.id,player1.color);
+    player1.units.push(soldier1);
+    this.gameState.players.push(player1);
+
+    let player2 = new Player(true,new Array<Soldier>,new Array<Castle>,"red");
+    let castle2 = new Castle(this.gameWidth/2,50,player2.id,player2.color);
+    player2.castles.push(castle2);
+    this.gameState.players.push(player2);
+
+
+
+    let soldierx: Soldier = <Soldier>player1.units.at(0);
+    soldierx.give_target(100,100);
+
+
+
+
     /*let soldier2 = new Soldier(800,250);
     soldier2.give_target(462,132);
     this.units.set(soldier2.unit.id, soldier2);
@@ -107,28 +122,22 @@ export class Game {
 
   }
 
-  public move_commands(){
-    this.moving_units.forEach((unit, i) => {
-      if (unit.has_found_target()){
-        console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y,"]");
-        delete this.moving_units[i];
-      } else {
-        //console.log("Moving Unit", unit.unit.id, " from [", unit.unit.pos.x, ",", unit.unit.pos.y, "] to [", unit.unit.target.x, ",", unit.unit.target.y,"]")
-        let order = unit.move_to_target();
-        unit.unit.pos.x = order.x;
-        unit.unit.pos.y = order.y;
-      }
-    });
+  private debug_print(){
+    console.log(this.gameState.players);
   }
 
   public run() {
+    this.debug_print();
     this.draw(0);
   }
 
   public draw(t: number) {
     //console.log(this.canvas);
-    this.move_commands();
-    this.displayDriver.draw(this.units);
+    this.gameState.update();
+    this.gameState.players.forEach(player => {
+      //console.log(player);
+      this.displayDriver.draw(this.gameState.players);
+    });
     window.requestAnimationFrame(t => {
       this.draw(t);
     });
