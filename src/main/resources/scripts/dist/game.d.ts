@@ -1,16 +1,19 @@
 import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
+import { Controls } from "./controls.js";
 import { Gamestate } from "./gamestate.js";
+import { EventHandler } from "./events.js";
 export declare class Game {
     gameWidth: number;
     gameHeight: number;
     displayDriver: DisplayDriver;
     gameState: Gamestate;
+    controls: Controls;
+    eventHandler: EventHandler;
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
     constructor();
     road_build(start: Vector, end: Vector): void;
-    init_event_listeners(canvas: HTMLCanvasElement, gameState: Gamestate): void;
     found_goal(pos: Vector, target: Vector): boolean;
     private build_game;
     private debug_print;

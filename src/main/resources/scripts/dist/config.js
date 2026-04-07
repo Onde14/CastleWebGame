@@ -19,10 +19,10 @@ export var SoldierConfig;
     SoldierConfig[SoldierConfig["radius"] = 15] = "radius";
     SoldierConfig[SoldierConfig["ownerColorRadius"] = 8] = "ownerColorRadius";
 })(SoldierConfig || (SoldierConfig = {}));
-export var RoadSize;
-(function (RoadSize) {
-    RoadSize[RoadSize["width"] = 10] = "width";
-})(RoadSize || (RoadSize = {}));
+export var RoadConfig;
+(function (RoadConfig) {
+    RoadConfig[RoadConfig["width"] = 10] = "width";
+})(RoadConfig || (RoadConfig = {}));
 export var VillageSize;
 (function (VillageSize) {
     VillageSize[VillageSize["width"] = 150] = "width";

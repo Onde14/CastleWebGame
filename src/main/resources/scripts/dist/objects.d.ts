@@ -1,46 +1,45 @@
 import { Vector } from "./vector.js";
-declare class Structure {
+declare class GameObject {
+    movable: boolean;
+    selectable: boolean;
+    constructor(movable: boolean, selectable: boolean);
+}
+declare class Structure extends GameObject {
     id: number;
     type: string;
     pos: Vector;
     width: number;
     height: number;
-    constructor(type: string, posx: number, posy: number, width: number, height: number);
+    constructor(selectable: boolean, type: string, pos: Vector, width: number, height: number);
 }
-declare class Unit {
+declare class Unit extends GameObject {
     id: number;
     type: string;
     pos: Vector;
     width: number;
     height: number;
     target: Vector;
-    is_moving: boolean;
-    constructor(type: string, posx: number, posy: number, width: number, height: number);
+    moving: boolean;
+    constructor(movable: boolean, type: string, pos: Vector, width: number, height: number);
 }
-export declare class Castle {
-    structure: Structure;
+export declare class Castle extends Structure {
     selected: boolean;
+    targeted: boolean;
     owner: number;
     ownerColor: string;
-    constructor(posx: number, posy: number, owner: number, ownerColor: string);
-    is_selected(): boolean;
-    set_selected(b: boolean): void;
+    highlighted: boolean;
+    constructor(pos: Vector, owner: number, ownerColor: string);
 }
-export declare class Road {
-    structure: Structure;
+export declare class Road extends Structure {
     selected: boolean;
-    constructor(posx: number, posy: number);
+    constructor(pos: Vector, height: number);
 }
-export declare class Soldier {
-    unit: Unit;
-    selected: boolean;
+export declare class Soldier extends Unit {
     owner: number;
     ownerColor: string;
-    constructor(posx: number, posy: number, owner: number, ownerColor: string);
-    is_selected(): boolean;
-    select(b: boolean): void;
-    give_target(x: number, y: number): void;
-    move_to_target(): Vector;
+    constructor(pos: Vector, owner: number, ownerColor: string);
+    give_target(target: Vector): void;
+    move_to_target(): void;
     has_found_target(): boolean;
 }
 export {};

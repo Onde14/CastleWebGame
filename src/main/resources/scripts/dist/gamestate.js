@@ -17,25 +17,42 @@ export class Player {
 export class Gamestate {
     displayDriver;
     players;
-    constructor(displayDriver, players) {
+    currentPlayerId;
+    constructor(displayDriver, players, currentPlayerId) {
         this.displayDriver = displayDriver;
         this.players = players;
+        this.currentPlayerId = currentPlayerId;
+    }
+    create_attack(orders) {
+        console.log(1);
+        const target = orders.at(0);
+        console.log(2);
+        // @ts-ignore
+        const selected = orders.slice(1, orders.length);
+        const ownerPlayer = this.players.find(player => player.id == this.currentPlayerId);
+        console.log(selected);
+        selected.forEach((castle) => {
+            let new_soldier = new Soldier(castle.pos, castle.owner, castle.ownerColor);
+            console.log("OWNER: ", ownerPlayer);
+            ownerPlayer?.units.push(new_soldier);
+            new_soldier.give_target(target);
+        });
+        console.log(ownerPlayer);
     }
     update() {
         this.move_commands();
     }
     move_commands() {
         this.players.forEach((player) => {
-            player.units?.forEach((unit, i) => {
+            let moving_units = player.units?.filter((unit) => unit.moving == true);
+            moving_units.forEach((unit, i) => {
                 if (unit.has_found_target()) {
-                    console.log("Unit", unit.unit.id, " reached target [", unit.unit.pos.x, ",", unit.unit.pos.y, "]");
-                    ;
+                    console.log("Unit", unit.id, " reached target [", unit.pos.x, ",", unit.pos.y, "]");
+                    unit.moving = false;
                 }
                 else {
                     //console.log("Moving Unit", unit.unit.id, " from [", unit.unit.pos.x, ",", unit.unit.pos.y, "] to [", unit.unit.target.x, ",", unit.unit.target.y,"]")
-                    let order = unit.move_to_target();
-                    unit.unit.pos.x = order.x;
-                    unit.unit.pos.y = order.y;
+                    unit.move_to_target();
                 }
             });
         });

@@ -1,11 +1,16 @@
-import { CastleConfig, SoldierConfig } from "./config.js"
+import { CastleConfig, SoldierConfig, RoadConfig } from "./config.js"
 import { Vector } from "./vector.js"
 
-class Object{
-
+class GameObject{
+    movable: boolean;
+    selectable: boolean;
+    constructor(movable: boolean, selectable: boolean) {
+        this.movable = movable;
+        this.selectable = selectable;
+    }
 }
 
-class Structure {
+class Structure extends GameObject{
     id: number;
     type: string;
     pos: Vector;
@@ -13,10 +18,11 @@ class Structure {
     height: number;
 
 
-    constructor(type: string, posx: number, posy: number, width: number, height: number) {
+    constructor(selectable: boolean, type: string, pos: Vector, width: number, height: number) {
+        super(false,selectable);
         this.id = Math.random();
         this.type = type;
-        this.pos = new Vector(posx,posy);
+        this.pos = pos;
         this.width = width;
         this.height = height;
 
@@ -25,19 +31,21 @@ class Structure {
 
 }
 
-class Unit {
+class Unit extends GameObject{
     id: number;
     type: string;
     pos: Vector;
     width: number;
     height: number;
     target: Vector;
-    is_moving = false;
+    moving = false;
 
-    constructor(type: string, posx: number, posy: number, width: number, height: number) {
+    constructor(movable: boolean, type: string, pos: Vector,
+                width: number, height: number) {
+        super(movable,false);
         this.id = Math.random();
         this.type = type;
-        this.pos = new Vector(posx,posy);
+        this.pos = pos;
         this.width = width;
         this.height = height;
         this.target = new Vector(0,0);
@@ -45,80 +53,61 @@ class Unit {
 
 }
 
-export class Castle {
-    structure: Structure;
+export class Castle extends Structure{
     selected = false;
+    targeted = false;
     owner: number;
     ownerColor: string;
+    highlighted = false;
 
-    constructor(posx: number, posy: number, owner: number, ownerColor: string) {
-        this.structure = new Structure("castle", posx, posy, CastleConfig.width, CastleConfig.height);
+    constructor(pos: Vector, owner: number, ownerColor: string) {
+        super(true,"castle", pos, CastleConfig.width, CastleConfig.height);
         this.owner = owner;
         this.ownerColor = ownerColor;
     }
-
-    is_selected(){
-        return this.selected;
-    }
-
-    set_selected(b: boolean){
-        this.selected = b;
-    }
 }
 
-export class Road {
-    structure: Structure;
+export class Road extends Structure {
     selected = false;
-
-    constructor(posx: number, posy: number) {
-        this.structure = new Structure("road", posx, posy, CastleConfig.width, CastleConfig.height);
+    constructor(pos: Vector, height: number) {
+        super(false,"road",pos,RoadConfig.width,height);
     }
 }
 
 
-export class Soldier {
-    unit: Unit;
-    selected = false;
+export class Soldier extends Unit {
     owner: number;
     ownerColor: string;
-    constructor(posx: number, posy: number, owner: number, ownerColor: string) {
-        this.unit = new Unit("soldier", posx, posy, SoldierConfig.width, SoldierConfig.height);
+    constructor(pos: Vector, owner: number, ownerColor: string) {
+        super(true, "soldier", pos, SoldierConfig.width, SoldierConfig.height);
         this.owner = owner;
         this.ownerColor = ownerColor;
-
-    }
-    public is_selected(){
-        return this.selected;
     }
 
-    public select(b: boolean){
-        this.selected = b;
-    }
-
-    public give_target(x: number, y: number){
-        this.unit.target.x = x;
-        this.unit.target.y = y;
-        this.unit.is_moving = true;
+    public give_target(target: Vector){
+        this.target = target;
+        this.moving = true;
     }
 
     public move_to_target(){
-        let newX = this.unit.pos.x;
-        let newY = this.unit.pos.y;
-        let ratio = (Math.abs(this.unit.target.x-this.unit.pos.x)/Math.abs(this.unit.target.y-this.unit.pos.y));
+        let newX = this.pos.x;
+        let newY = this.pos.y;
+        let ratio = (Math.abs(this.target.x-this.pos.x)/Math.abs(this.target.y-this.pos.y));
         let movementMul = 1;
         let xMovementSpeed = movementMul*(ratio/(ratio+1));
         let yMovementSpeed = movementMul*(1/(ratio+1));
-        if (this.unit.pos.x > this.unit.target.x){
-            newX = this.unit.pos.x-xMovementSpeed;
-        } else if (this.unit.pos.x < this.unit.target.x){
-            newX = this.unit.pos.x+xMovementSpeed;
+        if (this.pos.x > this.target.x){
+            newX = this.pos.x-xMovementSpeed;
+        } else if (this.pos.x < this.target.x){
+            newX = this.pos.x+xMovementSpeed;
         }
-        if (this.unit.pos.y > this.unit.target.y){
-            newY = this.unit.pos.y-yMovementSpeed;
-        } else if (this.unit.pos.y < this.unit.target.y){
+        if (this.pos.y > this.target.y){
+            newY = this.pos.y-yMovementSpeed;
+        } else if (this.pos.y < this.target.y){
 
-            newY = this.unit.pos.y+yMovementSpeed;
+            newY = this.pos.y+yMovementSpeed;
         }
+        /*
         console.log("this.unit.target.x = ", this.unit.target.x);
         console.log("this.unit.pos.x = ", this.unit.pos.x);
         console.log("this.unit.target.y = ", this.unit.target.y);
@@ -134,14 +123,14 @@ export class Soldier {
         console.log("negate: ", newX-newY);
 
 
-
-
-        return new Vector(newX,newY);
+         */
+        this.pos = new Vector(newX,newY);
     }
 
     public has_found_target(){
-        if (Math.abs(this.unit.pos.x-this.unit.target.x) < 0.5 && Math.abs(this.unit.pos.y-this.unit.target.y) < 0.5){
-            this.unit.is_moving = false;
+        console.log()
+        if (Math.abs(this.pos.x-this.target.x) < 0.5 && Math.abs(this.pos.y-this.target.y) < 0.5){
+            this.moving = false;
             return true;
         } else {
             return false;

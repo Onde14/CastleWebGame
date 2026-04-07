@@ -1,5 +1,6 @@
 import { Soldier, Castle } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
+import type { Vector } from "./vector.js";
 export declare class Player {
     id: number;
     ai: boolean;
@@ -11,7 +12,9 @@ export declare class Player {
 export declare class Gamestate {
     displayDriver: DisplayDriver;
     players: Array<Player>;
-    constructor(displayDriver: DisplayDriver, players: Array<Player>);
+    currentPlayerId: number;
+    constructor(displayDriver: DisplayDriver, players: Array<Player>, currentPlayerId: number);
+    create_attack(orders: Array<Castle | Vector>): void;
     update(): void;
     private move_commands;
 }

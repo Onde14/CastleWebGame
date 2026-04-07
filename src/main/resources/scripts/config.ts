@@ -21,7 +21,7 @@ export enum SoldierConfig {
     ownerColorRadius = 8,
 }
 
-export enum RoadSize {
+export enum RoadConfig {
     width = 10,
 }
 

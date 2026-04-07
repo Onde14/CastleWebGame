@@ -1,9 +1,10 @@
 import {Castle, Soldier} from "./objects.js";
 import {DisplayDriver} from "./display-driver.js";
 import {Vector} from "./vector.js";
-import {RoadSize} from "./config.js";
-import {selecting} from "./controls.js";
+import {RoadConfig, CastleConfig} from "./config.js";
+import {Controls} from "./controls.js";
 import {Gamestate, Player} from "./gamestate.js";
+import {EventHandler} from "./events.js";
 
 let message = "Hello World!";
 console.log(message);
@@ -26,6 +27,8 @@ export class Game {
   gameHeight: number;
   displayDriver: DisplayDriver;
   gameState: Gamestate;
+  controls: Controls;
+  eventHandler: EventHandler;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   //units = new Map<number,Soldier>();
@@ -37,38 +40,24 @@ export class Game {
     this.gameHeight = this.canvas.height;
     this.displayDriver = new DisplayDriver(this.canvas,this.ctx,this.gameWidth,this.gameHeight);
     this.displayDriver.resize();
-    this.gameState = new Gamestate(this.displayDriver,new Array<Player>);
+    this.gameState = new Gamestate(this.displayDriver,new Array<Player>,0);
+    this.controls = new Controls();
     console.log("Game built");
     this.build_game();
-    this.init_event_listeners(this.canvas,this.gameState);
+    this.eventHandler = new EventHandler(this.canvas,this.gameState,this.controls,this.displayDriver);
+    this.eventHandler.event_handling();
   }
 
   road_build(start: Vector, end: Vector){
     let road_height = Math.hypot((end.x-start.x),(end.y-start.y));
     let road_rotation = Math.atan2((end.y-start.y),(end.x-start.x));
     this.ctx.fillStyle = "brown";
-    this.ctx.fillRect(start.x,start.y,RoadSize.width,road_height);
+    this.ctx.fillRect(start.x,start.y,RoadConfig.width,road_height);
   }
 
 
 
-  init_event_listeners(canvas: HTMLCanvasElement, gameState: Gamestate){
-    canvas.addEventListener("mousedown", function (e) {
-      let rect = canvas.getBoundingClientRect();
-      let x = e.clientX - rect.left;
-      let y = e.clientY - rect.top;
-      console.log("Coordinate x: " + x, "Coordinate y: " + y);
-      const units = <Soldier[]>gameState.players.at(0)?.units;
-      if (selecting(x,y,units)){
-        console.log("Selected: ", true);
-      } else {
-        console.log("Selected: ", false);
-      }
-    });
-    window.addEventListener("resize", () => {
-      this.displayDriver.resize();
-    });
-  }
+
 
   found_goal(pos: Vector,target: Vector){
     return (Math.abs(pos.x-target.x) < 0.5 && Math.abs(pos.y-target.y) < 0.5);
@@ -76,21 +65,25 @@ export class Game {
 
   private build_game(){
     let player1 = new Player(false,new Array<Soldier>,new Array<Castle>,"blue");
-    let castle1 = new Castle(this.gameWidth/2,this.gameHeight-100,player1.id,player1.color);
+    let castle1 = new Castle(new Vector(this.gameWidth/2,this.gameHeight-100+CastleConfig.height/2),
+        player1.id,player1.color);
+    console.log("Castle info: ", castle1.pos.x, ",", castle1.pos.y);
     player1.castles.push(castle1);
-    let soldier1 = new Soldier(this.gameWidth/2,this.gameHeight/2,player1.id,player1.color);
+    let soldier1 = new Soldier(new Vector(this.gameWidth/2,this.gameHeight/2),player1.id,player1.color);
     player1.units.push(soldier1);
+    this.gameState.currentPlayerId = player1.id;
     this.gameState.players.push(player1);
 
     let player2 = new Player(true,new Array<Soldier>,new Array<Castle>,"red");
-    let castle2 = new Castle(this.gameWidth/2,50,player2.id,player2.color);
+    let castle2 = new Castle(new Vector(this.gameWidth/2,50),player2.id,player2.color);
     player2.castles.push(castle2);
     this.gameState.players.push(player2);
 
 
 
     let soldierx: Soldier = <Soldier>player1.units.at(0);
-    soldierx.give_target(100,100);
+    soldierx.give_target(new Vector(100,100));
+
 
 
 

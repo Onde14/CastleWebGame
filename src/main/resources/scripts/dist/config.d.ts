@@ -12,7 +12,7 @@ export declare enum SoldierConfig {
     radius = 15,
     ownerColorRadius = 8
 }
-export declare enum RoadSize {
+export declare enum RoadConfig {
     width = 10
 }
 export declare enum VillageSize {
