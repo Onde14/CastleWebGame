@@ -3,8 +3,26 @@ package server
 import zio._
 import zio.http._
 import zio.http.template2._
+import zio.http.ChannelEvent.{ExceptionCaught, Read, UserEvent, UserEventTriggered}
+import server.GameState
 
 object MainApp extends ZIOAppDefault {
+
+
+  val socketApp: WebSocketApp[Any] =
+    Handler.webSocket { channel =>
+      channel.receiveAll {
+        case Read(WebSocketFrame.Text(text)) =>
+          // Echo the message back or process it
+          channel.send(Read(WebSocketFrame.Text(s"Server received: $text")))
+
+        case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
+          ZIO.logInfo("WebSocket connection established!")
+
+        case _ =>
+          ZIO.unit
+      }
+    }
 
   //
   // Application HTML-Layout
@@ -28,12 +46,6 @@ object MainApp extends ZIOAppDefault {
     )
 
 
- /* val staticRoutes =
-    Method.GET / "assets" / trailing -> handler {
-      Routes.empty @@ Middleware.serveResources(Path.empty / "assets")
-    }
-  */
-
   val helloRoute =
     Method.GET / "hello" ->
       handler(Response.text("Hello, World!"))
@@ -41,65 +53,12 @@ object MainApp extends ZIOAppDefault {
   val htmlRoute =
     Method.GET / Root -> handler{(req: Request) =>
       Response.html(gamePage)}
-/*
-  val staticRoutes =
-    Method.GET / "scripts" / "dist" -> handler(Handler.serveResources())
 
-  val jsRoute =
-    Method.GET / "scripts" / "dist" / file -> handler(Handler.fromResource(s"scripts/dist/$file").orElse(Handler.notFound))
-
-val jsRoute =
-    Method.GET / "scripts" / "dist" / ".js" -> handler(
-      Handler.fromResource(file).orElse(Handler.notFound)
-    )
-
-
-  val jsMapRoute =
-    Method.GET / "scripts" / "dist" / "client.js.map" -> handler(Handler.fromResource("scripts/dist/client.js.map").orElse(Handler.notFound))
-
-    handler {
-      val extractPath    = Handler.param[(Path, Request)](_._1)
-      val extractRequest = Handler.param[(Path, Request)](_._2)
-      println(s"path: ${extractPath} and request: ${extractRequest}")
-
-
-  val jsRoute = Routes(
-    Method.GET / "scripts" / ++ -> Handler.fromResource("")
-  )
-
-
-
-  //val emptyRoute =
-    //Method.GET / Path.empty -> handler {(req: Request) => console.printLine(req.body)}
-
-  val echoRoute =
-    Method.POST / "echo" ->
-      handler { (req: Request) => req.body.asString(Charsets.Utf8).map(Response.text(_)).orDie }
-
-  val routes =
-    Routes(htmlRoutes,
-          //staticRoutes,
-          //jsMapRoute,
-          helloRoute,
-          echoRoute,
-
-    )  @@ Middleware.debug
-
-
-  // Start your server
-  // Serving the routes using the default server layer on port 8080
-  //
-  //
-  val routes = Routes(
-    Method.GET / "scripts" / "dist" / trailing -> handler {
-     (path: Path, request: Request) =>
-      Handler.fromResource(s"scripts/dist/$path").apply(request)
-    }
-  )
-  */
+  val socketResponseRoute =
+      Method.GET / "ws" -> handler(socketApp.toResponse)
 
   val app =
-    Routes(helloRoute,htmlRoute) @@
+    Routes(helloRoute,htmlRoute,socketResponseRoute) @@
     Middleware.serveResources(path = Path.empty / "scripts" / "dist", resourcePrefix = "scripts/dist") @@
     Middleware.serveResources(path = Path.empty / "scripts" , resourcePrefix = "scripts") @@
     Middleware.serveResources(path = Path.empty / "styles", resourcePrefix = "styles") @@
@@ -109,9 +68,13 @@ val jsRoute =
     val cl = getClass.getClassLoader
     val url = cl.getResource("scripts/dist")
     val url2 = cl.getResource("scripts/dist/client.js")
+    val gameState: GameState = GameState()
+    println("Is game Started: " + gameState.isGameStarted)
+    gameState.changeGameStarted()
+    println("Is game Started: " + gameState.isGameStarted)
+
 
     Console.printLine(s"static folder found at: $url") *>
-    Console.printLine(s"client.js found at: $url2") *>
     //val testpath = Root / "scripts"
     //println("ROOT STRINGIKSI: " + script.inlineResource("scripts/dist/client.js"))
     Server.serve(app).provide(Server.default)

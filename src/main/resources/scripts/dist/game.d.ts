@@ -3,12 +3,14 @@ import { Vector } from "./vector.js";
 import { Controls } from "./controls.js";
 import { Gamestate } from "./gamestate.js";
 import { EventHandler } from "./events.js";
+import { WebSocketDriver } from "./websocket.js";
 export declare class Game {
     gameWidth: number;
     gameHeight: number;
     displayDriver: DisplayDriver;
     gameState: Gamestate;
     controls: Controls;
+    webSocketDriver: WebSocketDriver;
     eventHandler: EventHandler;
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;

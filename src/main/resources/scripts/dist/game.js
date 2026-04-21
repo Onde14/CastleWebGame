@@ -5,6 +5,7 @@ import { RoadConfig, CastleConfig } from "./config.js";
 import { Controls } from "./controls.js";
 import { Gamestate, Player } from "./gamestate.js";
 import { EventHandler } from "./events.js";
+import { WebSocketDriver } from "./websocket.js";
 let message = "Hello World!";
 console.log(message);
 const canvas = document.getElementById("canvas");
@@ -21,6 +22,7 @@ export class Game {
     displayDriver;
     gameState;
     controls;
+    webSocketDriver;
     eventHandler;
     canvas;
     ctx;
@@ -33,24 +35,25 @@ export class Game {
         this.gameHeight = this.canvas.height;
         this.displayDriver = new DisplayDriver(this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
-        this.gameState = new Gamestate(this.displayDriver, new Array, 0);
+        this.gameState = new Gamestate(this.displayDriver, new Array(), 0);
         this.controls = new Controls();
         console.log("Game built");
         this.build_game();
         this.eventHandler = new EventHandler(this.canvas, this.gameState, this.controls, this.displayDriver);
         this.eventHandler.event_handling();
+        this.webSocketDriver = new WebSocketDriver();
     }
     road_build(start, end) {
-        let road_height = Math.hypot((end.x - start.x), (end.y - start.y));
-        let road_rotation = Math.atan2((end.y - start.y), (end.x - start.x));
+        let road_height = Math.hypot(end.x - start.x, end.y - start.y);
+        let road_rotation = Math.atan2(end.y - start.y, end.x - start.x);
         this.ctx.fillStyle = "brown";
         this.ctx.fillRect(start.x, start.y, RoadConfig.width, road_height);
     }
     found_goal(pos, target) {
-        return (Math.abs(pos.x - target.x) < 0.5 && Math.abs(pos.y - target.y) < 0.5);
+        return Math.abs(pos.x - target.x) < 0.5 && Math.abs(pos.y - target.y) < 0.5;
     }
     build_game() {
-        let player1 = new Player(false, new Array, new Array, "blue");
+        let player1 = new Player(false, new Array(), new Array(), "blue");
         let castle1 = new Castle(new Vector(this.gameWidth / 2, this.gameHeight - 100 + CastleConfig.height / 2), player1.id, player1.color);
         console.log("Castle info: ", castle1.pos.x, ",", castle1.pos.y);
         player1.castles.push(castle1);
@@ -58,7 +61,7 @@ export class Game {
         player1.units.push(soldier1);
         this.gameState.currentPlayerId = player1.id;
         this.gameState.players.push(player1);
-        let player2 = new Player(true, new Array, new Array, "red");
+        let player2 = new Player(true, new Array(), new Array(), "red");
         let castle2 = new Castle(new Vector(this.gameWidth / 2, 50), player2.id, player2.color);
         player2.castles.push(castle2);
         this.gameState.players.push(player2);
@@ -95,11 +98,11 @@ export class Game {
     draw(t) {
         //console.log(this.canvas);
         this.gameState.update();
-        this.gameState.players.forEach(player => {
+        this.gameState.players.forEach((player) => {
             //console.log(player);
             this.displayDriver.draw(this.gameState.players);
         });
-        window.requestAnimationFrame(t => {
+        window.requestAnimationFrame((t) => {
             this.draw(t);
         });
     }
