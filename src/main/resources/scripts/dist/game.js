@@ -35,13 +35,13 @@ export class Game {
         this.gameHeight = this.canvas.height;
         this.displayDriver = new DisplayDriver(this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
+        this.webSocketDriver = new WebSocketDriver();
         this.gameState = new Gamestate(this.displayDriver, new Array(), 0);
         this.controls = new Controls();
         console.log("Game built");
         this.build_game();
-        this.eventHandler = new EventHandler(this.canvas, this.gameState, this.controls, this.displayDriver);
+        this.eventHandler = new EventHandler(this.canvas, this.gameState, this.controls, this.displayDriver, this.webSocketDriver);
         this.eventHandler.event_handling();
-        this.webSocketDriver = new WebSocketDriver();
     }
     road_build(start, end) {
         let road_height = Math.hypot(end.x - start.x, end.y - start.y);

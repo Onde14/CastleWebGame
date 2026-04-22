@@ -29,7 +29,7 @@ export class Gamestate {
         console.log(2);
         // @ts-ignore
         const selected = orders.slice(1, orders.length);
-        const ownerPlayer = this.players.find(player => player.id == this.currentPlayerId);
+        const ownerPlayer = this.players.find((player) => player.id == this.currentPlayerId);
         console.log(selected);
         selected.forEach((castle) => {
             let new_soldier = new Soldier(castle.pos, castle.owner, castle.ownerColor);

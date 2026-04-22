@@ -46,6 +46,7 @@ export class Game {
       this.gameHeight,
     );
     this.displayDriver.resize();
+    this.webSocketDriver = new WebSocketDriver();
     this.gameState = new Gamestate(this.displayDriver, new Array<Player>(), 0);
     this.controls = new Controls();
     console.log("Game built");
@@ -55,9 +56,9 @@ export class Game {
       this.gameState,
       this.controls,
       this.displayDriver,
+      this.webSocketDriver,
     );
     this.eventHandler.event_handling();
-    this.webSocketDriver = new WebSocketDriver();
   }
 
   road_build(start: Vector, end: Vector) {

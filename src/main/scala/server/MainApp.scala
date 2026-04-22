@@ -8,15 +8,22 @@ import server.GameState
 
 object MainApp extends ZIOAppDefault {
 
+  val gameState: GameState = GameState()
+  gameState.changeGameStarted()
+  println("Is game Started: " + gameState.isGameStarted)
+  gameState.buildGameState()
 
   val socketApp: WebSocketApp[Any] =
     Handler.webSocket { channel =>
       channel.receiveAll {
         case Read(WebSocketFrame.Text(text)) =>
           // Echo the message back or process it
-          channel.send(Read(WebSocketFrame.Text(s"Server received: $text")))
+          ZIO.logInfo("ATTACK")
+          gameState.testOrdersAdd()
+          channel.send(Read(WebSocketFrame.Text(s"Server received: $text, ${gameState.testGetOrders()}")))
 
         case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
+          gameState.testOrdersReset()
           ZIO.logInfo("WebSocket connection established!")
 
         case _ =>
@@ -68,10 +75,6 @@ object MainApp extends ZIOAppDefault {
     val cl = getClass.getClassLoader
     val url = cl.getResource("scripts/dist")
     val url2 = cl.getResource("scripts/dist/client.js")
-    val gameState: GameState = GameState()
-    println("Is game Started: " + gameState.isGameStarted)
-    gameState.changeGameStarted()
-    println("Is game Started: " + gameState.isGameStarted)
 
 
     Console.printLine(s"static folder found at: $url") *>
