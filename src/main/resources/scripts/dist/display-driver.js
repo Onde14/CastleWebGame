@@ -16,14 +16,19 @@ export class DisplayDriver {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
     }
-    draw(players) {
+    draw(players, currentplayerId) {
         this.ctx.fillStyle = "green";
         this.ctx.fillRect(0, 0, this.gameWidth, this.gameHeight);
         this.ctx.fillStyle = "brown";
         this.ctx.fillRect(this.gameWidth / 2 - 5, 75, 10, this.gameHeight - 175);
         this.ctx.save();
         this.ctx.restore();
-        players.forEach(player => {
+        players.forEach((player) => {
+            if (player.id == currentplayerId) {
+                this.ctx.font = "48px serif";
+                this.ctx.fillStyle = player.color;
+                this.ctx.fillText(player.color, 50, 50);
+            }
             player.units.forEach((unit) => {
                 this.ctx.beginPath();
                 this.ctx.arc(unit.pos.x, unit.pos.y, SoldierConfig.radius, 0, Math.PI * 2);

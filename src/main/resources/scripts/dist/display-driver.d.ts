@@ -6,6 +6,6 @@ export declare class DisplayDriver {
     gameHeight: number;
     constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, gameWidth: number, gameHeight: number);
     resize(): void;
-    draw(players: Array<Player>): void;
+    draw(players: Array<Player>, currentplayerId: number): void;
 }
 //# sourceMappingURL=display-driver.d.ts.map

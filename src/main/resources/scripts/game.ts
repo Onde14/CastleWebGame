@@ -151,7 +151,10 @@ export class Game {
     this.gameState.update();
     this.gameState.players.forEach((player) => {
       //console.log(player);
-      this.displayDriver.draw(this.gameState.players);
+      this.displayDriver.draw(
+        this.gameState.players,
+        this.gameState.currentPlayerId,
+      );
     });
     window.requestAnimationFrame((t) => {
       this.draw(t);
