@@ -2,6 +2,12 @@ enum ClientMessage {
   openConnection = 1,
 }
 
+type ResponseMessage = {
+  type: string;
+  id?: number;
+  color?: string;
+};
+
 export class WebSocketDriver {
   open = false;
   wsUri: string;
@@ -18,6 +24,8 @@ export class WebSocketDriver {
 
     this.webSocket.onmessage = (event) => {
       console.log("Message from server:", event.data);
+      const parserJson: ResponseMessage = JSON.parse(event.data);
+      console.log("TEST: ", parserJson);
     };
 
     this.webSocket.onclose = (event) => {

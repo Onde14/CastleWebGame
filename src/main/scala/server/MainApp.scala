@@ -4,7 +4,7 @@ import zio._
 import zio.http._
 import zio.http.template2._
 import zio.http.ChannelEvent.{ExceptionCaught, Read, UserEvent, UserEventTriggered}
-import server.GameState
+import server.*
 
 object MainApp extends ZIOAppDefault {
 
@@ -24,7 +24,10 @@ object MainApp extends ZIOAppDefault {
 
         case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
           gameState.testOrdersReset()
-          ZIO.logInfo("WebSocket connection established!")
+          val player = gameState.addPlayer()
+          println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
+          val response_json = s"""{"type": "PlayerData","id": ${player.id},"color": "${player.color}"}"""
+          channel.send(Read(WebSocketFrame.text(response_json)))
 
         case _ =>
           ZIO.unit
@@ -47,7 +50,7 @@ object MainApp extends ZIOAppDefault {
         meta(charset("utf-8"))
       ),
       body(
-          canvas(id("canvas"), width("500"), height("500")),
+          canvas(id("canvas"), width(gameState.getGameWidth()), height(gameState.getGameHeight())),
           script.externalModule("scripts/dist/game.js")
       )
     )
