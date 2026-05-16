@@ -7,6 +7,8 @@ import zio.http.ChannelEvent.{ExceptionCaught, Read, UserEvent, UserEventTrigger
 import server.*
 import java.util.UUID
 import zio.json.ast.Json
+import java.time.format.DateTimeFormatter
+import java.time.ZoneId
 
 
 
@@ -21,7 +23,53 @@ object MainApp extends ZIOAppDefault {
   println("Is game Started: " + gameState.isGameStarted)
   gameState.buildGameState()
 
-  val hubLayer = ZLayer.fromZIO(Hub.unbounded[String])
+  val hubLayer: ZLayer[Any, Nothing, Hub[String]] = ZLayer.fromZIO(Hub.unbounded[String])
+
+  val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault())
+
+  import zio._
+  import zio.http._
+  import zio.stream._
+
+
+
+  val webSocketHandle: WebSocketApp[Hub[String]] =
+    Handler.webSocket { channel =>
+      ZIO.scoped { // 💡 Creates a local scope for the lifetime of this connection
+        for {
+          hub   <- ZIO.service[Hub[String]]
+          queue <- hub.subscribe // ✅ Scope is now available locally!
+
+          // Outgoing: Hub -> client
+          outgoing = ZStream
+            .fromQueue(queue)
+            .map(WebSocketFrame.text)
+            .runForeach(frame => channel.send(Read(frame)))
+
+          // Incoming: client -> Hub
+          incoming = channel.receiveAll {
+            case Read(WebSocketFrame.Text(text)) =>
+              //val timeNow = Clock.instant
+              //val timeStamp = timeFormatter.format(timeNow)
+              //val response = "\n" + text
+              //hub.publish(response).unit
+              for {
+                now       <- Clock.instant // ⏱️ Safely fetch current time via ZIO Clock
+                timestamp = timeFormatter.format(now)
+                _         <- hub.publish(s"[$timestamp] $text")
+              } yield ()
+            case _ =>
+              ZIO.unit
+          }
+
+          // Run both concurrently. When this ends, ZIO.scoped closes and unsubscribes the queue.
+          _ <- outgoing zipPar incoming
+        } yield ()
+      }
+    }
+
+
+  /*
 
   val socketApp: ZIO[Hub[String], Nothing, WebSocketApp[Any]] =
     ZIO.service[Hub[String]].map { hub =>
@@ -33,9 +81,7 @@ object MainApp extends ZIOAppDefault {
 
             sendFiber <- queue.take
               .map(WebSocketFrame.text)
-              .forEachZIO { frame =>
-                channel.send(Read(frame)).catchAll(_ => ZIO.unit)
-              }
+              .forever(frame => channel.send(Read(frame)).ignore)
               .fork
 
             _ <- channel.receiveAll {
@@ -44,6 +90,7 @@ object MainApp extends ZIOAppDefault {
                 println("ATTACK")
                 gameState.testOrdersAdd()
                 val response_json = s"""{"type": "AttackOrder", "message": "$text, ${gameState.testGetOrders()}"}"""
+                hub.publish(response_json)
                 channel.send(Read(WebSocketFrame.text(response_json)))
 
               case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
@@ -71,6 +118,12 @@ object MainApp extends ZIOAppDefault {
         }
       }
     }
+
+
+
+  */
+
+
 
 
   //
@@ -107,41 +160,93 @@ object MainApp extends ZIOAppDefault {
     Routes(
       Method.GET / "ws" -> handler(app.toResponse)
     )
-  }*/
-  val wsRoutes: ZIO[Hub[String], Nothing, Routes[Any, Response]] =
-    socketApp.map { socket =>
-      Routes (
-        Method.GET / "ws" -> handler(socket.toResponse)
-      )
-    }
 
-  val otherRoutes =
-    Routes(helloRoute,htmlRoute) @@
+
+
+    val wsRoutes: ZIO[Hub[String], Nothing, Routes[Any, Response]] =
+      socketApp.map { socket =>
+        Routes (
+          Method.GET / "ws" -> handler(socket.toResponse)
+        )
+      }
+
+      val otherRoutes =
+        Routes(helloRoute,htmlRoute) @@
+        Middleware.serveResources(path = Path.empty / "scripts" / "dist", resourcePrefix = "scripts/dist") @@
+        Middleware.serveResources(path = Path.empty / "scripts" , resourcePrefix = "scripts") @@
+        Middleware.serveResources(path = Path.empty / "styles", resourcePrefix = "styles") @@
+        Middleware.debug
+
+
+      val app: ZIO[Hub[String], Nothing, Routes[Any, Response]] =
+        wsRoutes.map(ws => otherRoutes ++ ws)
+
+
+
+      val app: HttpApp[Hub[String]] =
+        Routes(
+          Method.GET / "ws" -> handler(socketApp)
+        )
+  }*/
+
+  val wsRoute: Route[Hub[String], Throwable] =
+    Method.GET / "ws" -> handler(webSocketHandle.toResponse)
+
+  val healthRoute: Route[Any, Nothing] =
+    Method.GET / "health" ->
+      handler(Response.text("OK"))
+
+  val routes =
+    Routes(
+      wsRoute,
+      healthRoute,
+      htmlRoute
+    ) @@
     Middleware.serveResources(path = Path.empty / "scripts" / "dist", resourcePrefix = "scripts/dist") @@
     Middleware.serveResources(path = Path.empty / "scripts" , resourcePrefix = "scripts") @@
     Middleware.serveResources(path = Path.empty / "styles", resourcePrefix = "styles") @@
     Middleware.debug
 
 
-  val app: ZIO[Hub[String], Nothing, Routes[Any, Response]] =
-    wsRoutes.map(ws => otherRoutes ++ ws)
 
 
 
 
 
-  override val run =
-    val cl = getClass.getClassLoader
-    val url = cl.getResource("scripts/dist")
-    val url2 = cl.getResource("scripts/dist/client.js")
 
 
 
-    Console.printLine(s"static folder found at: $url")
-    app.flatMap(Server.serve).provide(
-      Server.default,
-      hubLayer
-    )
+ /*
+
+ override val run =
+   val cl = getClass.getClassLoader
+   val url = cl.getResource("scripts/dist")
+   val url2 = cl.getResource("scripts/dist/client.js")
+
+
+
+   Console.printLine(s"static folder found at: $url")
+   app.flatMap(Server.serve).provide(
+     Server.default,
+     hubLayer
+   )
+
+ */
+
+
+
+ def run =
+   Server.serve(
+     routes.handleError(error =>
+       Response.internalServerError(s"An unhandled error occurred: ${error.getMessage}")
+     )
+   )
+   .provide(
+     Server.default,
+     hubLayer
+   )
+
+
     //val testpath = Root / "scripts"
     //println("ROOT STRINGIKSI: " + script.inlineResource("scripts/dist/client.js"))
     //

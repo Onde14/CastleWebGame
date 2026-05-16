@@ -15,6 +15,12 @@ export class WebSocketDriver {
         };
         this.webSocket.onmessage = (event) => {
             console.log("Message from server:", event.data);
+            //try {
+            const parserJson = JSON.parse(event.data);
+            console.log("TEST: ", parserJson);
+            //} catch (SyntaxError) {
+            //  console.log("Couldn't parse message!");
+            //}
         };
         this.webSocket.onclose = (event) => {
             console.log("Connection closed", event.reason);
