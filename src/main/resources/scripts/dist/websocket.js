@@ -1,26 +1,18 @@
-var ClientMessage;
-(function (ClientMessage) {
-    ClientMessage[ClientMessage["openConnection"] = 1] = "openConnection";
-})(ClientMessage || (ClientMessage = {}));
 export class WebSocketDriver {
     open = false;
     wsUri;
     webSocket;
-    constructor() {
+    messageHandler;
+    constructor(messageHandler) {
         this.wsUri = "ws://localhost:8080/ws";
         this.webSocket = new WebSocket(this.wsUri);
+        this.messageHandler = messageHandler;
         this.webSocket.onopen = (event) => {
             console.log("Connected to ZIO server!", event);
             this.sendMessage("Hello from TypeScript!");
         };
         this.webSocket.onmessage = (event) => {
-            console.log("Message from server:", event.data);
-            //try {
-            const parserJson = JSON.parse(event.data);
-            console.log("TEST: ", parserJson);
-            //} catch (SyntaxError) {
-            //  console.log("Couldn't parse message!");
-            //}
+            this.messageHandler.incoming(event.data);
         };
         this.webSocket.onclose = (event) => {
             console.log("Connection closed", event.reason);

@@ -1,21 +1,15 @@
-enum ClientMessage {
-  openConnection = 1,
-}
-
-type ResponseMessage = {
-  type: string;
-  id?: number;
-  color?: string;
-};
+import type { MessageHandler } from "./messagehandling";
 
 export class WebSocketDriver {
   open = false;
   wsUri: string;
   webSocket: WebSocket;
+  messageHandler: MessageHandler;
 
-  constructor() {
+  constructor(messageHandler: MessageHandler) {
     this.wsUri = "ws://localhost:8080/ws";
     this.webSocket = new WebSocket(this.wsUri);
+    this.messageHandler = messageHandler;
 
     this.webSocket.onopen = (event) => {
       console.log("Connected to ZIO server!", event);
@@ -23,13 +17,7 @@ export class WebSocketDriver {
     };
 
     this.webSocket.onmessage = (event) => {
-      console.log("Message from server:", event.data);
-      //try {
-      const parserJson: ResponseMessage = JSON.parse(event.data);
-      console.log("TEST: ", parserJson);
-      //} catch (SyntaxError) {
-      //  console.log("Couldn't parse message!");
-      //}
+      this.messageHandler.incoming(event.data);
     };
 
     this.webSocket.onclose = (event) => {

@@ -1,11 +1,8 @@
-import { Castle, Soldier } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
-import { RoadConfig, CastleConfig } from "./config.js";
 import { Controls } from "./controls.js";
 import { Gamestate, Player } from "./gamestate.js";
 import { EventHandler } from "./events.js";
-import { WebSocketDriver } from "./websocket.js";
 
 let message = "Hello World!";
 console.log(message);
@@ -27,7 +24,6 @@ export class Game {
   displayDriver: DisplayDriver;
   gameState: Gamestate;
   controls: Controls;
-  webSocketDriver: WebSocketDriver;
   eventHandler: EventHandler;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -46,33 +42,31 @@ export class Game {
       this.gameHeight,
     );
     this.displayDriver.resize();
-    this.webSocketDriver = new WebSocketDriver();
     this.gameState = new Gamestate(this.displayDriver, new Array<Player>(), 0);
     this.controls = new Controls();
     console.log("Game built");
-    this.build_game();
     this.eventHandler = new EventHandler(
       this.canvas,
       this.gameState,
       this.controls,
       this.displayDriver,
-      this.webSocketDriver,
     );
     this.eventHandler.event_handling();
   }
 
-  road_build(start: Vector, end: Vector) {
+  /*road_build(start: Vector, end: Vector) {
     let road_height = Math.hypot(end.x - start.x, end.y - start.y);
     let road_rotation = Math.atan2(end.y - start.y, end.x - start.x);
     this.ctx.fillStyle = "brown";
     this.ctx.fillRect(start.x, start.y, RoadConfig.width, road_height);
   }
+  */
 
   found_goal(pos: Vector, target: Vector) {
     return Math.abs(pos.x - target.x) < 0.5 && Math.abs(pos.y - target.y) < 0.5;
   }
 
-  private build_game() {
+  /*private build_game() {
     let player1 = new Player(
       false,
       new Array<Soldier>(),
@@ -115,7 +109,7 @@ export class Game {
     let soldierx: Soldier = <Soldier>player1.units.at(0);
     soldierx.give_target(new Vector(100, 100));
 
-    /*let soldier2 = new Soldier(800,250);
+    let soldier2 = new Soldier(800,250);
     soldier2.give_target(462,132);
     this.units.set(soldier2.unit.id, soldier2);
     this.moving_units.push(soldier2);
@@ -134,15 +128,16 @@ export class Game {
       }
     }
 
-     */
-  }
 
+  }
+*/
   private debug_print() {
     console.log(this.gameState.players);
   }
 
   public run() {
     this.debug_print();
+    this.eventHandler.startConnection();
     this.draw(0);
   }
 

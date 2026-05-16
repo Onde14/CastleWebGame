@@ -14,9 +14,9 @@ class Structure extends GameObject {
     pos;
     width;
     height;
-    constructor(selectable, type, pos, width, height) {
+    constructor(selectable, type, pos, width, height, id) {
         super(false, selectable);
-        this.id = Math.random();
+        this.id = id;
         this.type = type;
         this.pos = pos;
         this.width = width;
@@ -31,9 +31,9 @@ class Unit extends GameObject {
     height;
     target;
     moving = false;
-    constructor(movable, type, pos, width, height) {
+    constructor(movable, id, type, pos, width, height) {
         super(movable, false);
-        this.id = Math.random();
+        this.id = id;
         this.type = type;
         this.pos = pos;
         this.width = width;
@@ -47,23 +47,23 @@ export class Castle extends Structure {
     owner;
     ownerColor;
     highlighted = false;
-    constructor(pos, owner, ownerColor) {
-        super(true, "castle", pos, CastleConfig.width, CastleConfig.height);
+    constructor(pos, id, owner, ownerColor) {
+        super(true, "castle", pos, CastleConfig.width, CastleConfig.height, id);
         this.owner = owner;
         this.ownerColor = ownerColor;
     }
 }
-export class Road extends Structure {
-    selected = false;
-    constructor(pos, height) {
-        super(false, "road", pos, RoadConfig.width, height);
-    }
-}
+/* export class Road extends Structure {
+  selected = false;
+  constructor(pos: Vector, height: number) {
+    super(false, "road", pos, RoadConfig.width, height);
+  }
+}*/
 export class Soldier extends Unit {
     owner;
     ownerColor;
-    constructor(pos, owner, ownerColor) {
-        super(true, "soldier", pos, SoldierConfig.width, SoldierConfig.height);
+    constructor(pos, id, owner, ownerColor) {
+        super(true, id, "soldier", pos, SoldierConfig.width, SoldierConfig.height);
         this.owner = owner;
         this.ownerColor = ownerColor;
     }
@@ -74,7 +74,8 @@ export class Soldier extends Unit {
     move_to_target() {
         let newX = this.pos.x;
         let newY = this.pos.y;
-        let ratio = (Math.abs(this.target.x - this.pos.x) / Math.abs(this.target.y - this.pos.y));
+        let ratio = Math.abs(this.target.x - this.pos.x) /
+            Math.abs(this.target.y - this.pos.y);
         let movementMul = 1;
         let xMovementSpeed = movementMul * (ratio / (ratio + 1));
         let yMovementSpeed = movementMul * (1 / (ratio + 1));
@@ -91,27 +92,28 @@ export class Soldier extends Unit {
             newY = this.pos.y + yMovementSpeed;
         }
         /*
-        console.log("this.unit.target.x = ", this.unit.target.x);
-        console.log("this.unit.pos.x = ", this.unit.pos.x);
-        console.log("this.unit.target.y = ", this.unit.target.y);
-        console.log("this.unit.pos.y = ", this.unit.pos.y);
-
-        console.log("RATIO = ", ratio);
-        console.log("newX = ", newX);
-        console.log("xMovementSpeed = ", xMovementSpeed);
-        console.log("newY = ", newY);
-        console.log("yMovementSpeed = ", yMovementSpeed);
-
-
-        console.log("negate: ", newX-newY);
-
-
-         */
+            console.log("this.unit.target.x = ", this.unit.target.x);
+            console.log("this.unit.pos.x = ", this.unit.pos.x);
+            console.log("this.unit.target.y = ", this.unit.target.y);
+            console.log("this.unit.pos.y = ", this.unit.pos.y);
+    
+            console.log("RATIO = ", ratio);
+            console.log("newX = ", newX);
+            console.log("xMovementSpeed = ", xMovementSpeed);
+            console.log("newY = ", newY);
+            console.log("yMovementSpeed = ", yMovementSpeed);
+    
+    
+            console.log("negate: ", newX-newY);
+    
+    
+             */
         this.pos = new Vector(newX, newY);
     }
     has_found_target() {
         console.log();
-        if (Math.abs(this.pos.x - this.target.x) < 0.5 && Math.abs(this.pos.y - this.target.y) < 0.5) {
+        if (Math.abs(this.pos.x - this.target.x) < 0.5 &&
+            Math.abs(this.pos.y - this.target.y) < 0.5) {
             this.moving = false;
             return true;
         }

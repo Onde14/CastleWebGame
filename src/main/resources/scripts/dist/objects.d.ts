@@ -10,7 +10,7 @@ declare class Structure extends GameObject {
     pos: Vector;
     width: number;
     height: number;
-    constructor(selectable: boolean, type: string, pos: Vector, width: number, height: number);
+    constructor(selectable: boolean, type: string, pos: Vector, width: number, height: number, id: number);
 }
 declare class Unit extends GameObject {
     id: number;
@@ -20,7 +20,7 @@ declare class Unit extends GameObject {
     height: number;
     target: Vector;
     moving: boolean;
-    constructor(movable: boolean, type: string, pos: Vector, width: number, height: number);
+    constructor(movable: boolean, id: number, type: string, pos: Vector, width: number, height: number);
 }
 export declare class Castle extends Structure {
     selected: boolean;
@@ -28,16 +28,12 @@ export declare class Castle extends Structure {
     owner: number;
     ownerColor: string;
     highlighted: boolean;
-    constructor(pos: Vector, owner: number, ownerColor: string);
-}
-export declare class Road extends Structure {
-    selected: boolean;
-    constructor(pos: Vector, height: number);
+    constructor(pos: Vector, id: number, owner: number, ownerColor: string);
 }
 export declare class Soldier extends Unit {
     owner: number;
     ownerColor: string;
-    constructor(pos: Vector, owner: number, ownerColor: string);
+    constructor(pos: Vector, id: number, owner: number, ownerColor: string);
     give_target(target: Vector): void;
     move_to_target(): void;
     has_found_target(): boolean;

@@ -11,11 +11,12 @@ export class Player {
 
   constructor(
     ai: boolean,
+    id: number,
     units: Array<Soldier>,
     castles: Array<Castle>,
     color: string,
   ) {
-    this.id = Math.random();
+    this.id = id;
     this.ai = ai;
     this.units = units;
     this.castles = castles;
@@ -37,7 +38,7 @@ export class Gamestate {
     this.currentPlayerId = currentPlayerId;
   }
 
-  public create_attack(orders: Array<Castle | Vector>) {
+  /* public create_attack(orders: Array<Castle | Vector>) {
     console.log(1);
     const target: Vector = <Vector>orders.at(0);
     console.log(2);
@@ -58,7 +59,7 @@ export class Gamestate {
       new_soldier.give_target(target);
     });
     console.log(ownerPlayer);
-  }
+  }*/
 
   public update() {
     this.move_commands();

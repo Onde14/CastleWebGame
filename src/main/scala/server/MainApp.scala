@@ -9,7 +9,7 @@ import java.util.UUID
 import zio.json.ast.Json
 import java.time.format.DateTimeFormatter
 import java.time.ZoneId
-
+import zio.json.*
 
 
 
@@ -17,6 +17,7 @@ import java.time.ZoneId
 
 
 object MainApp extends ZIOAppDefault {
+
 
   val gameState: GameState = GameState()
   gameState.changeGameStarted()
@@ -35,35 +36,54 @@ object MainApp extends ZIOAppDefault {
 
   val webSocketHandle: WebSocketApp[Hub[String]] =
     Handler.webSocket { channel =>
-      ZIO.scoped { // 💡 Creates a local scope for the lifetime of this connection
+      ZIO.scoped {
         for {
           hub   <- ZIO.service[Hub[String]]
-          queue <- hub.subscribe // ✅ Scope is now available locally!
+          queue <- hub.subscribe
 
-          // Outgoing: Hub -> client
           outgoing = ZStream
             .fromQueue(queue)
             .map(WebSocketFrame.text)
             .runForeach(frame => channel.send(Read(frame)))
 
-          // Incoming: client -> Hub
           incoming = channel.receiveAll {
             case Read(WebSocketFrame.Text(text)) =>
               //val timeNow = Clock.instant
               //val timeStamp = timeFormatter.format(timeNow)
               //val response = "\n" + text
               //hub.publish(response).unit
+              var timeStamp = ""
               for {
                 now       <- Clock.instant // ⏱️ Safely fetch current time via ZIO Clock
-                timestamp = timeFormatter.format(now)
-                _         <- hub.publish(s"[$timestamp] $text")
-              } yield ()
+                timeStamp = timeFormatter.format(now)
+              } yield timeStamp
+              val response = s"""{"type":"Message","time":"${timeStamp}","message":"${text}"}"""
+              channel.send(ChannelEvent.Read(WebSocketFrame.text(response)))
+              //hub.publish(response)
+
+            case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
+              gameState.testOrdersReset()
+              val player = gameState.addPlayer()
+              println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
+              //val player_data_response_json = s"""{"type": "PlayerData","id": ${player.id},"color": "${player.color}"}"""
+              val player_data_response_json = GameData("buildGame",player.id,gameState.getPlayers()).toJson
+              channel.send(Read(WebSocketFrame.text(player_data_response_json)))
+
+
+
+            case Read(WebSocketFrame.Close(status, reason)) =>
+              Console.printLine("Closing channel with status: " + status + " and reason: " + reason)
+
+            case ChannelEvent.Unregistered =>
+              ZIO.logInfo("Client disconnected")
+
+
             case _ =>
               ZIO.unit
           }
-
-          // Run both concurrently. When this ends, ZIO.scoped closes and unsubscribes the queue.
           _ <- outgoing zipPar incoming
+          // Run both concurrently. When this ends, ZIO.scoped closes and unsubscribes the queue.
+
         } yield ()
       }
     }
@@ -235,16 +255,16 @@ object MainApp extends ZIOAppDefault {
 
 
 
- def run =
-   Server.serve(
-     routes.handleError(error =>
-       Response.internalServerError(s"An unhandled error occurred: ${error.getMessage}")
-     )
-   )
-   .provide(
-     Server.default,
-     hubLayer
-   )
+  def run =
+    Server.serve(
+      routes.handleError(error =>
+        Response.internalServerError(s"An unhandled error occurred: ${error.getMessage}")
+      )
+    )
+    .provide(
+      Server.default,
+      hubLayer
+    )
 
 
     //val testpath = Root / "scripts"

@@ -29,16 +29,18 @@ class GameState:
 
 
   def buildGameState(): Unit =
-    val player1 = new Player(Random.nextInt(), "blue", new ArrayBuffer[Castle](), new ArrayBuffer[Unit]())
+    val player1 = new Player(Random.between(0, 100000), "blue", new ArrayBuffer[Castle](), new ArrayBuffer[Troop]())
     availablePlayerSlots += player1
-    val castle1 = new Castle(Random.nextInt(), player1.id, List(width/2,height-100))
+    val castle1 = new Castle(Random.between(0, 100000), player1.id, player1.color, List(width/2,height-100))
     castles += castle1
     player1.castles += castle1
-    val player2 = new Player(Random.nextInt(), "red", new ArrayBuffer[Castle](), new ArrayBuffer[Unit]())
+    val player2 = new Player(Random.between(0, 100000), "red", new ArrayBuffer[Castle](), new ArrayBuffer[Troop]())
     availablePlayerSlots += player2
-    val castle2 = new Castle(Random.nextInt(), player2.id, List(width/2,height-100))
+    val castle2 = new Castle(Random.between(0, 100000), player2.id, player2.color, List(width/2,100))
     player2.castles += castle2
 
+  def getPlayers(): ArrayBuffer[Player] =
+    return availablePlayerSlots
 
   def addPlayer(): Player =
     println(currentPlayerIterator)
@@ -56,5 +58,6 @@ class GameState:
     currentPlayers.filter(_.id != id)
 
   def createTrooper(id: Int, startx: Int, starty: Int, targetx: Int, targety: Int): Unit =
-    val troop = new Troop(Random.nextInt(), id, List(startx,starty), List(targetx,targety))
+    val player: Player = currentPlayers.filter(_.id == id)(0)
+    val troop = new Troop(Random.nextInt(), id, player.color, List(startx,starty), List(targetx,targety))
     troops += troop

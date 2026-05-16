@@ -1,28 +1,26 @@
-import { Gamestate } from "./gamestate.js";
-import type { Castle } from "./objects";
+import { Gamestate, Player } from "./gamestate.js";
+import { Soldier, Castle } from "./objects.js";
 import { Vector } from "./vector.js";
 import type { Controls } from "./controls.js";
 import type { DisplayDriver } from "./display-driver.js";
-import { WebSocketDriver } from "./websocket.js";
+import { MessageHandler } from "./messagehandling.js";
 
 export class EventHandler {
   canvas: HTMLCanvasElement;
   gameState: Gamestate;
   controls: Controls;
   displayDriver: DisplayDriver;
-  webSocketDriver: WebSocketDriver;
+  messageHandler?: MessageHandler;
   constructor(
     canvas: HTMLCanvasElement,
     gameState: Gamestate,
     controls: Controls,
     displayDriver: DisplayDriver,
-    webSocketDriver: WebSocketDriver,
   ) {
     this.canvas = canvas;
     this.gameState = gameState;
     this.controls = controls;
     this.displayDriver = displayDriver;
-    this.webSocketDriver = webSocketDriver;
   }
 
   mouse_down(e: MouseEvent) {
@@ -46,8 +44,10 @@ export class EventHandler {
       console.log("NO ORDERS.");
     } else {
       console.log("GOT ORDERS!");
-      this.gameState.create_attack(orders);
-      this.webSocketDriver.sendMessage("Attack: " + target.x + ", " + target.y);
+      //this.gameState.create_attack(orders);
+      if (this.messageHandler) {
+        this.messageHandler.send("Attack: " + target.x + ", " + target.y);
+      }
     }
   }
 
@@ -62,11 +62,54 @@ export class EventHandler {
     }
   }
 
+  public startConnection() {
+    this.messageHandler = new MessageHandler(this);
+  }
+
   public event_handling() {
     this.canvas.addEventListener("mousedown", (e) => this.mouse_down(e));
 
     this.canvas.addEventListener("mousemove", (e) => this.mouse_move(e));
 
     window.addEventListener("resize", () => this.displayDriver.resize());
+  }
+
+  public buildGameState(currentPlayerId: number, players: any) {
+    console.log("PLAYERS1: ", players);
+    this.gameState.currentPlayerId = currentPlayerId;
+    let playerArray = new Array<Player>();
+    players.forEach((player: any) => {
+      let newPlayer = new Player(
+        false,
+        player.id,
+        new Array<Soldier>(),
+        new Array<Castle>(),
+        player.color,
+      );
+      player.castles.forEach((castle: any) => {
+        const newCastle = new Castle(
+          new Vector(castle.location[0], castle.location[1]),
+          castle.id,
+          castle.owner,
+          castle.ownerColor,
+        );
+        newPlayer.castles.push(newCastle);
+      });
+      player.units.forEach((unit: any) => {
+        const newSoldier = new Soldier(
+          new Vector(unit.location[0], unit.location[1]),
+          unit.id,
+          unit.owner,
+          unit.ownerColor,
+        );
+        if (unit.target !== undefined) {
+          newSoldier.give_target(new Vector(unit.target[0], unit.target[1]));
+        }
+        newPlayer.units.push(newSoldier);
+      });
+      playerArray.push(newPlayer);
+    });
+    this.gameState.players = playerArray;
+    console.log("PLAYERS2: ", this.gameState.players);
   }
 }

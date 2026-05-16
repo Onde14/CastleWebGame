@@ -6,8 +6,8 @@ export class Player {
     units;
     castles;
     color;
-    constructor(ai, units, castles, color) {
-        this.id = Math.random();
+    constructor(ai, id, units, castles, color) {
+        this.id = id;
         this.ai = ai;
         this.units = units;
         this.castles = castles;
@@ -23,22 +23,28 @@ export class Gamestate {
         this.players = players;
         this.currentPlayerId = currentPlayerId;
     }
-    create_attack(orders) {
-        console.log(1);
-        const target = orders.at(0);
-        console.log(2);
-        // @ts-ignore
-        const selected = orders.slice(1, orders.length);
-        const ownerPlayer = this.players.find((player) => player.id == this.currentPlayerId);
-        console.log(selected);
-        selected.forEach((castle) => {
-            let new_soldier = new Soldier(castle.pos, castle.owner, castle.ownerColor);
-            console.log("OWNER: ", ownerPlayer);
-            ownerPlayer?.units.push(new_soldier);
-            new_soldier.give_target(target);
-        });
-        console.log(ownerPlayer);
-    }
+    /* public create_attack(orders: Array<Castle | Vector>) {
+      console.log(1);
+      const target: Vector = <Vector>orders.at(0);
+      console.log(2);
+      // @ts-ignore
+      const selected: Castle[] = orders.slice(1, orders.length);
+      const ownerPlayer = this.players.find(
+        (player) => player.id == this.currentPlayerId,
+      );
+      console.log(selected);
+      selected.forEach((castle: Castle) => {
+        let new_soldier = new Soldier(
+          castle.pos,
+          castle.owner,
+          castle.ownerColor,
+        );
+        console.log("OWNER: ", ownerPlayer);
+        ownerPlayer?.units.push(new_soldier);
+        new_soldier.give_target(target);
+      });
+      console.log(ownerPlayer);
+    }*/
     update() {
         this.move_commands();
     }

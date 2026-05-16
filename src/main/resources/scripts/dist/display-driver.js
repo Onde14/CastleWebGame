@@ -47,12 +47,13 @@ export class DisplayDriver {
             player.castles.forEach((castle) => {
                 if (castle.selected) {
                     this.ctx.fillStyle = "white";
-                    this.ctx.fillRect(castle.pos.x - CastleConfig.width / 2 - 2, castle.pos.y / 2 - 2, castle.width + 4, castle.height + 4);
+                    this.ctx.fillRect(castle.pos.x - CastleConfig.width / 2 - 2, castle.pos.y - CastleConfig.height / 2 - 2, castle.width + 4, castle.height + 4);
                     this.ctx.save();
                 }
                 if (castle.highlighted) {
+                    console.log("DEBUG CASTLE POS " + castle.pos.x + ", " + castle.pos.y);
                     this.ctx.fillStyle = "red";
-                    this.ctx.fillRect(castle.pos.x - CastleConfig.width / 2 - 2, castle.pos.y / 2 - 2, castle.width + 4, castle.height + 4);
+                    this.ctx.fillRect(castle.pos.x - CastleConfig.width / 2 - 2, castle.pos.y - CastleConfig.height / 2 - 2, castle.width + 4, castle.height + 4);
                     this.ctx.save();
                 }
                 this.ctx.fillStyle = CastleConfig.color;
