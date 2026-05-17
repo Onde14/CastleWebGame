@@ -52,13 +52,18 @@ object MainApp extends ZIOAppDefault {
               //val timeStamp = timeFormatter.format(timeNow)
               //val response = "\n" + text
               //hub.publish(response).unit
-              var timeStamp = ""
-              for {
-                now       <- Clock.instant // ⏱️ Safely fetch current time via ZIO Clock
-                timeStamp = timeFormatter.format(now)
-              } yield timeStamp
-              val response = s"""{"type":"Message","time":"${timeStamp}","message":"${text}"}"""
-              channel.send(ChannelEvent.Read(WebSocketFrame.text(response)))
+              println(s"GOT MESSAGE: $text")
+              val response = messageHandling(text,gameState)
+              if response == "" then
+                var timeStamp = ""
+                for {
+                  now       <- Clock.instant // ⏱️ Safely fetch current time via ZIO Clock
+                  timeStamp = timeFormatter.format(now)
+                } yield timeStamp
+                val errorResponse = s"""{"msgType":"Message","time":"${timeStamp}","message":"${text}"}"""
+                channel.send(ChannelEvent.Read(WebSocketFrame.text(errorResponse)))
+              else
+                hub.publish(response)
               //hub.publish(response)
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
@@ -66,7 +71,7 @@ object MainApp extends ZIOAppDefault {
               val player = gameState.addPlayer()
               println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
               //val player_data_response_json = s"""{"type": "PlayerData","id": ${player.id},"color": "${player.color}"}"""
-              val player_data_response_json = GameData("buildGame",player.id,gameState.getPlayers()).toJson
+              val player_data_response_json = GameData("BuildGame",player.id,gameState.getPlayers()).toJson
               channel.send(Read(WebSocketFrame.text(player_data_response_json)))
 
 

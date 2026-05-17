@@ -13,6 +13,7 @@ export declare class Gamestate {
     players: Array<Player>;
     currentPlayerId: number;
     constructor(displayDriver: DisplayDriver, players: Array<Player>, currentPlayerId: number);
+    create_soldiers(soldiers: any): void;
     update(): void;
     private move_commands;
 }

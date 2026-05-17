@@ -6,6 +6,6 @@ export declare class MessageHandler {
     constructor(eventHandler: EventHandler);
     private handleResponse;
     incoming(msg: string): void;
-    send(msg: string): void;
+    send(object: any): void;
 }
 //# sourceMappingURL=messagehandling.d.ts.map

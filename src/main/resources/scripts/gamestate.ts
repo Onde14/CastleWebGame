@@ -1,6 +1,6 @@
 import { Soldier, Castle } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
-import type { Vector } from "./vector.js";
+import { Vector } from "./vector.js";
 
 export class Player {
   id: number;
@@ -38,28 +38,23 @@ export class Gamestate {
     this.currentPlayerId = currentPlayerId;
   }
 
-  /* public create_attack(orders: Array<Castle | Vector>) {
-    console.log(1);
-    const target: Vector = <Vector>orders.at(0);
-    console.log(2);
-    // @ts-ignore
-    const selected: Castle[] = orders.slice(1, orders.length);
-    const ownerPlayer = this.players.find(
-      (player) => player.id == this.currentPlayerId,
-    );
-    console.log(selected);
-    selected.forEach((castle: Castle) => {
+  public create_soldiers(soldiers: any) {
+    soldiers.forEach((soldier: any) => {
       let new_soldier = new Soldier(
-        castle.pos,
-        castle.owner,
-        castle.ownerColor,
+        new Vector(soldier.pos.x, soldier.pos.y),
+        soldier.id,
+        soldier.owner,
+        soldier.ownerColor,
       );
-      console.log("OWNER: ", ownerPlayer);
-      ownerPlayer?.units.push(new_soldier);
-      new_soldier.give_target(target);
+      let attackerPlayer = this.players.find(
+        (player) => player.id == soldier.owner,
+      );
+      if (attackerPlayer !== undefined) {
+        attackerPlayer.units.push(new_soldier);
+      }
+      new_soldier.give_target(new Vector(soldier.target.x, soldier.target.y));
     });
-    console.log(ownerPlayer);
-  }*/
+  }
 
   public update() {
     this.move_commands();

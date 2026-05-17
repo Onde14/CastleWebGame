@@ -14,5 +14,6 @@ export declare class EventHandler {
     startConnection(): void;
     event_handling(): void;
     buildGameState(currentPlayerId: number, players: any): void;
+    attackOrder(soldiers: any): void;
 }
 //# sourceMappingURL=events.d.ts.map
