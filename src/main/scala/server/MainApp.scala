@@ -20,6 +20,15 @@ object MainApp extends ZIOAppDefault {
 
 
   val gameState: GameState = GameState()
+  val game: Game = Game()
+  val gameLayer: ZLayer[Scope, Nothing, Unit] =
+    ZLayer.fromZIO {
+
+    }
+    for {
+      gameFiber <- game.startGame().fork
+      _ <- gameFiber.join
+    } yield ()
   gameState.changeGameStarted()
   println("Is game Started: " + gameState.isGameStarted)
   gameState.buildGameState()
@@ -261,6 +270,7 @@ object MainApp extends ZIOAppDefault {
 
 
   def run =
+    gameRun
     Server.serve(
       routes.handleError(error =>
         Response.internalServerError(s"An unhandled error occurred: ${error.getMessage}")
@@ -270,6 +280,8 @@ object MainApp extends ZIOAppDefault {
       Server.default,
       hubLayer
     )
+
+
 
 
     //val testpath = Root / "scripts"

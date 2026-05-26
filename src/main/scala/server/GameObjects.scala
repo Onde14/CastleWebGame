@@ -53,8 +53,8 @@ final case class Player (
 )
 
 object Player {
-implicit val encoder: JsonEncoder[Player] =
-  DeriveJsonEncoder.gen[Player]
+  implicit val encoder: JsonEncoder[Player] =
+    DeriveJsonEncoder.gen[Player]
 }
 
 
