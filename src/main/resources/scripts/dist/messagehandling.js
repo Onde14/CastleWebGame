@@ -38,9 +38,15 @@ export class MessageHandler {
         }
     }
     incoming(msg) {
-        const parsedJson = JSON.parse(msg);
-        console.log(parsedJson);
-        this.handleResponse(parsedJson);
+        console.log("MESSAGE:::", msg);
+        try {
+            const parsedJson = JSON.parse(msg);
+            console.log(parsedJson);
+            this.handleResponse(parsedJson);
+        }
+        catch (error) {
+            console.log("Couldn't parse incoming message.");
+        }
     }
     send(object) {
         this.webSocketDriver.sendMessage(JSON.stringify(object));

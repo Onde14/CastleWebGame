@@ -122,7 +122,6 @@ export class Game {
     }
     draw(t) {
         //console.log(this.canvas);
-        this.gameState.update();
         this.gameState.players.forEach((player) => {
             //console.log(player);
             this.displayDriver.draw(this.gameState.players, this.gameState.currentPlayerId);

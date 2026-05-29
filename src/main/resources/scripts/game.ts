@@ -143,7 +143,7 @@ export class Game {
 
   public draw(t: number) {
     //console.log(this.canvas);
-    this.gameState.update();
+
     this.gameState.players.forEach((player) => {
       //console.log(player);
       this.displayDriver.draw(

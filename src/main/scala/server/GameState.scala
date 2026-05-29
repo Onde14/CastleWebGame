@@ -2,6 +2,7 @@ package server
 import scala.collection.mutable.ArrayBuffer
 import server.*
 import scala.util.Random
+import scala.compiletime.ops.boolean
 
 class GameState:
   private val height = 500
@@ -14,6 +15,8 @@ class GameState:
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
   private var testOrdersGiven = 0
+  private val soldierSpeed = 0.1
+
   def isGameStarted: Boolean = this.gameStarted
   def changeGameStarted(): Unit = gameStarted = true
   def testOrdersAdd(): Unit =
@@ -68,3 +71,34 @@ class GameState:
     }
     val response: ResponseAttackOrder = new ResponseAttackOrder("AttackOrder",new_soldiers.toList)
     return response
+
+
+  def isSoldierInTarget(currPos: Pos, targetPos: Pos): Boolean =
+    val distance = (currPos.x - targetPos.x).abs + (currPos.y - targetPos.y).abs
+    if distance < 0.1 then
+      return true
+    else
+      return false
+
+  def moveCalcX(currX: Double, targetX: Double): Double =
+    if (currX > targetX) then
+      return currX - soldierSpeed
+    else
+      return currX + soldierSpeed
+
+
+  def moveCalcY(currY: Double, targetY: Double): Double =
+    if (currY > targetY) then
+      return currY - soldierSpeed
+    else
+      return currY + soldierSpeed
+
+  def moveSoldiers(): Unit =
+    soldiers.foreach(s =>
+      val foundTarget = isSoldierInTarget(s.pos,s.target)
+      if foundTarget then
+        soldiers -= s
+      else
+        s.pos.x = moveCalcX(s.pos.x, s.target.x)
+        s.pos.y = moveCalcY(s.pos.y, s.target.y)
+    )
