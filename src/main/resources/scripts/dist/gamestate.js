@@ -34,8 +34,24 @@ export class Gamestate {
             new_soldier.give_target(new Vector(soldier.target.x, soldier.target.y));
         });
     }
-    update() {
-        this.move_commands();
+    update(updatedPlayers) {
+        let playerArray = new Array();
+        updatedPlayers.forEach((player) => {
+            let newPlayer = new Player(false, player.id, new Array(), new Array(), player.color);
+            player.castles.forEach((castle) => {
+                const newCastle = new Castle(new Vector(castle.pos.x, castle.pos.y), castle.id, castle.owner, castle.ownerColor);
+                newPlayer.castles.push(newCastle);
+            });
+            player.units.forEach((unit) => {
+                const newSoldier = new Soldier(new Vector(unit.pos.x, unit.pos.y), unit.id, unit.owner, unit.ownerColor);
+                if (unit.target !== undefined) {
+                    newSoldier.give_target(new Vector(unit.target.x, unit.target.y));
+                }
+                newPlayer.units.push(newSoldier);
+            });
+            playerArray.push(newPlayer);
+        });
+        this.players = playerArray;
     }
     move_commands() {
         this.players.forEach((player) => {

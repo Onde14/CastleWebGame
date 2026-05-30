@@ -3,6 +3,8 @@ import scala.collection.mutable.ArrayBuffer
 import server.*
 import scala.util.Random
 import scala.compiletime.ops.boolean
+import org.scalajs.ir.Types.NothingType
+import zio.ZIO
 
 class GameState:
   private val height = 500
@@ -11,11 +13,11 @@ class GameState:
   private var availablePlayerSlots = ArrayBuffer[Player]()
   private var castles = ArrayBuffer[Castle]()
   private var soldiers = ArrayBuffer[Soldier]()
-  private var currentPlayers = ArrayBuffer[Player]()
+  var currentPlayers = ArrayBuffer[Player]()
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
   private var testOrdersGiven = 0
-  private val soldierSpeed = 0.1
+  private val soldierSpeed = 1.1
 
   def isGameStarted: Boolean = this.gameStarted
   def changeGameStarted(): Unit = gameStarted = true
@@ -102,3 +104,6 @@ class GameState:
         s.pos.x = moveCalcX(s.pos.x, s.target.x)
         s.pos.y = moveCalcY(s.pos.y, s.target.y)
     )
+
+  def update() =
+    moveSoldiers()

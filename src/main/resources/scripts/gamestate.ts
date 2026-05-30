@@ -56,8 +56,40 @@ export class Gamestate {
     });
   }
 
-  public update() {
-    this.move_commands();
+  public update(updatedPlayers: any) {
+    let playerArray = new Array<Player>();
+    updatedPlayers.forEach((player: any) => {
+      let newPlayer = new Player(
+        false,
+        player.id,
+        new Array<Soldier>(),
+        new Array<Castle>(),
+        player.color,
+      );
+      player.castles.forEach((castle: any) => {
+        const newCastle = new Castle(
+          new Vector(castle.pos.x, castle.pos.y),
+          castle.id,
+          castle.owner,
+          castle.ownerColor,
+        );
+        newPlayer.castles.push(newCastle);
+      });
+      player.units.forEach((unit: any) => {
+        const newSoldier = new Soldier(
+          new Vector(unit.pos.x, unit.pos.y),
+          unit.id,
+          unit.owner,
+          unit.ownerColor,
+        );
+        if (unit.target !== undefined) {
+          newSoldier.give_target(new Vector(unit.target.x, unit.target.y));
+        }
+        newPlayer.units.push(newSoldier);
+      });
+      playerArray.push(newPlayer);
+    });
+    this.players = playerArray;
   }
 
   private move_commands() {

@@ -87,5 +87,8 @@ export class EventHandler {
     attackOrder(soldiers) {
         this.gameState.create_soldiers(soldiers);
     }
+    updateGameState(players) {
+        this.gameState.update(players);
+    }
 }
 //# sourceMappingURL=events.js.map

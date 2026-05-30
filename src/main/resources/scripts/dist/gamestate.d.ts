@@ -14,7 +14,7 @@ export declare class Gamestate {
     currentPlayerId: number;
     constructor(displayDriver: DisplayDriver, players: Array<Player>, currentPlayerId: number);
     create_soldiers(soldiers: any): void;
-    update(): void;
+    update(updatedPlayers: any): void;
     private move_commands;
 }
 //# sourceMappingURL=gamestate.d.ts.map

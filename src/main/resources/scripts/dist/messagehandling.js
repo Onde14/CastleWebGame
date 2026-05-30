@@ -33,6 +33,10 @@ export class MessageHandler {
                 else {
                     throw new Error("Unknown types in the message");
                 }
+            case "UpdatedGameState":
+                if (msg.players !== undefined) {
+                    this.eventHandler.updateGameState(msg.players);
+                }
             default:
                 throw new Error("Unknown message type!");
         }

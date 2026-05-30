@@ -4,9 +4,16 @@ import server.*
 import scala.annotation.switch
 
 
+def outgoingMessageHandling(msgType: String, gameState: GameState): String =
+  msgType match
+    case s"update" =>
+      return UpdatedGameData("UpdatedGameState",gameState.currentPlayers).toJson
 
 
-def messageHandling(msg: String, gameState: GameState): String =
+    case _ =>
+      return ""
+
+def incomingMessageHandling(msg: String, gameState: GameState): String =
 
   val msgType = msg.fromJson[MessageType]
   msgType match

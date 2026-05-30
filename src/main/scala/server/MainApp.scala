@@ -29,7 +29,7 @@ object MainApp extends ZIOAppDefault {
   val gameStateRef = Ref.make(gameState)
   val game: Game = Game(gameState)
   game.gameRunning = true
-  //def gameLoop = game.runGame()
+  def gameLoop = game.runGame()
 
   gameState.changeGameStarted()
   println("Is game Started: " + gameState.isGameStarted)
@@ -51,11 +51,11 @@ object MainApp extends ZIOAppDefault {
           incoming = channel.receiveAll {
             case Read(WebSocketFrame.Text(text)) =>
               println(s"GOT MESSAGE: $text")
-              val response = messageHandling(text,gameState)
+              val response = incomingMessageHandling(text,gameState)
               if response == "" then
                 var timeStamp = ""
                 for {
-                  now       <- Clock.instant // ⏱️ Safely fetch current time via ZIO Clock
+                  now       <- Clock.instant
                   timeStamp = timeFormatter.format(now)
                 } yield timeStamp
                 val errorResponse = s"""{"msgType":"Message","time":"${timeStamp}","message":"${text}"}"""
@@ -69,7 +69,7 @@ object MainApp extends ZIOAppDefault {
               val player = gameState.addPlayer()
               println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
               //val player_data_response_json = s"""{"type": "PlayerData","id": ${player.id},"color": "${player.color}"}"""
-              val player_data_response_json = GameData("BuildGame",player.id,gameState.getPlayers()).toJson
+              val player_data_response_json = BuildGameData("BuildGame",player.id,gameState.getPlayers()).toJson
               channel.send(Read(WebSocketFrame.text(player_data_response_json)))
 
 
@@ -85,7 +85,6 @@ object MainApp extends ZIOAppDefault {
               ZIO.unit
           }
           _ <- outgoing zipPar incoming
-          // Run both concurrently. When this ends, ZIO.scoped closes and unsubscribes the queue.
 
         } yield ()
       }
@@ -132,16 +131,6 @@ object MainApp extends ZIOAppDefault {
     Middleware.serveResources(path = Path.empty / "scripts" , resourcePrefix = "scripts") @@
     Middleware.serveResources(path = Path.empty / "styles", resourcePrefix = "styles") @@
     Middleware.debug
-
-  def gameLoop =
-    ZIO.scoped{
-      for {
-        hub <- ZIO.service[Hub[String]]
-        _   <- hub.publish("tick")
-        //_ <- ZIO.logInfo(s"Publishing 'tick'")
-        _   <- ZIO.sleep(16.millis)             // ~60 FPS
-      } yield ()
-    }
 
 
 

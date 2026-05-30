@@ -14,8 +14,8 @@ class Game(gameState: GameState):
       ZIO.scoped{
         for {
           hub <- ZIO.service[Hub[String]]
-          queue <- hub.subscribe
-          _ <- hub.publish(s"""{"msgType": "message", "content":"HELLO"}""")
+          _ <- ZIO.succeed(gameState.update())
+          _ <- hub.publish(outgoingMessageHandling("update",gameState))
           _ <- ZIO.sleep(16.millis)
         } yield ()
       }
