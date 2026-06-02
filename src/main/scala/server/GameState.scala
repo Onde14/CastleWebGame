@@ -89,13 +89,20 @@ class GameState:
     //println(s"CREATED SOLDIER AND RESPONSE: $response")
     return response
 
+  def calcDistance(pos1: Pos, pos2: Pos): Double =
+    return (pos1.x - pos2.x).abs + (pos1.y - pos2.y).abs
 
   def isSoldierInTarget(currPos: Pos, targetPos: Pos): Boolean =
-    val distance = (currPos.x - targetPos.x).abs + (currPos.y - targetPos.y).abs
+    val distance = calcDistance(currPos, targetPos)
     if distance < 0.1 then
       return true
     else
       return false
+
+  def areEnemiesTouching(soldier: Soldier): List[Soldier]  =
+    val touchingSoldiers = soldiers.filter(s => (s.id != soldier.id && calcDistance(soldier.pos,s.pos) <= soldier.radius && s.state != 0)).toList
+    return touchingSoldiers
+
 
   def moveCalcX(currX: Double, targetX: Double): Double =
 
@@ -124,12 +131,19 @@ class GameState:
       else
         s.pos.x = moveCalcX(s.pos.x, s.target.x)
         s.pos.y = moveCalcY(s.pos.y, s.target.y)
+      if s.state != 0 then
+        val touchingSoldiers = areEnemiesTouching(s)
+        if touchingSoldiers.nonEmpty then
+          touchingSoldiers.foreach(ts =>
+            ts.state = 0
+            updates += new UpdateData(ts.id,Option(ts.owner),Option(ts.pos),Option(ts.state))
+          )
+          s.state = 0
       s.state match
         case 0 =>
           updates += new UpdateData(s.id,Option(s.owner),Option(s.pos),Option(s.state))
         case 2 =>
           updates += new UpdateData(s.id,Option(null),Option(s.pos),Option(s.state))
-
     )
     return updates
 
@@ -137,7 +151,11 @@ class GameState:
     updates.foreach(u =>
       //println(s"REMOVING SOLDIER: ${u.id}")
       //println(s"Soldiers list $soldiers")
-      soldiers -= soldiers.filter(s => u.id == s.id)(0)
+      val tempSoldiers = soldiers.toList
+      tempSoldiers.foreach(s =>
+        if u.id == s.id then
+          soldiers -= s
+      )
       //println(s"Soldiers list $soldiers")
     )
 

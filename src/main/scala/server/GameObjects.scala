@@ -31,6 +31,7 @@ final case class Soldier (
   pos: Pos,
   target: Pos,
   var state: Int, // 0 = dead, 1 = live, 2 = moving
+  radius: Int = 10,
 ) extends GameObject
 
 final case class SoldierJSON (

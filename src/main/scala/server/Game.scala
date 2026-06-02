@@ -17,7 +17,7 @@ class Game(gameState: GameState):
           updates <- ZIO.succeed(gameState.update())
           _ <- if updates.nonEmpty then hub.publish(outgoingMessageHandling("update",updates)) else ZIO.unit
          // _ <- ZIO.succeed(gameState.changes.clear())
-          //_ <- ZIO.debug(gameState.availablePlayerSlots)
+         // _ <- ZIO.debug(gameState.availablePlayerSlots)
           _ <- ZIO.sleep(16.millis)
         } yield ()
       }
