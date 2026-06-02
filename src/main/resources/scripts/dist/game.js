@@ -52,7 +52,9 @@ export class Game {
     async draw(t) {
         //console.log(this.canvas);
         this.gameState.players.forEach((player) => {
-            //console.log(player);
+            if (t % 1000 == 0) {
+                console.log(player);
+            }
             this.displayDriver.draw(this.gameState.players, this.gameState.currentPlayerId);
         });
         await sleep(16);

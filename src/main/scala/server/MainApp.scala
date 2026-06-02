@@ -19,7 +19,6 @@ object MainApp extends ZIOAppDefault {
 
 
 
-
   val hubLayer: ZLayer[Any, Nothing, Hub[String]] = ZLayer.fromZIO(Hub.unbounded[String])
 
   val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault())
@@ -65,6 +64,8 @@ object MainApp extends ZIOAppDefault {
               //hub.publish(response)
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
+              val event = ChannelEvent
+              println(event)
               gameState.testOrdersReset()
               val player = gameState.addPlayer()
               println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
@@ -75,9 +76,11 @@ object MainApp extends ZIOAppDefault {
 
 
             case Read(WebSocketFrame.Close(status, reason)) =>
+              gameState.removePlayer()
               Console.printLine("Closing channel with status: " + status + " and reason: " + reason)
 
             case ChannelEvent.Unregistered =>
+              gameState.removePlayer()
               ZIO.logInfo("Client disconnected")
 
 

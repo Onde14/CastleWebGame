@@ -14,9 +14,10 @@ class Game(gameState: GameState):
       ZIO.scoped{
         for {
           hub <- ZIO.service[Hub[String]]
-          _ <- ZIO.succeed(gameState.update())
-          _ <- if gameState.changes.nonEmpty then hub.publish(outgoingMessageHandling("update",gameState.changes)) else ZIO.unit
-          _ <- ZIO.succeed(gameState.changes.clear())
+          updates <- ZIO.succeed(gameState.update())
+          _ <- if updates.nonEmpty then hub.publish(outgoingMessageHandling("update",updates)) else ZIO.unit
+         // _ <- ZIO.succeed(gameState.changes.clear())
+          //_ <- ZIO.debug(gameState.availablePlayerSlots)
           _ <- ZIO.sleep(16.millis)
         } yield ()
       }

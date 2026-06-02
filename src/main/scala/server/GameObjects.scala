@@ -30,7 +30,7 @@ final case class Soldier (
   ownerColor: String,
   pos: Pos,
   target: Pos,
-  state: Int, // 0 = dead, 1 = live, 2 = moving
+  var state: Int, // 0 = dead, 1 = live, 2 = moving
 ) extends GameObject
 
 final case class SoldierJSON (

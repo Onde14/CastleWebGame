@@ -100,13 +100,21 @@ export class Gamestate {
     console.log(1);
     updates.forEach((u: any) => {
       //console.log(2, u, u, u.id, u.pos);
-      if (u.Soldier) {
-        if (u.Soldier.state == 2) {
-          console.log(3, u.Soldier.id, this.gameObjects);
-          let object: any = this.gameObjects.get(u.Soldier.id);
-          console.log(object);
-          console.log(4);
-          object.pos = new Vector(u.Soldier.pos.x, u.Soldier.pos.y);
+      if (u.state == 2) {
+        console.log(3, u.id, this.gameObjects);
+        let object: any = this.gameObjects.get(u.id);
+        console.log(object);
+        console.log(4);
+        object.pos = new Vector(u.updatedPos.x, u.updatedPos.y);
+      } else if (u.state == 0) {
+        let object: any = this.gameObjects.get(u.id);
+        //console.log(5, object);
+        const player = this.players.filter((p) => p.id == u.playerId)[0];
+        if (player !== undefined) {
+          //console.log(6, player);
+          player.units = player.units.filter((unit) => unit.id != u.id);
+          this.gameObjects.delete(u.id);
+          //console.log(6, player.units, this.gameObjects);
         }
       }
     });

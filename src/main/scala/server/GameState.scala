@@ -12,7 +12,6 @@ class GameState:
   private var gameStarted = false
   var availablePlayerSlots = ArrayBuffer[Player]()
   private var castles = ArrayBuffer[Castle]()
-  var changes = ArrayBuffer[GameObject]()
   var soldiers = ArrayBuffer[Soldier]()
   var removedSoldiers = ArrayBuffer[Soldier]()
   var currentPlayers = ArrayBuffer[Player]()
@@ -47,6 +46,7 @@ class GameState:
     val castle2 = new Castle(Random.between(0, 100000), player2.id, player2.color, new Pos(width/2,100),1)
     castles += castle2
     player2.castles += castle2
+    //println(s"GAME BUILD: $availablePlayerSlots")
 
 
   def getPlayers(): ArrayBuffer[Player] =
@@ -59,31 +59,34 @@ class GameState:
       val player = availablePlayerSlots(currentPlayerIterator)
       currentPlayers += player
       currentPlayerIterator += 1
+      println(s"ADDED PLAYER: $player, PLAYER LIMIT: $playerLimit, CURRENT PLAYER AMOUNT: $currentPlayerIterator")
       return player
     else
       println("ERROR: too many players!")
       return null
 
-  def removePlayer(id: Int): Unit =
-    currentPlayers.filter(_.id != id)
+  def removePlayer(): Unit =
+    currentPlayers -= currentPlayers(0)
+    currentPlayerIterator -= 1
+    println("PLAYER REMOVED")
 
   def createSoldier(playerId: Int, target_castle_id: Int, selected_castles_ids: List[Int]): ResponseAttackOrderMessage =
 
 
     val player: Player = currentPlayers.filter(_.id == playerId)(0)
     val new_soldiers = new ArrayBuffer[Soldier]()
-    println(s"WHATSUP $castles")
 
     val target_castle: Castle = castles.filter(_.id == target_castle_id)(0)
     val selected_castles_ids_set = selected_castles_ids.toSet
     val selected_castles = castles.filter(c => selected_castles_ids_set(c.id))
     for (castle <- selected_castles) {
-      val soldier = new Soldier(Random.between(0,100000), playerId, player.color, castle.pos, target_castle.pos,2)
+      val soldier = new Soldier(Random.between(0,100000), playerId, player.color, new Pos(castle.pos.x,castle.pos.y), target_castle.pos,2)
       soldiers += soldier
       new_soldiers += soldier
       player.units += soldier
     }
     val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("AttackOrder",new_soldiers.toList)
+    //println(s"CREATED SOLDIER AND RESPONSE: $response")
     return response
 
 
@@ -95,31 +98,52 @@ class GameState:
       return false
 
   def moveCalcX(currX: Double, targetX: Double): Double =
+
     if (currX > targetX) then
       return currX - soldierSpeed
-    else
+    else if currX < targetX then
       return currX + soldierSpeed
+    else
+      return currX
 
 
   def moveCalcY(currY: Double, targetY: Double): Double =
     if (currY > targetY) then
       return currY - soldierSpeed
-    else
+    else if currY < targetY then
       return currY + soldierSpeed
+    else
+      return currY
 
-  def moveSoldiers(): Unit =
+  def moveSoldiers(): ArrayBuffer[UpdateData] =
+    var updates = ArrayBuffer[UpdateData]()
     soldiers.foreach(s =>
       val foundTarget = isSoldierInTarget(s.pos,s.target)
       if foundTarget then
-        removedSoldiers += s
+        s.state = 0
       else
         s.pos.x = moveCalcX(s.pos.x, s.target.x)
         s.pos.y = moveCalcY(s.pos.y, s.target.y)
-      changes += s
+      s.state match
+        case 0 =>
+          updates += new UpdateData(s.id,Option(s.owner),Option(s.pos),Option(s.state))
+        case 2 =>
+          updates += new UpdateData(s.id,Option(null),Option(s.pos),Option(s.state))
+
     )
-    removedSoldiers.foreach(s =>
-      soldiers -= s
+    return updates
+
+  def removeSoldiers(updates: ArrayBuffer[UpdateData]): Unit =
+    updates.foreach(u =>
+      //println(s"REMOVING SOLDIER: ${u.id}")
+      //println(s"Soldiers list $soldiers")
+      soldiers -= soldiers.filter(s => u.id == s.id)(0)
+      //println(s"Soldiers list $soldiers")
     )
 
-  def update() =
-    moveSoldiers()
+
+  def update(): ArrayBuffer[UpdateData] =
+    val updates = moveSoldiers()
+    val removedSoldiers = updates.filter(u => u.state.getOrElse(null) == 0)
+    removeSoldiers(removedSoldiers)
+    return updates

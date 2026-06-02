@@ -4,12 +4,10 @@ import server.*
 import scala.annotation.switch
 import scala.collection.mutable.ArrayBuffer
 
-
-
-def outgoingMessageHandling(msgType: String, changes: ArrayBuffer[GameObject]): String =
+def outgoingMessageHandling(msgType: String, updates: ArrayBuffer[UpdateData]): String =
   msgType match
     case s"update" =>
-      return UpdatedGameDataMessage("UpdatedGameState",changes).toJson
+      return UpdatedGameDataMessage("UpdatedGameState",updates).toJson
 
     case _ =>
       return ""

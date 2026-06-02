@@ -53,9 +53,21 @@ implicit val encoder: JsonEncoder[BuildGameDataMessage] =
   DeriveJsonEncoder.gen[BuildGameDataMessage]
 }
 
+final case class UpdateData (
+  id: Int,
+  playerId: Option[Int],
+  updatedPos: Option[Pos],
+  state: Option[Int],
+)
+
+object UpdateData {
+implicit val encoder: JsonEncoder[UpdateData] =
+  DeriveJsonEncoder.gen[UpdateData]
+}
+
 final case class UpdatedGameDataMessage (
   msgType: String,
-  updates: ArrayBuffer[GameObject],
+  updates: ArrayBuffer[UpdateData],
 )
 
 object UpdatedGameDataMessage {
