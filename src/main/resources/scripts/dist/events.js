@@ -25,7 +25,7 @@ export class EventHandler {
             }
             castles = castles.concat(player.castles);
         });
-        console.log("CASTLES: ", castles);
+        //console.log("CASTLES: ", castles);
         const orders = this.controls.mouse_down(target, castles, currPlayer);
         if (orders === undefined) {
             console.log("NO ORDERS.");
@@ -37,8 +37,8 @@ export class EventHandler {
                 const requestJson = {
                     msgType: "AttackOrder",
                     playerId: currPlayer,
-                    target_castle: orders.target_castle,
-                    selected_castles: orders.selected_castles,
+                    target_castle_id: orders.target_castle_id,
+                    selected_castles_ids: orders.selected_castles_ids,
                 };
                 this.messageHandler.send(requestJson);
             }
@@ -62,33 +62,14 @@ export class EventHandler {
         this.canvas.addEventListener("mousemove", (e) => this.mouse_move(e));
         window.addEventListener("resize", () => this.displayDriver.resize());
     }
-    buildGameState(currentPlayerId, players) {
-        console.log("PLAYERS1: ", players);
-        this.gameState.currentPlayerId = currentPlayerId;
-        let playerArray = new Array();
-        players.forEach((player) => {
-            let newPlayer = new Player(false, player.id, new Array(), new Array(), player.color);
-            player.castles.forEach((castle) => {
-                const newCastle = new Castle(new Vector(castle.pos.x, castle.pos.y), castle.id, castle.owner, castle.ownerColor);
-                newPlayer.castles.push(newCastle);
-            });
-            player.units.forEach((unit) => {
-                const newSoldier = new Soldier(new Vector(unit.pos.x, unit.pos.y), unit.id, unit.owner, unit.ownerColor);
-                if (unit.target !== undefined) {
-                    newSoldier.give_target(new Vector(unit.target.x, unit.target.y));
-                }
-                newPlayer.units.push(newSoldier);
-            });
-            playerArray.push(newPlayer);
-        });
-        this.gameState.players = playerArray;
-        console.log("PLAYERS2: ", this.gameState.players);
+    buildGameStateEvent(currentPlayerId, players) {
+        this.gameState.buildGameState(currentPlayerId, players);
     }
-    attackOrder(soldiers) {
+    attackOrderEvent(soldiers) {
         this.gameState.create_soldiers(soldiers);
     }
-    updateGameState(players) {
-        this.gameState.update(players);
+    updateGameStateEvent(updates) {
+        this.gameState.update(updates);
     }
 }
 //# sourceMappingURL=events.js.map

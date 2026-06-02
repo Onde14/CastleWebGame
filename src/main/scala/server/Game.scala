@@ -15,7 +15,8 @@ class Game(gameState: GameState):
         for {
           hub <- ZIO.service[Hub[String]]
           _ <- ZIO.succeed(gameState.update())
-          _ <- hub.publish(outgoingMessageHandling("update",gameState))
+          _ <- if gameState.changes.nonEmpty then hub.publish(outgoingMessageHandling("update",gameState.changes)) else ZIO.unit
+          _ <- ZIO.succeed(gameState.changes.clear())
           _ <- ZIO.sleep(16.millis)
         } yield ()
       }

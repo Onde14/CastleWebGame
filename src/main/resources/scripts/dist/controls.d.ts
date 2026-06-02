@@ -10,8 +10,8 @@ export declare class Controls {
     create_attack_unit_logic(start: Vector, target: Vector): void;
     mouse_move(target: Vector, castles: Array<Castle>): void;
     mouse_down(target: Vector, castles: Array<Castle>, playerId: number): {
-        target_castle: Castle;
-        selected_castles: Castle[];
+        target_castle_id: number;
+        selected_castles_ids: number[];
     } | undefined;
 }
 //# sourceMappingURL=controls.d.ts.map

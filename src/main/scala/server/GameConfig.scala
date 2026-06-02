@@ -27,25 +27,3 @@ object Player {
   implicit val encoder: JsonEncoder[Player] =
     DeriveJsonEncoder.gen[Player]
 }
-
-
-final case class BuildGameData (
-  msgType: String,
-  your_id: Int,
-  players: ArrayBuffer[Player],
-)
-
-object BuildGameData {
-implicit val encoder: JsonEncoder[BuildGameData] =
-  DeriveJsonEncoder.gen[BuildGameData]
-}
-
-final case class UpdatedGameData (
-  msgType: String,
-  players: ArrayBuffer[Player],
-)
-
-object UpdatedGameData {
-implicit val encoder: JsonEncoder[UpdatedGameData] =
-  DeriveJsonEncoder.gen[UpdatedGameData]
-}

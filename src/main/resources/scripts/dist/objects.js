@@ -1,6 +1,6 @@
 import { CastleConfig, SoldierConfig, RoadConfig } from "./config.js";
 import { Vector } from "./vector.js";
-class GameObject {
+export class GameObject {
     movable;
     selectable;
     constructor(movable, selectable) {

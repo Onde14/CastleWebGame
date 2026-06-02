@@ -13,8 +13,8 @@ export declare class EventHandler {
     mouse_move(e: MouseEvent): void;
     startConnection(): void;
     event_handling(): void;
-    buildGameState(currentPlayerId: number, players: any): void;
-    attackOrder(soldiers: any): void;
-    updateGameState(players: any): void;
+    buildGameStateEvent(currentPlayerId: number, players: any): void;
+    attackOrderEvent(soldiers: any): void;
+    updateGameStateEvent(updates: any): void;
 }
 //# sourceMappingURL=events.d.ts.map

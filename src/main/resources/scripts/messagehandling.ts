@@ -6,12 +6,13 @@ import { Soldier, Castle } from "./objects.js";
 type ResponseMessage = {
   msgType: string;
   time?: string;
-  your_id?: number;
-  id?: number;
+  currentPlayerId?: number;
   color?: string;
   message?: string;
   players?: any;
+  updates?: any;
   soldiers?: any;
+  Soldier?: any;
 };
 
 export class MessageHandler {
@@ -23,14 +24,14 @@ export class MessageHandler {
   }
 
   private handleResponse(msg: ResponseMessage) {
-    console.log("TYPE IS ", msg.msgType);
-    if (msg.msgType == "buildGame") {
-      console.log(true);
-    }
+    //console.log("TYPE IS ", msg.msgType);
     switch (msg.msgType) {
       case "BuildGame":
-        if (msg.your_id !== undefined && msg.players !== undefined) {
-          this.eventHandler.buildGameState(msg.your_id, msg.players);
+        if (msg.currentPlayerId !== undefined && msg.players !== undefined) {
+          this.eventHandler.buildGameStateEvent(
+            msg.currentPlayerId,
+            msg.players,
+          );
           break;
         } else {
           throw new Error("Unknown types in the message");
@@ -39,15 +40,16 @@ export class MessageHandler {
         break;
       case "AttackOrder":
         if (msg.soldiers !== undefined) {
-          this.eventHandler.attackOrder(msg.soldiers);
+          this.eventHandler.attackOrderEvent(msg.soldiers);
           break;
         } else {
           throw new Error("Unknown types in the message");
         }
       case "UpdatedGameState":
-        if (msg.players !== undefined) {
-          this.eventHandler.updateGameState(msg.players);
+        if (msg.updates !== undefined) {
+          this.eventHandler.updateGameStateEvent(msg.updates);
         }
+        break;
       default:
         throw new Error("Unknown message type!");
     }
@@ -57,10 +59,10 @@ export class MessageHandler {
     console.log("MESSAGE:::", msg);
     try {
       const parsedJson: ResponseMessage = JSON.parse(msg);
-      console.log(parsedJson);
+      //console.log(parsedJson);
       this.handleResponse(parsedJson);
     } catch (error) {
-      console.log("Couldn't parse incoming message.");
+      console.log("Couldn't parse incoming message: ", error);
     }
   }
 

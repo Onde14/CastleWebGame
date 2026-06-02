@@ -10,14 +10,16 @@ class GameState:
   private val height = 500
   private val width = 500
   private var gameStarted = false
-  private var availablePlayerSlots = ArrayBuffer[Player]()
+  var availablePlayerSlots = ArrayBuffer[Player]()
   private var castles = ArrayBuffer[Castle]()
-  private var soldiers = ArrayBuffer[Soldier]()
+  var changes = ArrayBuffer[GameObject]()
+  var soldiers = ArrayBuffer[Soldier]()
+  var removedSoldiers = ArrayBuffer[Soldier]()
   var currentPlayers = ArrayBuffer[Player]()
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
   private var testOrdersGiven = 0
-  private val soldierSpeed = 1.1
+  private val soldierSpeed = 2.5
 
   def isGameStarted: Boolean = this.gameStarted
   def changeGameStarted(): Unit = gameStarted = true
@@ -33,16 +35,19 @@ class GameState:
     return width
 
 
+
   def buildGameState(): Unit =
     val player1 = new Player(Random.between(0, 100000), "blue", new ArrayBuffer[Castle](), new ArrayBuffer[Soldier]())
     availablePlayerSlots += player1
-    val castle1 = new Castle(Random.between(0, 100000), player1.id, player1.color, new Pos(width/2,height-100))
+    val castle1 = new Castle(Random.between(0, 100000), player1.id, player1.color, new Pos(width/2,height-100),1)
     castles += castle1
     player1.castles += castle1
     val player2 = new Player(Random.between(0, 100000), "red", new ArrayBuffer[Castle](), new ArrayBuffer[Soldier]())
     availablePlayerSlots += player2
-    val castle2 = new Castle(Random.between(0, 100000), player2.id, player2.color, new Pos(width/2,100))
+    val castle2 = new Castle(Random.between(0, 100000), player2.id, player2.color, new Pos(width/2,100),1)
+    castles += castle2
     player2.castles += castle2
+
 
   def getPlayers(): ArrayBuffer[Player] =
     return availablePlayerSlots
@@ -62,16 +67,23 @@ class GameState:
   def removePlayer(id: Int): Unit =
     currentPlayers.filter(_.id != id)
 
-  def createSoldier(playerId: Int, target_castle: Castle, selected_castles: List[Castle]): ResponseAttackOrder =
+  def createSoldier(playerId: Int, target_castle_id: Int, selected_castles_ids: List[Int]): ResponseAttackOrderMessage =
+
+
     val player: Player = currentPlayers.filter(_.id == playerId)(0)
     val new_soldiers = new ArrayBuffer[Soldier]()
+    println(s"WHATSUP $castles")
+
+    val target_castle: Castle = castles.filter(_.id == target_castle_id)(0)
+    val selected_castles_ids_set = selected_castles_ids.toSet
+    val selected_castles = castles.filter(c => selected_castles_ids_set(c.id))
     for (castle <- selected_castles) {
-      val soldier = new Soldier(Random.nextInt(), playerId, player.color, castle.pos, target_castle.pos)
+      val soldier = new Soldier(Random.between(0,100000), playerId, player.color, castle.pos, target_castle.pos,2)
       soldiers += soldier
       new_soldiers += soldier
       player.units += soldier
     }
-    val response: ResponseAttackOrder = new ResponseAttackOrder("AttackOrder",new_soldiers.toList)
+    val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("AttackOrder",new_soldiers.toList)
     return response
 
 
@@ -99,10 +111,14 @@ class GameState:
     soldiers.foreach(s =>
       val foundTarget = isSoldierInTarget(s.pos,s.target)
       if foundTarget then
-        soldiers -= s
+        removedSoldiers += s
       else
         s.pos.x = moveCalcX(s.pos.x, s.target.x)
         s.pos.y = moveCalcY(s.pos.y, s.target.y)
+      changes += s
+    )
+    removedSoldiers.foreach(s =>
+      soldiers -= s
     )
 
   def update() =

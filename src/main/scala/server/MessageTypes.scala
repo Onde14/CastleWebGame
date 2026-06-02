@@ -16,28 +16,49 @@ object MessageType {
     DeriveJsonDecoder.gen[MessageType]
 }
 
-final case class RequestAttackOrder (
+final case class RequestAttackOrderMessage (
   msgType: String,
   playerId: Int,
-  target_castle: Castle,
-  selected_castles: List[Castle],
+  target_castle_id: Int,
+  selected_castles_ids: List[Int],
 )
 
-object RequestAttackOrder {
-  implicit val encoder: JsonEncoder[RequestAttackOrder] =
-    DeriveJsonEncoder.gen[RequestAttackOrder]
-  implicit val decoder: JsonDecoder[RequestAttackOrder] =
-    DeriveJsonDecoder.gen[RequestAttackOrder]
+object RequestAttackOrderMessage {
+  implicit val encoder: JsonEncoder[RequestAttackOrderMessage] =
+    DeriveJsonEncoder.gen[RequestAttackOrderMessage]
+  implicit val decoder: JsonDecoder[RequestAttackOrderMessage] =
+    DeriveJsonDecoder.gen[RequestAttackOrderMessage]
 }
 
-final case class ResponseAttackOrder (
+final case class ResponseAttackOrderMessage (
   msgType: String,
   soldiers: List[Soldier],
 )
 
-object ResponseAttackOrder {
-  implicit val encoder: JsonEncoder[ResponseAttackOrder] =
-    DeriveJsonEncoder.gen[ResponseAttackOrder]
-  implicit val decoder: JsonDecoder[ResponseAttackOrder] =
-    DeriveJsonDecoder.gen[ResponseAttackOrder]
+object ResponseAttackOrderMessage {
+  implicit val encoder: JsonEncoder[ResponseAttackOrderMessage] =
+    DeriveJsonEncoder.gen[ResponseAttackOrderMessage]
+  implicit val decoder: JsonDecoder[ResponseAttackOrderMessage] =
+    DeriveJsonDecoder.gen[ResponseAttackOrderMessage]
+}
+
+final case class BuildGameDataMessage (
+  msgType: String,
+  currentPlayerId: Int,
+  players: ArrayBuffer[Player],
+)
+
+object BuildGameDataMessage {
+implicit val encoder: JsonEncoder[BuildGameDataMessage] =
+  DeriveJsonEncoder.gen[BuildGameDataMessage]
+}
+
+final case class UpdatedGameDataMessage (
+  msgType: String,
+  updates: ArrayBuffer[GameObject],
+)
+
+object UpdatedGameDataMessage {
+implicit val encoder: JsonEncoder[UpdatedGameDataMessage] =
+  DeriveJsonEncoder.gen[UpdatedGameDataMessage]
 }

@@ -1,4 +1,4 @@
-import { Soldier, Castle } from "./objects.js";
+import { Soldier, Castle, GameObject } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
 
@@ -26,16 +26,54 @@ export class Player {
 
 export class Gamestate {
   displayDriver: DisplayDriver;
-  players: Array<Player>;
+  players = Array<Player>();
+  gameObjects = new Map<number, GameObject>();
   currentPlayerId: number;
-  constructor(
-    displayDriver: DisplayDriver,
-    players: Array<Player>,
-    currentPlayerId: number,
-  ) {
+  constructor(displayDriver: DisplayDriver, currentPlayerId: number) {
     this.displayDriver = displayDriver;
-    this.players = players;
     this.currentPlayerId = currentPlayerId;
+  }
+
+  public buildGameState(currentPlayerId: number, players: any) {
+    console.log("PLAYERS1: ", players);
+    this.currentPlayerId = currentPlayerId;
+    let playerArray = new Array<Player>();
+    players.forEach((player: any) => {
+      const id: Int16Array = player.id;
+      let newPlayer = new Player(
+        false,
+        player.id,
+        new Array<Soldier>(),
+        new Array<Castle>(),
+        player.color,
+      );
+      player.castles.forEach((castle: any) => {
+        const newCastle = new Castle(
+          new Vector(castle.pos.x, castle.pos.y),
+          castle.id,
+          castle.owner,
+          castle.ownerColor,
+        );
+        newPlayer.castles.push(newCastle);
+        this.gameObjects.set(newCastle.id, newCastle);
+      });
+      player.units.forEach((unit: any) => {
+        const newSoldier = new Soldier(
+          new Vector(unit.pos.x, unit.pos.y),
+          unit.id,
+          unit.owner,
+          unit.ownerColor,
+        );
+        if (unit.target !== undefined) {
+          newSoldier.give_target(new Vector(unit.target.x, unit.target.y));
+        }
+        newPlayer.units.push(newSoldier);
+        this.gameObjects.set(newSoldier.id, newSoldier);
+      });
+      playerArray.push(newPlayer);
+    });
+    this.players = playerArray;
+    console.log("PLAYERS2: ", this.players);
   }
 
   public create_soldiers(soldiers: any) {
@@ -53,43 +91,25 @@ export class Gamestate {
         attackerPlayer.units.push(new_soldier);
       }
       new_soldier.give_target(new Vector(soldier.target.x, soldier.target.y));
+      this.gameObjects.set(new_soldier.id, new_soldier);
+      console.log("NEW SOLDIER CREATED: ", new_soldier);
     });
   }
 
-  public update(updatedPlayers: any) {
-    let playerArray = new Array<Player>();
-    updatedPlayers.forEach((player: any) => {
-      let newPlayer = new Player(
-        false,
-        player.id,
-        new Array<Soldier>(),
-        new Array<Castle>(),
-        player.color,
-      );
-      player.castles.forEach((castle: any) => {
-        const newCastle = new Castle(
-          new Vector(castle.pos.x, castle.pos.y),
-          castle.id,
-          castle.owner,
-          castle.ownerColor,
-        );
-        newPlayer.castles.push(newCastle);
-      });
-      player.units.forEach((unit: any) => {
-        const newSoldier = new Soldier(
-          new Vector(unit.pos.x, unit.pos.y),
-          unit.id,
-          unit.owner,
-          unit.ownerColor,
-        );
-        if (unit.target !== undefined) {
-          newSoldier.give_target(new Vector(unit.target.x, unit.target.y));
+  public update(updates: any) {
+    console.log(1);
+    updates.forEach((u: any) => {
+      //console.log(2, u, u, u.id, u.pos);
+      if (u.Soldier) {
+        if (u.Soldier.state == 2) {
+          console.log(3, u.Soldier.id, this.gameObjects);
+          let object: any = this.gameObjects.get(u.Soldier.id);
+          console.log(object);
+          console.log(4);
+          object.pos = new Vector(u.Soldier.pos.x, u.Soldier.pos.y);
         }
-        newPlayer.units.push(newSoldier);
-      });
-      playerArray.push(newPlayer);
+      }
     });
-    this.players = playerArray;
   }
 
   private move_commands() {

@@ -59,17 +59,18 @@ export class Controls {
                 .at(0);
             // @ts-ignore
             target_castle.highlighted = false;
-            let selected_castles = new Array();
+            const target_castle_id = target_castle.id;
+            let selected_castles_ids = new Array();
             this.selected.forEach((castle) => {
-                selected_castles.push(castle);
+                selected_castles_ids.push(castle.id);
                 castle.selected = false;
             });
             this.selected = new Map();
             this.is_targeting = false;
             this.is_selecting = false;
             const orders = {
-                target_castle: target_castle,
-                selected_castles: selected_castles,
+                target_castle_id: target_castle_id,
+                selected_castles_ids: selected_castles_ids,
             };
             return orders;
         }
@@ -97,7 +98,6 @@ export class Controls {
         });
         const orders = undefined;
         this.is_selecting = selecting;
-        console.log("NO NO NO ON O ORDERS: ");
         return orders;
     }
 }

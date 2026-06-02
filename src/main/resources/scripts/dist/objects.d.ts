@@ -1,5 +1,5 @@
 import { Vector } from "./vector.js";
-declare class GameObject {
+export declare class GameObject {
     movable: boolean;
     selectable: boolean;
     constructor(movable: boolean, selectable: boolean);
