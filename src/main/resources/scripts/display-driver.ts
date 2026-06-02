@@ -1,6 +1,7 @@
-import { Soldier, Castle } from "./objects.js";
+import { Soldier, Castle, GameObject } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
 import { Player } from "./gamestate.js";
+import type { Game } from "./game.js";
 
 export class DisplayDriver {
   canvas: HTMLCanvasElement;
@@ -25,7 +26,10 @@ export class DisplayDriver {
     this.canvas.height = window.innerHeight;
   }
 
-  public draw(players: Array<Player>, currentplayerId: number) {
+  public draw(
+    gameObjects: Map<number, GameObject>,
+    currentplayerColor: string,
+  ) {
     this.ctx.fillStyle = "green";
     this.ctx.fillRect(0, 0, this.gameWidth, this.gameHeight);
 
@@ -34,85 +38,91 @@ export class DisplayDriver {
     this.ctx.save();
     this.ctx.restore();
 
-    players.forEach((player) => {
-      if (player.id == currentplayerId) {
-        this.ctx.font = "48px serif";
-        this.ctx.fillStyle = player.color;
-        this.ctx.fillText(player.color, 50, 50);
+    this.ctx.font = "48px serif";
+    this.ctx.fillStyle = currentplayerColor;
+    this.ctx.fillText(currentplayerColor, 50, 50);
+
+    let castles = Array<Castle>();
+    let soldiers = Array<Soldier>();
+    gameObjects.forEach((gameObject, key) => {
+      if (gameObject instanceof Soldier) {
+        soldiers.push(gameObject);
+      }
+      if (gameObject instanceof Castle) {
+        castles.push(gameObject);
+      }
+    });
+    soldiers.forEach((unit: Soldier) => {
+      this.ctx.beginPath();
+      this.ctx.arc(
+        unit.pos.x,
+        unit.pos.y,
+        SoldierConfig.radius,
+        0,
+        Math.PI * 2,
+      );
+      this.ctx.closePath();
+      this.ctx.fillStyle = SoldierConfig.color;
+      this.ctx.fill();
+      this.ctx.save();
+
+      this.ctx.beginPath();
+      this.ctx.arc(
+        unit.pos.x,
+        unit.pos.y,
+        SoldierConfig.ownerColorRadius,
+        0,
+        Math.PI * 2,
+      );
+      this.ctx.closePath();
+      this.ctx.fillStyle = unit.ownerColor;
+      this.ctx.fill();
+      this.ctx.save();
+      this.ctx.restore();
+    });
+
+    castles.forEach((castle) => {
+      if (castle.selected) {
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(
+          castle.pos.x - CastleConfig.width / 2 - 2,
+          castle.pos.y - CastleConfig.height / 2 - 2,
+          castle.width + 4,
+          castle.height + 4,
+        );
+        this.ctx.save();
       }
 
-      player.units.forEach((unit) => {
-        this.ctx.beginPath();
-        this.ctx.arc(
-          unit.pos.x,
-          unit.pos.y,
-          SoldierConfig.radius,
-          0,
-          Math.PI * 2,
-        );
-        this.ctx.closePath();
-        this.ctx.fillStyle = SoldierConfig.color;
-        this.ctx.fill();
-        this.ctx.save();
-
-        this.ctx.beginPath();
-        this.ctx.arc(
-          unit.pos.x,
-          unit.pos.y,
-          SoldierConfig.ownerColorRadius,
-          0,
-          Math.PI * 2,
-        );
-        this.ctx.closePath();
-        this.ctx.fillStyle = unit.ownerColor;
-        this.ctx.fill();
-        this.ctx.save();
-        this.ctx.restore();
-      });
-
-      player.castles.forEach((castle) => {
-        if (castle.selected) {
-          this.ctx.fillStyle = "white";
-          this.ctx.fillRect(
-            castle.pos.x - CastleConfig.width / 2 - 2,
-            castle.pos.y - CastleConfig.height / 2 - 2,
-            castle.width + 4,
-            castle.height + 4,
-          );
-          this.ctx.save();
-        }
-
-        if (castle.highlighted) {
-          console.log("DEBUG CASTLE POS " + castle.pos.x + ", " + castle.pos.y);
-          this.ctx.fillStyle = "red";
-          this.ctx.fillRect(
-            castle.pos.x - CastleConfig.width / 2 - 2,
-            castle.pos.y - CastleConfig.height / 2 - 2,
-            castle.width + 4,
-            castle.height + 4,
-          );
-          this.ctx.save();
-        }
-
-        this.ctx.fillStyle = CastleConfig.color;
+      if (castle.highlighted) {
+        console.log("DEBUG CASTLE POS " + castle.pos.x + ", " + castle.pos.y);
+        this.ctx.fillStyle = "red";
         this.ctx.fillRect(
-          castle.pos.x - CastleConfig.width / 2,
-          castle.pos.y - CastleConfig.height / 2,
-          castle.width,
-          castle.height,
+          castle.pos.x - CastleConfig.width / 2 - 2,
+          castle.pos.y - CastleConfig.height / 2 - 2,
+          castle.width + 4,
+          castle.height + 4,
         );
         this.ctx.save();
+      }
 
-        this.ctx.fillStyle = castle.ownerColor;
-        this.ctx.fillRect(
-          castle.pos.x - CastleConfig.ownerColorWidth / 2,
-          castle.pos.y - CastleConfig.ownerColorHeight / 2,
-          CastleConfig.ownerColorWidth,
-          CastleConfig.ownerColorHeight,
-        );
-        this.ctx.save();
-        this.ctx.restore();
-      });
+      this.ctx.fillStyle = CastleConfig.color;
+      this.ctx.fillRect(
+        castle.pos.x - CastleConfig.width / 2,
+        castle.pos.y - CastleConfig.height / 2,
+        castle.width,
+        castle.height,
+      );
+      this.ctx.save();
+
+      this.ctx.fillStyle = castle.ownerColor;
+      this.ctx.fillRect(
+        castle.pos.x - CastleConfig.ownerColorWidth / 2,
+        castle.pos.y - CastleConfig.ownerColorHeight / 2,
+        CastleConfig.ownerColorWidth,
+        CastleConfig.ownerColorHeight,
+      );
+      this.ctx.save();
+      this.ctx.restore();
     });
   }
 }

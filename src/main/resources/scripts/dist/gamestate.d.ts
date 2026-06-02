@@ -13,8 +13,9 @@ export declare class Gamestate {
     players: Player[];
     gameObjects: Map<number, GameObject>;
     currentPlayerId: number;
-    constructor(displayDriver: DisplayDriver, currentPlayerId: number);
-    buildGameState(currentPlayerId: number, players: any): void;
+    currentPlayerColor: string;
+    constructor(displayDriver: DisplayDriver);
+    buildGameState(currentPlayerId: number, currentPlayerColor: string, players: any): void;
     create_soldiers(soldiers: any): void;
     update(updates: any): void;
     private move_commands;

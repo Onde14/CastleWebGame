@@ -43,7 +43,7 @@ export class Game {
       this.gameHeight,
     );
     this.displayDriver.resize();
-    this.gameState = new Gamestate(this.displayDriver, 0);
+    this.gameState = new Gamestate(this.displayDriver);
     this.controls = new Controls();
     console.log("Game built");
     this.eventHandler = new EventHandler(
@@ -76,8 +76,8 @@ export class Game {
         console.log(player);
       }
       this.displayDriver.draw(
-        this.gameState.players,
-        this.gameState.currentPlayerId,
+        this.gameState.gameObjects,
+        this.gameState.currentPlayerColor,
       );
     });
     await sleep(16);

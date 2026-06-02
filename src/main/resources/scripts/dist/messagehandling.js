@@ -13,8 +13,10 @@ export class MessageHandler {
         //console.log("TYPE IS ", msg.msgType);
         switch (msg.msgType) {
             case "BuildGame":
-                if (msg.currentPlayerId !== undefined && msg.players !== undefined) {
-                    this.eventHandler.buildGameStateEvent(msg.currentPlayerId, msg.players);
+                if (msg.currentPlayerId !== undefined &&
+                    msg.currentPlayerColor &&
+                    msg.players !== undefined) {
+                    this.eventHandler.buildGameStateEvent(msg.currentPlayerId, msg.currentPlayerColor, msg.players);
                     break;
                 }
                 else {

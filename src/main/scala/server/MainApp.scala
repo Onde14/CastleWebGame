@@ -70,7 +70,7 @@ object MainApp extends ZIOAppDefault {
               val player = gameState.addPlayer()
               println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
               //val player_data_response_json = s"""{"type": "PlayerData","id": ${player.id},"color": "${player.color}"}"""
-              val player_data_response_json = BuildGameDataMessage("BuildGame",player.id,gameState.availablePlayerSlots).toJson
+              val player_data_response_json = BuildGameDataMessage("BuildGame",player.id,player.color,gameState.availablePlayerSlots).toJson
               channel.send(Read(WebSocketFrame.text(player_data_response_json)))
 
 

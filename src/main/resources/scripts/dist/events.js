@@ -62,8 +62,8 @@ export class EventHandler {
         this.canvas.addEventListener("mousemove", (e) => this.mouse_move(e));
         window.addEventListener("resize", () => this.displayDriver.resize());
     }
-    buildGameStateEvent(currentPlayerId, players) {
-        this.gameState.buildGameState(currentPlayerId, players);
+    buildGameStateEvent(currentPlayerId, currentPlayerColor, players) {
+        this.gameState.buildGameState(currentPlayerId, currentPlayerColor, players);
     }
     attackOrderEvent(soldiers) {
         this.gameState.create_soldiers(soldiers);

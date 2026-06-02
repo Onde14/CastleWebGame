@@ -19,14 +19,15 @@ export class Gamestate {
     displayDriver;
     players = Array();
     gameObjects = new Map();
-    currentPlayerId;
-    constructor(displayDriver, currentPlayerId) {
+    currentPlayerId = -1;
+    currentPlayerColor = "";
+    constructor(displayDriver) {
         this.displayDriver = displayDriver;
-        this.currentPlayerId = currentPlayerId;
     }
-    buildGameState(currentPlayerId, players) {
+    buildGameState(currentPlayerId, currentPlayerColor, players) {
         console.log("PLAYERS1: ", players);
         this.currentPlayerId = currentPlayerId;
+        this.currentPlayerColor = currentPlayerColor;
         let playerArray = new Array();
         players.forEach((player) => {
             const id = player.id;

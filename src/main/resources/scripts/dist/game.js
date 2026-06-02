@@ -32,7 +32,7 @@ export class Game {
         this.gameHeight = this.canvas.height;
         this.displayDriver = new DisplayDriver(this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
-        this.gameState = new Gamestate(this.displayDriver, 0);
+        this.gameState = new Gamestate(this.displayDriver);
         this.controls = new Controls();
         console.log("Game built");
         this.eventHandler = new EventHandler(this.canvas, this.gameState, this.controls, this.displayDriver);
@@ -55,7 +55,7 @@ export class Game {
             if (t % 1000 == 0) {
                 console.log(player);
             }
-            this.displayDriver.draw(this.gameState.players, this.gameState.currentPlayerId);
+            this.displayDriver.draw(this.gameState.gameObjects, this.gameState.currentPlayerColor);
         });
         await sleep(16);
         window.requestAnimationFrame((t) => {

@@ -45,6 +45,7 @@ object ResponseAttackOrderMessage {
 final case class BuildGameDataMessage (
   msgType: String,
   currentPlayerId: Int,
+  currentPlayerColor: String,
   players: ArrayBuffer[Player],
 )
 

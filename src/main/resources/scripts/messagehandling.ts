@@ -7,6 +7,7 @@ type ResponseMessage = {
   msgType: string;
   time?: string;
   currentPlayerId?: number;
+  currentPlayerColor?: string;
   color?: string;
   message?: string;
   players?: any;
@@ -27,9 +28,14 @@ export class MessageHandler {
     //console.log("TYPE IS ", msg.msgType);
     switch (msg.msgType) {
       case "BuildGame":
-        if (msg.currentPlayerId !== undefined && msg.players !== undefined) {
+        if (
+          msg.currentPlayerId !== undefined &&
+          msg.currentPlayerColor &&
+          msg.players !== undefined
+        ) {
           this.eventHandler.buildGameStateEvent(
             msg.currentPlayerId,
+            msg.currentPlayerColor,
             msg.players,
           );
           break;

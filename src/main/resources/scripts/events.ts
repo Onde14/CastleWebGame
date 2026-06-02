@@ -75,8 +75,12 @@ export class EventHandler {
 
     window.addEventListener("resize", () => this.displayDriver.resize());
   }
-  public buildGameStateEvent(currentPlayerId: number, players: any) {
-    this.gameState.buildGameState(currentPlayerId, players);
+  public buildGameStateEvent(
+    currentPlayerId: number,
+    currentPlayerColor: string,
+    players: any,
+  ) {
+    this.gameState.buildGameState(currentPlayerId, currentPlayerColor, players);
   }
 
   public attackOrderEvent(soldiers: any) {
