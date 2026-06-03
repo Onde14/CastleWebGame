@@ -12,7 +12,7 @@ def outgoingMessageHandling(msgType: String, updates: ArrayBuffer[UpdateData]): 
     case _ =>
       return ""
 
-def incomingMessageHandling(msg: String, gameState: GameState): String =
+def incomingMessageHandling(msg: String): String =
 
   val msgType = msg.fromJson[MessageType]
   msgType match
@@ -23,7 +23,7 @@ def incomingMessageHandling(msg: String, gameState: GameState): String =
           val attackOrder = msg.fromJson[RequestAttackOrderMessage]
           attackOrder match
             case Right(orderValue) =>
-              val response = gameState.createSoldier(orderValue.playerId, orderValue.target_castle_id, orderValue.selected_castles_ids)
+              val response = ""//gameState.createSoldier(orderValue.playerId, orderValue.target_castle_id, orderValue.selected_castles_ids)
               return response.toJson
             case Left(orderError) =>
               println(s"failed to decode: $orderError")

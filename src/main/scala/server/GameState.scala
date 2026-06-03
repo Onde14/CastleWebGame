@@ -7,8 +7,8 @@ import org.scalajs.ir.Types.NothingType
 import zio.ZIO
 
 class GameState:
-  private val height = 500
-  private val width = 500
+  private val height = 1000
+  private val width = 1000
   private var gameStarted = false
   var availablePlayerSlots = ArrayBuffer[Player]()
   private var castles = ArrayBuffer[Castle]()

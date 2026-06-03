@@ -12,35 +12,89 @@ import java.time.format.DateTimeFormatter
 import java.time.ZoneId
 import zio.json.*
 import zio.Exit
+import scala.collection.mutable.ArrayBuffer
+
 
 
 
 object MainApp extends ZIOAppDefault {
+  val lobbiesRef = Ref.make(Set.empty[Lobby])
+  val lobbiesLayer = ZLayer.fromZIO(lobbiesRef)
 
 
+  var clientInLobbiesRef = Ref.make(Map.empty[UUID,UUID])
+  val clientInLobbiesLayer = ZLayer.fromZIO(clientInLobbiesRef)
 
   val hubLayer: ZLayer[Any, Nothing, Hub[String]] = ZLayer.fromZIO(Hub.unbounded[String])
 
   val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault())
 
+  /*def createLobby(clientId: UUID): Lobby =
+    val id = UUID.randomUUID()
+    val gameState = new GameState()
+    val clients = ArrayBuffer[UUID](clientId)
+    val lobby = new Lobby(id, gameState, clients)
+    for {
+      _ <- ZIO.service[Ref[Map[UUID, Lobby]]].flatMap(ref => ref.update(_ + (id -> lobby)))
+      _ <- ZIO.service[Ref[Map[UUID, UUID]]].flatMap(ref => ref.update(_ + (id -> lobby.id)))
+    } yield ()
+    return lobby
 
-  val gameState: GameState = GameState()
-  val gameStateRef = Ref.make(gameState)
-  val game: Game = Game(gameState)
-  game.gameRunning = true
-  def gameLoop = game.runGame()
+  def createLobby(clientId: UUID) =
+    for {
+      gameState <- ZIO.succeed(new GameState())
+      clients <- ZIO.succeed(ArrayBuffer[UUID](clientId))
+      newLobby <- ZIO.succeed(new Lobby(clientId, gameState, clients))
+      _ <- ZIO.service[Ref[Map[UUID, Lobby]]].flatMap(ref => ref.update(_ + (clientId -> newLobby)))
+      _ <- ZIO.service[Ref[Map[UUID, UUID]]].flatMap(ref => ref.update(_ + (clientId -> newLobby.id)))
+    } yield newLobby
 
-  gameState.changeGameStarted()
-  println("Is game Started: " + gameState.isGameStarted)
-  gameState.buildGameState()
+    def lobbyHandle(lobby: Lobby, clientId: UUID) =
+      if lobby != null then
+        for {
+          _ <- addClientInServer(clientId, lobby.id)
+          _ <- ZIO.succeed(lobby.addClient(clientId))
+        } yield lobby
+      else
+        for {
+          _ <- ZIO.debug("HELLO")
+          lobby <- createLobby(clientId)
+          _ <- addClientInServer(clientId, lobby.id)
+          _ <- ZIO.succeed(lobby.addClient(clientId))
+        } yield lobby
+*/
 
 
-  val webSocketHandle: WebSocketApp[Hub[String]] =
+  //gameState.changeGameStarted()
+  //println("Is game Started: " + gameState.isGameStarted)
+  //gameState.buildGameState()
+  def addClientInServer(clientId: UUID, lobbyId: UUID) =
+    for {
+      _ <- ZIO.service[Ref[Map[UUID, UUID]]].flatMap(ref => ref.update(_ + (clientId -> lobbyId)))
+    } yield ()
+
+  def fetchLobby(id: UUID) =
+    for {
+      ref <- ZIO.service[Ref[Map[UUID, Lobby]]]
+      lobbies <- ref.get
+      _ <- ZIO.succeed(println("Printing lobbies: "))
+      _ <- ZIO.succeed(lobbies.foreach((key, lobby) => println(s"Lobby: $key is $lobby")))
+      pair <- ZIO.succeed(lobbies.find((key, lobby) => lobby.isFull == false).getOrElse(null))
+    } yield pair._2
+
+
+
+  val webSocketHandle =
     Handler.webSocket { channel =>
       ZIO.scoped {
         for {
           hub   <- ZIO.service[Hub[String]]
           queue <- hub.subscribe
+          lobbiesRef <- ZIO.service[Ref[Set[Lobby]]]
+          //lobbies <- lobbiesRef.get
+          clientsRef <- ZIO.service[Ref[Map[UUID, UUID]]]
+          clientId <- ZIO.succeed(UUID.randomUUID())
+
 
           outgoing = ZStream
             .fromQueue(queue)
@@ -50,7 +104,7 @@ object MainApp extends ZIOAppDefault {
           incoming = channel.receiveAll {
             case Read(WebSocketFrame.Text(text)) =>
               println(s"GOT MESSAGE: $text")
-              val response = incomingMessageHandling(text,gameState)
+              val response = incomingMessageHandling(text)
               if response == "" then
                 var timeStamp = ""
                 for {
@@ -65,23 +119,68 @@ object MainApp extends ZIOAppDefault {
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
               val event = ChannelEvent
+              //val clientId = UUID.randomUUID()
               println(event)
-              gameState.testOrdersReset()
-              val player = gameState.addPlayer()
-              println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
+              for {
+                //_ <- ZIO.succeed(println("HELLOPRINT"))
+                _ <- ZIO.debug("HELLO")
+
+                lobbies <- lobbiesRef.get
+                _ <- ZIO.debug(s"LOBBIES: $lobbies")
+
+                //newClientId <- ZIO.succeed(UUID.randomUUID())
+                someLobby <- ZIO.succeed(lobbies.find(l => l != null))
+                _ <- ZIO.debug("l: " + someLobby)
+                lobby <- ZIO.succeed(someLobby.getOrElse{
+                  val newLobby = new Lobby(new GameState, ArrayBuffer[UUID](clientId))
+                  newLobby
+                })
+                lobbyId <- ZIO.succeed(UUID.randomUUID())
+                _ <- ZIO.succeed(lobby.id = lobbyId)
+                _ <- ZIO.debug("l: " + lobby)
+                _ <- addClientInServer(clientId, lobby.id)
+                _ <- ZIO.succeed(lobby.addClient(clientId))
+                _ <- lobbiesRef.update(_ + lobby)
+                _ <- clientsRef.update(_ + (clientId -> lobbyId))
+                _ <- ZIO.debug(s"LOBBIES: $lobbies")
+                clients <- clientsRef.get
+                _ <- ZIO.debug(s"CLIENTS: $clients")
+
+                //lobby <- ZIO.succeed(lobbyHandle(pair._2,newClientId))
+                //l <- lobbyHandle(l._2, newClientId)
+                //_ <- ZIO.debug("HELLO")
+
+                _ <- channel.send(Read(WebSocketFrame.text(s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
+                _ <- ZIO.succeed(lobby.started = true)
+                //_ <- ZIO.interrupt
+              } yield ()
+              //channel.send(Read(WebSocketFrame.text(s"WELCOME ${newClientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull}")))
+              //val player = gameState.addPlayer()
+              //println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
               //val player_data_response_json = s"""{"type": "PlayerData","id": ${player.id},"color": "${player.color}"}"""
-              val player_data_response_json = BuildGameDataMessage("BuildGame",player.id,player.color,gameState.availablePlayerSlots).toJson
-              channel.send(Read(WebSocketFrame.text(player_data_response_json)))
+              //val player_data_response_json = BuildGameDataMessage("BuildGame",player.id,player.color,gameState.availablePlayerSlots).toJson
+              //channel.send(Read(WebSocketFrame.text(player_data_response_json)))
+
 
 
 
             case Read(WebSocketFrame.Close(status, reason)) =>
-              gameState.removePlayer()
+              for {
+                _ <- clientsRef.update(_ - clientId)
+                clients <- clientsRef.get
+                _ <- ZIO.debug(s"CLIENTS: $clients")
+              } yield ()
               Console.printLine("Closing channel with status: " + status + " and reason: " + reason)
 
             case ChannelEvent.Unregistered =>
-              gameState.removePlayer()
-              ZIO.logInfo("Client disconnected")
+              for {
+                _ <- clientsRef.update(_ - clientId)
+                clients <- clientsRef.get
+                _ <- ZIO.debug(s"CLIENTS: $clients")
+
+                _ <- ZIO.logInfo("Client disconnected")
+              } yield ()
+
 
 
             case _ =>
@@ -104,7 +203,7 @@ object MainApp extends ZIOAppDefault {
         meta(charset("utf-8"))
       ),
       body(
-          canvas(id("canvas"), width(gameState.getGameWidth()), height(gameState.getGameHeight())),
+          canvas(id("canvas"), width(1000), height(1000)),
           script.externalModule("scripts/dist/game.js")
       )
     )
@@ -139,8 +238,5 @@ object MainApp extends ZIOAppDefault {
 
   override def run =
     Server.serve(routes)
-      .zipPar(
-        gameLoop
-          .forever
-      ).provide(hubLayer, Server.default).unit
+    .provide(Server.default, lobbiesLayer, hubLayer, clientInLobbiesLayer)
 }

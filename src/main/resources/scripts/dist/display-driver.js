@@ -6,23 +6,31 @@ export class DisplayDriver {
     ctx;
     gameWidth;
     gameHeight;
+    renderWidthPositionRatio;
+    renderHeightPositionRatio;
     constructor(canvas, ctx, gameWidth, gameHeight) {
         this.ctx = ctx;
         this.canvas = canvas;
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
+        this.renderWidthPositionRatio = this.canvas.width / this.gameWidth;
+        this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
     }
     resize() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+        this.renderWidthPositionRatio = this.canvas.width / this.gameWidth;
+        this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
     }
     draw(gameObjects, currentplayerColor) {
         this.ctx.fillStyle = "green";
-        this.ctx.fillRect(0, 0, this.gameWidth, this.gameHeight);
-        this.ctx.fillStyle = "brown";
+        this.ctx.fillRect(0, 0, this.gameWidth * this.renderWidthPositionRatio, this.gameHeight * this.renderHeightPositionRatio);
+        //console.log("HEIGHT WINDOW RATIO: ", this.renderWidthPositionRatio);
+        //console.log("WIDTH WINDOW RATIO: ", this.renderHeightPositionRatio);
+        /*this.ctx.fillStyle = "brown";
         this.ctx.fillRect(this.gameWidth / 2 - 5, 75, 10, this.gameHeight - 175);
         this.ctx.save();
-        this.ctx.restore();
+        this.ctx.restore();*/
         this.ctx.font = "48px serif";
         this.ctx.fillStyle = currentplayerColor;
         this.ctx.fillText(currentplayerColor, 50, 50);
@@ -58,9 +66,9 @@ export class DisplayDriver {
                 this.ctx.save();
             }
             if (castle.highlighted) {
-                console.log("DEBUG CASTLE POS " + castle.pos.x + ", " + castle.pos.y);
+                //console.log("DEBUG CASTLE POS " + castle.pos.x + ", " + castle.pos.y);
                 this.ctx.fillStyle = "red";
-                this.ctx.fillRect(castle.pos.x - CastleConfig.width / 2 - 2, castle.pos.y - CastleConfig.height / 2 - 2, castle.width + 4, castle.height + 4);
+                this.ctx.fillRect(castle.pos.x - CastleConfig.width / 2 - CastleConfig.width * 0.04, castle.pos.y - CastleConfig.height / 2 - CastleConfig.height * 0.04, castle.width + CastleConfig.width * 0.08, castle.height + CastleConfig.height * 0.08);
                 this.ctx.save();
             }
             this.ctx.fillStyle = CastleConfig.color;

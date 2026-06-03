@@ -4,20 +4,6 @@ import { Controls } from "./controls.js";
 import { Gamestate, Player } from "./gamestate.js";
 import { EventHandler } from "./events.js";
 
-let message = "Hello World!";
-console.log(message);
-
-const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-const canvas_width = canvas.width;
-const canvas_height = canvas.height;
-const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-
-const canvas_cwidth = canvas.clientWidth;
-const canvas_cheight = canvas.clientHeight;
-
-console.log("PW: ", canvas_width, ", CW: ", canvas_cwidth);
-console.log("PH: ", canvas_height, ", CH ", canvas_cheight);
-
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

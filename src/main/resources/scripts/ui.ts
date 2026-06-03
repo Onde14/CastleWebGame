@@ -1,9 +1,12 @@
 enum UIStates {
   Menu,
+  SessionOptions,
+  Session,
+  Game,
+  Leaderboard,
 }
 
 export class UserInterface {
-  state: string = "";
-
+  state = UIStates.Menu;
   constructor() {}
 }
