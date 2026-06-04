@@ -3,6 +3,8 @@ import zio.json.*
 import javax.naming.spi.DirStateFactory.Result
 import scala.collection.mutable.ArrayBuffer
 import server.*
+import java.util.UUID
+
 
 
 
@@ -14,6 +16,16 @@ final case class MessageType (
 object MessageType {
   implicit val decoder: JsonDecoder[MessageType] =
     DeriveJsonDecoder.gen[MessageType]
+}
+
+final case class LobbyIdMessage (
+  msgType: String,
+  lobbyId: UUID,
+)
+
+object LobbyIdMessage {
+  implicit val encoder: JsonEncoder[LobbyIdMessage] =
+    DeriveJsonEncoder.gen[LobbyIdMessage]
 }
 
 final case class RequestAttackOrderMessage (

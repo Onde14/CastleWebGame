@@ -37,6 +37,11 @@ export class MessageHandler {
                     this.eventHandler.updateGameStateEvent(msg.updates);
                 }
                 break;
+            case "HelloMessage":
+                console.log("Got the ", msg.msgType, "back.");
+                break;
+            case "LobbyId":
+                break;
             default:
                 throw new Error("Unknown message type!");
         }

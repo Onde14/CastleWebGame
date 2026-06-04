@@ -3,18 +3,21 @@ import zio.json.*
 import server.*
 import scala.annotation.switch
 import scala.collection.mutable.ArrayBuffer
+import java.util.UUID
 
-def outgoingMessageHandling(msgType: String, updates: ArrayBuffer[UpdateData]): String =
+def outgoingMessageHandling(msgType: String, content: List[String]): String =
   msgType match
     case s"update" =>
-      return UpdatedGameDataMessage("UpdatedGameState",updates).toJson
-
+      return ""//UpdatedGameDataMessage("UpdatedGameState",updates).toJson
+    case s"initialClientInfoMessage" =>
+      return LobbyIdMessage("LobbyId", UUID.fromString(content(0))).toJson
     case _ =>
       return ""
 
 def incomingMessageHandling(msg: String): String =
 
   val msgType = msg.fromJson[MessageType]
+  print(msgType)
   msgType match
     case Right(value) =>
       println("msgType: " + value.msgType)

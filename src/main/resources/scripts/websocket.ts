@@ -13,7 +13,7 @@ export class WebSocketDriver {
 
     this.webSocket.onopen = (event) => {
       console.log("Connected to ZIO server!", event);
-      this.sendMessage("Hello from TypeScript!");
+      this.sendMessage(JSON.stringify({msgType:"HelloMessage"}));
     };
 
     this.webSocket.onmessage = (event) => {

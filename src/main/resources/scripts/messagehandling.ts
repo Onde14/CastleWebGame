@@ -14,6 +14,7 @@ type ResponseMessage = {
   updates?: any;
   soldiers?: any;
   Soldier?: any;
+  lobbyId: string;
 };
 
 export class MessageHandler {
@@ -55,6 +56,11 @@ export class MessageHandler {
         if (msg.updates !== undefined) {
           this.eventHandler.updateGameStateEvent(msg.updates);
         }
+        break;
+      case "HelloMessage":
+        console.log("Got the ",msg.msgType, "back.");
+        break;
+      case "LobbyId":
         break;
       default:
         throw new Error("Unknown message type!");

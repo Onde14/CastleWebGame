@@ -106,13 +106,7 @@ object MainApp extends ZIOAppDefault {
               println(s"GOT MESSAGE: $text")
               val response = incomingMessageHandling(text)
               if response == "" then
-                var timeStamp = ""
-                for {
-                  now       <- Clock.instant
-                  timeStamp = timeFormatter.format(now)
-                } yield timeStamp
-                val errorResponse = s"""{"msgType":"Message","time":"${timeStamp}","message":"${text}"}"""
-                channel.send(ChannelEvent.Read(WebSocketFrame.text(errorResponse)))
+                channel.send(ChannelEvent.Read(WebSocketFrame.text(text)))
               else
                 hub.publish(response)
               //hub.publish(response)
@@ -123,34 +117,35 @@ object MainApp extends ZIOAppDefault {
               println(event)
               for {
                 //_ <- ZIO.succeed(println("HELLOPRINT"))
-                _ <- ZIO.debug("HELLO")
+              //  _ <- ZIO.debug("HELLO")
 
                 lobbies <- lobbiesRef.get
-                _ <- ZIO.debug(s"LOBBIES: $lobbies")
+              //  _ <- ZIO.debug(s"LOBBIES: $lobbies")
 
                 //newClientId <- ZIO.succeed(UUID.randomUUID())
                 someLobby <- ZIO.succeed(lobbies.find(l => l != null))
-                _ <- ZIO.debug("l: " + someLobby)
+               // _ <- ZIO.debug("l: " + someLobby)
                 lobby <- ZIO.succeed(someLobby.getOrElse{
                   val newLobby = new Lobby(new GameState, ArrayBuffer[UUID](clientId))
                   newLobby
                 })
                 lobbyId <- ZIO.succeed(UUID.randomUUID())
                 _ <- ZIO.succeed(lobby.id = lobbyId)
-                _ <- ZIO.debug("l: " + lobby)
+                //_ <- ZIO.debug("l: " + lobby)
                 _ <- addClientInServer(clientId, lobby.id)
                 _ <- ZIO.succeed(lobby.addClient(clientId))
                 _ <- lobbiesRef.update(_ + lobby)
                 _ <- clientsRef.update(_ + (clientId -> lobbyId))
-                _ <- ZIO.debug(s"LOBBIES: $lobbies")
+               // _ <- ZIO.debug(s"LOBBIES: $lobbies")
+
                 clients <- clientsRef.get
-                _ <- ZIO.debug(s"CLIENTS: $clients")
+                //_ <- ZIO.debug(s"CLIENTS: $clients")
 
                 //lobby <- ZIO.succeed(lobbyHandle(pair._2,newClientId))
                 //l <- lobbyHandle(l._2, newClientId)
                 //_ <- ZIO.debug("HELLO")
-
-                _ <- channel.send(Read(WebSocketFrame.text(s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
+                response <- ZIO.succeed(outgoingMessageHandling("initialClientInfoMessage",List(lobbyId.toString)))
+                _ <- channel.send(Read(WebSocketFrame.text(response)))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
                 _ <- ZIO.succeed(lobby.started = true)
                 //_ <- ZIO.interrupt
               } yield ()

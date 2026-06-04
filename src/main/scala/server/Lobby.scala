@@ -32,7 +32,7 @@ class Lobby (gameState: GameState, clients: ArrayBuffer[UUID]):
         for {
           hub <- ZIO.service[Hub[String]]
           updates <- ZIO.succeed(gameState.update())
-          _ <- if updates.nonEmpty then hub.publish(outgoingMessageHandling("update",updates)) else ZIO.unit
+          //_ <- if updates.nonEmpty then hub.publish(outgoingMessageHandling("update",updates)) else ZIO.unit
         // _ <- ZIO.succeed(gameState.changes.clear())
         // _ <- ZIO.debug(gameState.availablePlayerSlots)
           _ <- ZIO.sleep(16.millis)
