@@ -1,6 +1,8 @@
 package server
 import scala.collection.mutable.ArrayBuffer
 import zio.json._
+import java.util.UUID
+
 
 case class Pos(
   var x: Double,
@@ -18,7 +20,7 @@ object Pos {
 
 
 final case class Player (
-  id: Int,
+  id: UUID,
   color: String,
   castles: ArrayBuffer[Castle],
   units: ArrayBuffer[Soldier],

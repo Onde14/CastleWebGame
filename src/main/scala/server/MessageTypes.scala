@@ -31,9 +31,9 @@ object ClientInfoMessage {
 
 final case class RequestAttackOrderMessage (
   msgType: String,
-  playerId: Int,
-  target_castle_id: Int,
-  selected_castles_ids: List[Int],
+  playerId: UUID,
+  target_castle_id: UUID,
+  selected_castles_ids: List[UUID],
 )
 
 object RequestAttackOrderMessage {
@@ -67,8 +67,8 @@ implicit val encoder: JsonEncoder[BuildGameDataMessage] =
 }
 
 final case class UpdateData (
-  id: Int,
-  playerId: Option[Int],
+  id: UUID,
+  playerId: Option[UUID],
   updatedPos: Option[Pos],
   state: Option[Int],
 )

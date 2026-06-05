@@ -17,7 +17,12 @@ class Lobby(h: Hub[String],g: GameState):
   var currSize = 0
   val maxSize = 2
   var started = false
+  var ended = false
   var isFull = false
+  def setStatus() =
+    if currSize < 2 then
+      ended = true
+
   def checkSize() =
     println("SIZES: " + currSize +  maxSize)
     if currSize == maxSize then isFull = true else isFull = false
@@ -29,12 +34,8 @@ class Lobby(h: Hub[String],g: GameState):
     clients -= id
     currSize -= 1
     checkSize()
-  def colorPicker(): String =
-    currSize match
-      case 0 =>
-        return "blue"
-      case _ =>
-        return "red"
+    setStatus()
+
 
   def buildGame() =
     gameState.buildGameState()

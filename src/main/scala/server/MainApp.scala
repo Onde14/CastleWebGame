@@ -71,10 +71,6 @@ object MainApp extends ZIOAppDefault {
               //hub.publish(response)
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
-
-              val event = ChannelEvent
-              //val clientId = UUID.randomUUID()
-              println(event)
               for {
                 //_ <- ZIO.succeed(println("HELLOPRINT"))
               //  _ <- ZIO.debug("HELLO")
@@ -125,28 +121,79 @@ object MainApp extends ZIOAppDefault {
 
             case Read(WebSocketFrame.Close(status, reason)) =>
               for {
-                _ <- clientsInLobbiesRef.update(_ - clientId)
+
+                clientsInLobbies <- clientsInLobbiesRef.get
+                lobby <- ZIO.succeed(clientsInLobbies.get(clientId).getOrElse(null))
+                _ <- ZIO.when(lobby != null) {
+                    for {
+                      _ <- ZIO.debug(s"FOUND LOBBY: $lobby")
+                      _ <- ZIO.debug(s"DELETING CLIENT: $clientId")
+                      _ <- ZIO.succeed(lobby.removeClient(clientId))
+                      _ <- clientsInLobbiesRef.update(_ - clientId)
+                    } yield ()
+                }
+                _ <- ZIO.when(lobby.ended){
+                      for {
+                        _ <- ZIO.debug(s"DESTROYING LOBBY: $lobby")
+                        _ <- lobbiesRef.update(_ - lobby)
+                        _ <- ZIO.foreach(lobby.clients) { clientId =>
+                              ZIO.succeed(println(s"DELETING CLIENT: $clientId"))
+                              clientsInLobbiesRef.update(_ - clientId)
+                            }
+                      } yield()
+                }
+
+
+
                 clients <- clientsInLobbiesRef.get
+                lobbies <- lobbiesRef.get
                 _ <- ZIO.debug(s"CLIENTS: $clients")
+                _ <- ZIO.debug(s"LOBBIES: $lobbies")
+
+                _ <- ZIO.debug("Closing channel with status: " + status + " and reason: " + reason)
+
               } yield ()
-              Console.printLine("Closing channel with status: " + status + " and reason: " + reason)
 
             case ChannelEvent.Unregistered =>
               for {
-                _ <- clientsInLobbiesRef.update(_ - clientId)
+
+                clientsInLobbies <- clientsInLobbiesRef.get
+                lobby <- ZIO.succeed(clientsInLobbies.get(clientId).getOrElse(null))
+                _ <- ZIO.when(lobby != null) {
+                    for {
+                      _ <- ZIO.debug(s"FOUND LOBBY: $lobby")
+                      _ <- ZIO.debug(s"DELETING CLIENT: $clientId")
+                      _ <- ZIO.succeed(lobby.removeClient(clientId))
+                      _ <- clientsInLobbiesRef.update(_ - clientId)
+                    } yield ()
+                }
+                _ <- ZIO.when(lobby.ended){
+                      for {
+                        _ <- ZIO.debug(s"DESTROYING LOBBY: $lobby")
+                        _ <- lobbiesRef.update(_ - lobby)
+                        _ <- ZIO.foreach(lobby.clients) { clientId =>
+                               ZIO.succeed(println(s"DELETING CLIENT: $clientId"))
+                               clientsInLobbiesRef.update(_ - clientId)
+                             }
+                      } yield()
+                }
+
+
+
                 clients <- clientsInLobbiesRef.get
+                lobbies <- lobbiesRef.get
                 _ <- ZIO.debug(s"CLIENTS: $clients")
+                _ <- ZIO.debug(s"LOBBIES: $lobbies")
 
-                _ <- ZIO.logInfo("Client disconnected")
+                _ <- ZIO.debug("Client disconnected")
+
               } yield ()
-
 
 
             case _ =>
               ZIO.unit
           }
           _ <- outgoing zipPar incoming
-
         } yield ()
       }
     }

@@ -2,6 +2,8 @@ package server
 import scala.collection.mutable.ArrayBuffer
 import zio.json._
 import scala.compiletime.ops.boolean
+import java.util.UUID
+
 
 
 sealed trait GameObject
@@ -9,8 +11,8 @@ sealed trait GameObject
 
 
 final case class Castle (
-  id: Int,
-  owner: Int,
+  id: UUID,
+  owner: UUID,
   ownerColor: String,
   pos: Pos,
   state: Int, // 0 = dead, 1 = live
@@ -25,8 +27,8 @@ object Castle {
 }
 
 final case class Soldier (
-  id: Int,
-  owner: Int,
+  id: UUID,
+  owner: UUID,
   ownerColor: String,
   pos: Pos,
   target: Pos,

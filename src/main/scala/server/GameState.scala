@@ -8,6 +8,8 @@ import zio._
 import zio.http._
 import os.*
 import zio.json.*
+import scala.compiletime.ops.double
+import java.util.UUID
 
 
 
@@ -23,6 +25,7 @@ class GameState:
   var currentPlayers = ArrayBuffer[Player]()
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
+  val colors = List("blue","red")
   private var testOrdersGiven = 0
   private val soldierSpeed = 2.5
 
@@ -39,33 +42,37 @@ class GameState:
   def getGameWidth(): Int =
     return width
 
-  def getMap() =
+  def getMap(): MapDataFile =
     println("Hello")
 
     val path = os.pwd/"src"/"main"/"scala"/"server"/"maps"/"demo.json"
-    println("Hello")
 
     val mapContent = os.read(path).fromJson[MapDataFile]
 
     println("PATH: " + path)
-    println("Hello")
 
     println("FILE: " + os.read(path))
-    println("Hello")
 
     mapContent match
       case Right(value) =>
         println("JSON: " + value)
-
+        value
       case Left(value) =>
         println(s"Failed to decode map content $value")
-
+    return null
 
   def buildGameState(): Unit =
-    println("Hello")
-    getMap()
+    val mapFile = getMap()
     //val map = mapPositions(content.fromJson)
+    var i = 0
+    for line <- mapFile.MapDataFile do
+      val playerId = UUID.randomUUID()
+      val player = new Player(playerId, colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
+      val castle = new Castle(UUID.randomUUID(), playerId, player.color,line.pos, 1)
+      player.castles += castle
+      i += 1
 
+    /*
     val player1 = new Player(Random.between(0, 100000), "blue", new ArrayBuffer[Castle](), new ArrayBuffer[Soldier]())
     availablePlayerSlots += player1
     val castle1 = new Castle(Random.between(0, 100000), player1.id, player1.color, new Pos(width/2,height-100),1)
@@ -76,11 +83,8 @@ class GameState:
     val castle2 = new Castle(Random.between(0, 100000), player2.id, player2.color, new Pos(width/2,100),1)
     castles += castle2
     player2.castles += castle2
+    */
     //println(s"GAME BUILD: $availablePlayerSlots")
-
-
-  def getPlayers(): ArrayBuffer[Player] =
-    return availablePlayerSlots
 
   def addPlayer(): Player =
     println(currentPlayerIterator)
@@ -100,7 +104,7 @@ class GameState:
     currentPlayerIterator -= 1
     println("PLAYER REMOVED")
 
-  def createSoldier(playerId: Int, target_castle_id: Int, selected_castles_ids: List[Int]): ResponseAttackOrderMessage =
+  def createSoldier(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]): ResponseAttackOrderMessage =
 
 
     val player: Player = currentPlayers.filter(_.id == playerId)(0)
@@ -110,7 +114,7 @@ class GameState:
     val selected_castles_ids_set = selected_castles_ids.toSet
     val selected_castles = castles.filter(c => selected_castles_ids_set(c.id))
     for (castle <- selected_castles) {
-      val soldier = new Soldier(Random.between(0,100000), playerId, player.color, new Pos(castle.pos.x,castle.pos.y), target_castle.pos,2)
+      val soldier = new Soldier(UUID.randomUUID(), playerId, player.color, new Pos(castle.pos.x,castle.pos.y), target_castle.pos,2)
       soldiers += soldier
       new_soldiers += soldier
       player.units += soldier
