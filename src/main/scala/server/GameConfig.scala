@@ -8,6 +8,7 @@ case class Pos(
 )
 
 
+
 object Pos {
   implicit val encoder: JsonEncoder[Pos] =
     DeriveJsonEncoder.gen[Pos]
@@ -27,3 +28,24 @@ object Player {
   implicit val encoder: JsonEncoder[Player] =
     DeriveJsonEncoder.gen[Player]
 }
+
+final case class MapData (
+  id: Int,
+  pos: Pos,
+)
+
+object MapData {
+  implicit val decoder: JsonDecoder[MapData] =
+    DeriveJsonDecoder.gen[MapData]
+}
+
+final case class MapDataFile (
+  MapDataFile: List[MapData]
+)
+
+object MapDataFile {
+  implicit val decoder: JsonDecoder[MapDataFile] =
+    DeriveJsonDecoder.gen[MapDataFile]
+}
+
+

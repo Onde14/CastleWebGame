@@ -18,14 +18,15 @@ object MessageType {
     DeriveJsonDecoder.gen[MessageType]
 }
 
-final case class LobbyIdMessage (
+final case class ClientInfoMessage (
   msgType: String,
+  clientId: UUID,
   lobbyId: UUID,
 )
 
-object LobbyIdMessage {
-  implicit val encoder: JsonEncoder[LobbyIdMessage] =
-    DeriveJsonEncoder.gen[LobbyIdMessage]
+object ClientInfoMessage {
+  implicit val encoder: JsonEncoder[ClientInfoMessage] =
+    DeriveJsonEncoder.gen[ClientInfoMessage]
 }
 
 final case class RequestAttackOrderMessage (
@@ -56,7 +57,6 @@ object ResponseAttackOrderMessage {
 
 final case class BuildGameDataMessage (
   msgType: String,
-  currentPlayerId: Int,
   currentPlayerColor: String,
   players: ArrayBuffer[Player],
 )

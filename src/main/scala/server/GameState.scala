@@ -4,7 +4,13 @@ import server.*
 import scala.util.Random
 import scala.compiletime.ops.boolean
 import org.scalajs.ir.Types.NothingType
-import zio.ZIO
+import zio._
+import zio.http._
+import os.*
+import zio.json.*
+
+
+
 
 class GameState:
   private val height = 1000
@@ -33,9 +39,33 @@ class GameState:
   def getGameWidth(): Int =
     return width
 
+  def getMap() =
+    println("Hello")
+
+    val path = os.pwd/"src"/"main"/"scala"/"server"/"maps"/"demo.json"
+    println("Hello")
+
+    val mapContent = os.read(path).fromJson[MapDataFile]
+
+    println("PATH: " + path)
+    println("Hello")
+
+    println("FILE: " + os.read(path))
+    println("Hello")
+
+    mapContent match
+      case Right(value) =>
+        println("JSON: " + value)
+
+      case Left(value) =>
+        println(s"Failed to decode map content $value")
 
 
   def buildGameState(): Unit =
+    println("Hello")
+    getMap()
+    //val map = mapPositions(content.fromJson)
+
     val player1 = new Player(Random.between(0, 100000), "blue", new ArrayBuffer[Castle](), new ArrayBuffer[Soldier]())
     availablePlayerSlots += player1
     val castle1 = new Castle(Random.between(0, 100000), player1.id, player1.color, new Pos(width/2,height-100),1)

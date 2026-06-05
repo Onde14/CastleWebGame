@@ -14,7 +14,8 @@ type ResponseMessage = {
   updates?: any;
   soldiers?: any;
   Soldier?: any;
-  lobbyId: string;
+  lobbyId?: string;
+  clientId?: string;
 };
 
 export class MessageHandler {
@@ -60,7 +61,8 @@ export class MessageHandler {
       case "HelloMessage":
         console.log("Got the ",msg.msgType, "back.");
         break;
-      case "LobbyId":
+      case "ClientInfo":
+        console.log("Got the ",msg.msgType + ".");
         break;
       default:
         throw new Error("Unknown message type!");

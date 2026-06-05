@@ -7,10 +7,12 @@ import java.util.UUID
 
 def outgoingMessageHandling(msgType: String, content: List[String]): String =
   msgType match
-    case s"update" =>
+    case s"UpdatedGameDataMessage" =>
       return ""//UpdatedGameDataMessage("UpdatedGameState",updates).toJson
+    case s"BuildGameDataMessage" =>
+      return ""
     case s"initialClientInfoMessage" =>
-      return LobbyIdMessage("LobbyId", UUID.fromString(content(0))).toJson
+      return ClientInfoMessage("ClientInfo", UUID.fromString(content(0)), UUID.fromString(content(1))).toJson
     case _ =>
       return ""
 

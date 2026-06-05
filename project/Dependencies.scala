@@ -9,5 +9,6 @@ object Dependencies {
 
   val zioTest     = "dev.zio" %% "zio-test"     % zioVersion % Test
   val zioTestSBT = "dev.zio" %% "zio-test-sbt" % zioVersion % Test
-  val zioTestMagnolia = "dev.zio" %% "zio-test-magnolia" % zioVersion % Test  
+  val zioTestMagnolia = "dev.zio" %% "zio-test-magnolia" % zioVersion % Test
+  val osLib = "com.lihaoyi" %% "os-lib" % "0.11.3"
 }

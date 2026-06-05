@@ -15,10 +15,11 @@ def settingsApp = Seq(
   Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "resources",
   testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
   libraryDependencies ++= Seq(
-    zioHttp, 
-    zioTest, 
-    zioTestSBT, 
-    zioTestMagnolia
+    zioHttp,
+    zioTest,
+    zioTestSBT,
+    zioTestMagnolia,
+    osLib
   ),
 )
 
@@ -31,6 +32,12 @@ lazy val root = (project in file("."))
   .enablePlugins(JavaAppPackaging)
   .settings(settingsApp)
   .settings(settingsDocker)
+
+lazy val os = project.in(file("."))
+  .settings(
+    scalaVersion := "3.8.2",
+    libraryDependencies += "org.scala-lang" %% "toolkit" % "0.7.0"
+  )
 
 addCommandAlias("fmt", "scalafmt; Test / scalafmt; sFix;")
 addCommandAlias("fmtCheck", "scalafmtCheck; Test / scalafmtCheck; sFixCheck")
