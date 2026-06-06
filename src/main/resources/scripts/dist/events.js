@@ -46,7 +46,7 @@ export class EventHandler {
     }
     mouse_move(e) {
         if (this.controls.is_selecting) {
-            let target = new Vector(e.clientX, e.clientY);
+            const target = new Vector(e.clientX, e.clientY);
             let castles = new Array();
             this.gameState.players.forEach((player) => {
                 castles = castles.concat(player.castles);

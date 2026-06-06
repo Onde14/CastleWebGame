@@ -4,11 +4,14 @@ export declare class Controls {
     selected: Map<string, Castle>;
     is_selecting: boolean;
     is_targeting: boolean;
-    constructor();
+    gameWidth: number;
+    gameHeight: number;
+    constructor(gameWidth: number, gameHeight: number);
     deselect(): void;
-    is_click_targeting_castle(target: Vector, click: Vector): boolean;
+    visual_vector(v: Vector): Vector;
+    is_mouse_targeting_castle(target: Vector, mouse_pos: Vector): boolean;
     create_attack_unit_logic(start: Vector, target: Vector): void;
-    mouse_move(target: Vector, castles: Array<Castle>): void;
+    mouse_move(mouse_pos: Vector, castles: Array<Castle>): void;
     mouse_down(target: Vector, castles: Array<Castle>, playerId: string): {
         target_castle_id: string;
         selected_castles_ids: string[];

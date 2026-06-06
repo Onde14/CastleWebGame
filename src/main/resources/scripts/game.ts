@@ -30,7 +30,7 @@ export class Game {
     );
     this.displayDriver.resize();
     this.gameState = new Gamestate(this.displayDriver);
-    this.controls = new Controls();
+    this.controls = new Controls(this.gameWidth,this.gameHeight);
     console.log("Game built");
     this.eventHandler = new EventHandler(
       this.canvas,

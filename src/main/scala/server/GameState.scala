@@ -15,8 +15,8 @@ import java.util.UUID
 
 
 class GameState:
-  private val height = 1000
-  private val width = 1000
+  private val height = Game.height
+  private val width = Game.width
   private var gameStarted = false
   var mapData = ArrayBuffer[Player]()
   private var castles = ArrayBuffer[Castle]()

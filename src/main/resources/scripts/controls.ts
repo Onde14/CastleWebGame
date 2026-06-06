@@ -6,9 +6,21 @@ export class Controls {
   selected = new Map<string, Castle>();
   is_selecting = false;
   is_targeting = false;
-  constructor() {}
+  gameWidth: number;
+  gameHeight: number;
+  constructor(gameWidth: number, gameHeight: number) {
+    this.gameWidth = gameWidth;
+    this.gameHeight = gameHeight
+  }
   deselect() {
     this.selected = new Map<string, Castle>();
+  }
+
+
+  public visual_vector(v: Vector) {
+    const ratioX = window.innerWidth / this.gameWidth;
+    const ratioY = window.innerHeight / this.gameHeight;
+    return new Vector(v.x*ratioX,v.y*ratioY)
   }
 
   /*public move_command(target: Vector){
@@ -20,14 +32,15 @@ export class Controls {
 
     */
 
-  is_click_targeting_castle(target: Vector, click: Vector) {
+  is_mouse_targeting_castle(target: Vector, mouse_pos: Vector) {
     const centerToBorderWidth = CastleConfig.width / 2;
     const centerToBorderHeight = CastleConfig.height / 2;
+    console.log("is_mouse_targeting_castle: Target =",target,", mouse_pos=",mouse_pos)
     return (
-      target.x - centerToBorderWidth <= click.x &&
-      target.x + centerToBorderWidth >= click.x &&
-      target.y - centerToBorderHeight <= click.y &&
-      target.y + centerToBorderHeight >= click.y
+      target.x - centerToBorderWidth <= mouse_pos.x &&
+      target.x + centerToBorderWidth >= mouse_pos.x &&
+      target.y - centerToBorderHeight <= mouse_pos.y &&
+      target.y + centerToBorderHeight >= mouse_pos.y
     );
   }
 
@@ -42,13 +55,13 @@ export class Controls {
 
   create_attack_unit_logic(start: Vector, target: Vector) {}
 
-  public mouse_move(target: Vector, castles: Array<Castle>) {
+  public mouse_move(mouse_pos: Vector, castles: Array<Castle>) {
     if (!this.is_selecting) {
       return;
     }
     let targeting = false;
     castles.forEach((castle) => {
-      if (this.is_click_targeting_castle(castle.pos, target)) {
+      if (this.is_mouse_targeting_castle(this.visual_vector(castle.pos), mouse_pos)) {
         if (!this.selected.has(castle.id)) {
           castle.highlighted = true;
           targeting = true;
@@ -98,7 +111,7 @@ export class Controls {
 
 
           */
-      if (this.is_click_targeting_castle(castle.pos, target)) {
+      if (this.is_mouse_targeting_castle(this.visual_vector(castle.pos), target)) {
         if (castle.owner == playerId) {
           this.deselect();
           this.selected.set(castle.id, castle);

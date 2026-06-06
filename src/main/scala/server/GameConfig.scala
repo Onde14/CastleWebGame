@@ -4,6 +4,10 @@ import zio.json._
 import java.util.UUID
 
 
+object Game{
+  val width = 1000
+  val height = 1000
+}
 case class Pos(
   var x: Double,
   var y: Double,
