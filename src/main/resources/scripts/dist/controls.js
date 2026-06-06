@@ -3,8 +3,8 @@ import { Soldier, Castle } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
 export class Controls {
     selected = new Map();
-    is_selecting = false;
-    is_targeting = false;
+    isSelecting = false;
+    isTargetingEnemyCastle = false;
     gameWidth;
     gameHeight;
     constructor(gameWidth, gameHeight) {
@@ -14,7 +14,7 @@ export class Controls {
     deselect() {
         this.selected = new Map();
     }
-    visual_vector(v) {
+    visualVector(v) {
         const ratioX = window.innerWidth / this.gameWidth;
         const ratioY = window.innerHeight / this.gameHeight;
         return new Vector(v.x * ratioX, v.y * ratioY);
@@ -27,10 +27,10 @@ export class Controls {
     }
   
       */
-    is_mouse_targeting_castle(target, mouse_pos) {
+    isMouseTargetingCastle(target, mouse_pos) {
         const centerToBorderWidth = CastleConfig.width / 2;
         const centerToBorderHeight = CastleConfig.height / 2;
-        console.log("is_mouse_targeting_castle: Target =", target, ", mouse_pos=", mouse_pos);
+        //console.log("is_mouse_targeting_castle: Target =",target,", mouse_pos=",mouse_pos)
         return (target.x - centerToBorderWidth <= mouse_pos.x &&
             target.x + centerToBorderWidth >= mouse_pos.x &&
             target.y - centerToBorderHeight <= mouse_pos.y &&
@@ -44,14 +44,14 @@ export class Controls {
     }
   
       */
-    create_attack_unit_logic(start, target) { }
-    mouse_move(mouse_pos, castles) {
-        if (!this.is_selecting) {
+    // create_attack_unit_logic(start: Vector, target: Vector) {}
+    mouseMove(mouse_pos, castles) {
+        if (!this.isSelecting) {
             return;
         }
         let targeting = false;
         castles.forEach((castle) => {
-            if (this.is_mouse_targeting_castle(this.visual_vector(castle.pos), mouse_pos)) {
+            if (this.isMouseTargetingCastle(this.visualVector(castle.pos), mouse_pos)) {
                 if (!this.selected.has(castle.id)) {
                     castle.highlighted = true;
                     targeting = true;
@@ -60,10 +60,10 @@ export class Controls {
             }
             castle.highlighted = false;
         });
-        this.is_targeting = targeting;
+        this.isTargetingEnemyCastle = targeting;
     }
-    mouse_down(target, castles, playerId) {
-        if (this.is_targeting) {
+    mouseDown(target, castles, playerId) {
+        if (this.isTargetingEnemyCastle) {
             // @ts-ignore
             const target_castle = castles
                 .filter((castle) => castle.highlighted == true)
@@ -77,8 +77,8 @@ export class Controls {
                 castle.selected = false;
             });
             this.selected = new Map();
-            this.is_targeting = false;
-            this.is_selecting = false;
+            this.isTargetingEnemyCastle = false;
+            this.isSelecting = false;
             const orders = {
                 target_castle_id: target_castle_id,
                 selected_castles_ids: selected_castles_ids,
@@ -86,30 +86,28 @@ export class Controls {
             return orders;
         }
         console.log("Clicked ", target);
-        let selecting = false;
+        let selected_castle = false;
         castles?.forEach((castle, id) => {
-            /*
-              const centerToBorderWidth = CastleConfig.width/2;
-              const centerToBorderHeight = CastleConfig.height/2;
-              console.log(castle.pos.x - centerToBorderWidth <= target.x);
-              console.log(castle.pos.x + centerToBorderWidth >= target.x);
-              console.log(castle.pos.y - centerToBorderHeight <= target.y);
-              console.log(castle.pos.y + centerToBorderHeight >= target.y);
-      
-      
-                */
-            if (this.is_mouse_targeting_castle(this.visual_vector(castle.pos), target)) {
+            if (this.isMouseTargetingCastle(this.visualVector(castle.pos), target)) {
                 if (castle.owner == playerId) {
-                    this.deselect();
+                    console.log("HEHEHEHEHEHEH", castle.selected);
                     this.selected.set(castle.id, castle);
-                    console.log(castle.id, " is selected");
-                    selecting = true;
+                    castle.selected = true;
+                    console.log(castle.id, " is selected", castle.selected);
+                    this.isSelecting = true;
+                    selected_castle = true;
+                    return;
                 }
             }
         });
-        const orders = undefined;
-        this.is_selecting = selecting;
-        return orders;
+        if (selected_castle) {
+            return undefined;
+        }
+        console.log("HEHEHEHEHEHEH2222");
+        this.selected.forEach((castle, _) => castle.selected = false);
+        this.deselect();
+        this.isSelecting = false;
+        return undefined;
     }
 }
 //# sourceMappingURL=controls.js.map

@@ -9,10 +9,10 @@ export declare class EventHandler {
     displayDriver: DisplayDriver;
     messageHandler?: MessageHandler;
     constructor(canvas: HTMLCanvasElement, gameState: Gamestate, controls: Controls, displayDriver: DisplayDriver);
-    mouse_down(e: MouseEvent): void;
-    mouse_move(e: MouseEvent): void;
+    mouseDown(e: MouseEvent): void;
+    mouseMove(e: MouseEvent): void;
     startConnection(): void;
-    event_handling(): void;
+    eventHandling(): void;
     buildGameStateEvent(players: any): void;
     attackOrderEvent(soldiers: any): void;
     updateGameStateEvent(updates: any): void;

@@ -17,7 +17,7 @@ export declare class Gamestate {
     constructor(displayDriver: DisplayDriver);
     setCurrentPlayerId(clientId: string): void;
     buildGameState(players: any): void;
-    create_soldiers(soldiers: any): void;
+    createSoldiers(soldiers: any): void;
     update(updates: any): void;
     private move_commands;
 }

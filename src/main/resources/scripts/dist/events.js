@@ -14,7 +14,7 @@ export class EventHandler {
         this.controls = controls;
         this.displayDriver = displayDriver;
     }
-    mouse_down(e) {
+    mouseDown(e) {
         let target = new Vector(e.clientX, e.clientY);
         console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);
         let castles = new Array();
@@ -26,7 +26,7 @@ export class EventHandler {
             castles = castles.concat(player.castles);
         });
         //console.log("CASTLES: ", castles);
-        const orders = this.controls.mouse_down(target, castles, currPlayer);
+        const orders = this.controls.mouseDown(target, castles, currPlayer);
         if (orders === undefined) {
             console.log("NO ORDERS.");
         }
@@ -44,29 +44,29 @@ export class EventHandler {
             }
         }
     }
-    mouse_move(e) {
-        if (this.controls.is_selecting) {
+    mouseMove(e) {
+        if (this.controls.isSelecting) {
             const target = new Vector(e.clientX, e.clientY);
             let castles = new Array();
             this.gameState.players.forEach((player) => {
                 castles = castles.concat(player.castles);
             });
-            this.controls.mouse_move(target, castles);
+            this.controls.mouseMove(target, castles);
         }
     }
     startConnection() {
         this.messageHandler = new MessageHandler(this);
     }
-    event_handling() {
-        this.canvas.addEventListener("mousedown", (e) => this.mouse_down(e));
-        this.canvas.addEventListener("mousemove", (e) => this.mouse_move(e));
+    eventHandling() {
+        this.canvas.addEventListener("mousedown", (e) => this.mouseDown(e));
+        this.canvas.addEventListener("mousemove", (e) => this.mouseMove(e));
         window.addEventListener("resize", () => this.displayDriver.resize());
     }
     buildGameStateEvent(players) {
         this.gameState.buildGameState(players);
     }
     attackOrderEvent(soldiers) {
-        this.gameState.create_soldiers(soldiers);
+        this.gameState.createSoldiers(soldiers);
     }
     updateGameStateEvent(updates) {
         this.gameState.update(updates);

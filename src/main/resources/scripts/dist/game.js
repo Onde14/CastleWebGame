@@ -26,7 +26,7 @@ export class Game {
         this.controls = new Controls(this.gameWidth, this.gameHeight);
         console.log("Game built");
         this.eventHandler = new EventHandler(this.canvas, this.gameState, this.controls, this.displayDriver);
-        this.eventHandler.event_handling();
+        this.eventHandler.eventHandling();
     }
     found_goal(pos, target) {
         return Math.abs(pos.x - target.x) < 0.5 && Math.abs(pos.y - target.y) < 0.5;

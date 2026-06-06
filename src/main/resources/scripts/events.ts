@@ -23,7 +23,7 @@ export class EventHandler {
     this.displayDriver = displayDriver;
   }
 
-  mouse_down(e: MouseEvent) {
+  mouseDown(e: MouseEvent) {
     let target = new Vector(e.clientX, e.clientY);
     console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);
     let castles = new Array<Castle>();
@@ -35,7 +35,7 @@ export class EventHandler {
       castles = castles.concat(player.castles);
     });
     //console.log("CASTLES: ", castles);
-    const orders: any = this.controls.mouse_down(target, castles, currPlayer);
+    const orders: any = this.controls.mouseDown(target, castles, currPlayer);
     if (orders === undefined) {
       console.log("NO ORDERS.");
     } else {
@@ -53,14 +53,14 @@ export class EventHandler {
     }
   }
 
-  mouse_move(e: MouseEvent) {
-    if (this.controls.is_selecting) {
+  mouseMove(e: MouseEvent) {
+    if (this.controls.isSelecting) {
       const target = new Vector(e.clientX, e.clientY);
       let castles = new Array<Castle>();
       this.gameState.players.forEach((player) => {
         castles = castles.concat(player.castles);
       });
-      this.controls.mouse_move(target, castles);
+      this.controls.mouseMove(target, castles);
     }
   }
 
@@ -68,10 +68,10 @@ export class EventHandler {
     this.messageHandler = new MessageHandler(this);
   }
 
-  public event_handling() {
-    this.canvas.addEventListener("mousedown", (e) => this.mouse_down(e));
+  public eventHandling() {
+    this.canvas.addEventListener("mousedown", (e) => this.mouseDown(e));
 
-    this.canvas.addEventListener("mousemove", (e) => this.mouse_move(e));
+    this.canvas.addEventListener("mousemove", (e) => this.mouseMove(e));
 
     window.addEventListener("resize", () => this.displayDriver.resize());
   }
@@ -80,7 +80,7 @@ export class EventHandler {
   }
 
   public attackOrderEvent(soldiers: any) {
-    this.gameState.create_soldiers(soldiers);
+    this.gameState.createSoldiers(soldiers);
   }
 
   public updateGameStateEvent(updates: any) {

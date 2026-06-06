@@ -54,7 +54,7 @@ export class Gamestate {
         this.players = playerArray;
         console.log("PLAYERS2: ", this.players);
     }
-    create_soldiers(soldiers) {
+    createSoldiers(soldiers) {
         soldiers.forEach((soldier) => {
             let new_soldier = new Soldier(new Vector(soldier.pos.x, soldier.pos.y), soldier.id, soldier.owner, soldier.ownerColor);
             let attackerPlayer = this.players.find((player) => player.id == soldier.owner);

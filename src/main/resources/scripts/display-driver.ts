@@ -96,8 +96,8 @@ export class DisplayDriver {
       if (castle.selected) {
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(
-          (castle.pos.x - CastleConfig.width / 2 - 2) * this.renderWidthPositionRatio,
-          (castle.pos.y - CastleConfig.height / 2 - 2) * this.renderHeightPositionRatio,
+          (castle.pos.x * this.renderWidthPositionRatio) - CastleConfig.width / 2 - 2,
+          (castle.pos.y * this.renderHeightPositionRatio) - CastleConfig.height / 2 - 2,
           castle.width + 4,
           castle.height + 4,
         );
@@ -125,7 +125,7 @@ export class DisplayDriver {
         castle.height,
       );
       this.ctx.save();
-      console.log("GAME WIDTH: ", this.gameWidth,"WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.ownerColorWidth,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.ownerColorWidth / 2) * this.renderWidthPositionRatio)
+      //console.log("GAME WIDTH: ", this.gameWidth,"WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.ownerColorWidth,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.ownerColorWidth / 2) * this.renderWidthPositionRatio)
 
       this.ctx.fillStyle = castle.ownerColor;
       this.ctx.fillRect(

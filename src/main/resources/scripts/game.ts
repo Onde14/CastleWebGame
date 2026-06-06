@@ -38,7 +38,7 @@ export class Game {
       this.controls,
       this.displayDriver,
     );
-    this.eventHandler.event_handling();
+    this.eventHandler.eventHandling();
   }
   found_goal(pos: Vector, target: Vector) {
     return Math.abs(pos.x - target.x) < 0.5 && Math.abs(pos.y - target.y) < 0.5;

@@ -62,7 +62,7 @@ export class DisplayDriver {
         castles.forEach((castle) => {
             if (castle.selected) {
                 this.ctx.fillStyle = "white";
-                this.ctx.fillRect((castle.pos.x - CastleConfig.width / 2 - 2) * this.renderWidthPositionRatio, (castle.pos.y - CastleConfig.height / 2 - 2) * this.renderHeightPositionRatio, castle.width + 4, castle.height + 4);
+                this.ctx.fillRect((castle.pos.x * this.renderWidthPositionRatio) - CastleConfig.width / 2 - 2, (castle.pos.y * this.renderHeightPositionRatio) - CastleConfig.height / 2 - 2, castle.width + 4, castle.height + 4);
                 this.ctx.save();
             }
             if (castle.highlighted) {
@@ -75,7 +75,7 @@ export class DisplayDriver {
             //console.log("GAME WIDTH: ", this.gameWidth,"WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.width,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.width / 2) * this.renderWidthPositionRatio)
             this.ctx.fillRect((castle.pos.x * this.renderWidthPositionRatio) - CastleConfig.width / 2, (castle.pos.y * this.renderHeightPositionRatio) - CastleConfig.height / 2, castle.width, castle.height);
             this.ctx.save();
-            console.log("GAME WIDTH: ", this.gameWidth, "WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.ownerColorWidth, "RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ", (castle.pos.x - CastleConfig.ownerColorWidth / 2) * this.renderWidthPositionRatio);
+            //console.log("GAME WIDTH: ", this.gameWidth,"WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.ownerColorWidth,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.ownerColorWidth / 2) * this.renderWidthPositionRatio)
             this.ctx.fillStyle = castle.ownerColor;
             this.ctx.fillRect((castle.pos.x * this.renderWidthPositionRatio) - CastleConfig.ownerColorWidth / 2, (castle.pos.y * this.renderHeightPositionRatio) - CastleConfig.ownerColorHeight / 2, CastleConfig.ownerColorWidth, CastleConfig.ownerColorHeight);
             this.ctx.save();

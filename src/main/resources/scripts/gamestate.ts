@@ -81,7 +81,7 @@ export class Gamestate {
     console.log("PLAYERS2: ", this.players);
   }
 
-  public create_soldiers(soldiers: any) {
+  public createSoldiers(soldiers: any) {
     soldiers.forEach((soldier: any) => {
       let new_soldier = new Soldier(
         new Vector(soldier.pos.x, soldier.pos.y),
