@@ -32,7 +32,7 @@ export class DisplayDriver {
   }
 
   public draw(
-    gameObjects: Map<number, GameObject>,
+    gameObjects: Map<string, GameObject>,
     currentplayerColor: string,
   ) {
     this.ctx.fillStyle = "green";

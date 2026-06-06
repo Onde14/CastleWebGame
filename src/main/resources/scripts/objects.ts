@@ -11,7 +11,7 @@ export class GameObject {
 }
 
 class Structure extends GameObject {
-  id: number;
+  id: string;
   type: string;
   pos: Vector;
   width: number;
@@ -23,7 +23,7 @@ class Structure extends GameObject {
     pos: Vector,
     width: number,
     height: number,
-    id: number,
+    id: string,
   ) {
     super(false, selectable);
     this.id = id;
@@ -35,7 +35,7 @@ class Structure extends GameObject {
 }
 
 class Unit extends GameObject {
-  id: number;
+  id: string;
   type: string;
   pos: Vector;
   width: number;
@@ -45,7 +45,7 @@ class Unit extends GameObject {
 
   constructor(
     movable: boolean,
-    id: number,
+    id: string,
     type: string,
     pos: Vector,
     width: number,
@@ -64,11 +64,11 @@ class Unit extends GameObject {
 export class Castle extends Structure {
   selected = false;
   targeted = false;
-  owner: number;
+  owner: string;
   ownerColor: string;
   highlighted = false;
 
-  constructor(pos: Vector, id: number, owner: number, ownerColor: string) {
+  constructor(pos: Vector, id: string, owner: string, ownerColor: string) {
     super(true, "castle", pos, CastleConfig.width, CastleConfig.height, id);
     this.owner = owner;
     this.ownerColor = ownerColor;
@@ -82,9 +82,9 @@ export class Castle extends Structure {
 }*/
 
 export class Soldier extends Unit {
-  owner: number;
+  owner: string;
   ownerColor: string;
-  constructor(pos: Vector, id: number, owner: number, ownerColor: string) {
+  constructor(pos: Vector, id: string, owner: string, ownerColor: string) {
     super(true, id, "soldier", pos, SoldierConfig.width, SoldierConfig.height);
     this.owner = owner;
     this.ownerColor = ownerColor;

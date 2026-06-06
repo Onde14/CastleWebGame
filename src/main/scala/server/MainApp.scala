@@ -85,10 +85,6 @@ object MainApp extends ZIOAppDefault {
                 response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)
                 _ <- channel.send(Read(WebSocketFrame.text(response)))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
 
-
-
-
-
                 _ <- ZIO.debug(s"Lobby is full = ${lobby.isFull}")
                 _ <- hub.publish("HEKLLLLLLLLLL")
                 lobbyQueue <- lobby.hub.subscribe

@@ -27,7 +27,7 @@ export class EventHandler {
     let target = new Vector(e.clientX, e.clientY);
     console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);
     let castles = new Array<Castle>();
-    let currPlayer = 0;
+    let currPlayer = "";
     this.gameState.players.forEach((player) => {
       if (player.id == this.gameState.currentPlayerId) {
         currPlayer = player.id;
@@ -75,12 +75,8 @@ export class EventHandler {
 
     window.addEventListener("resize", () => this.displayDriver.resize());
   }
-  public buildGameStateEvent(
-    currentPlayerId: number,
-    currentPlayerColor: string,
-    players: any,
-  ) {
-    this.gameState.buildGameState(currentPlayerId, currentPlayerColor, players);
+  public buildGameStateEvent(players: any,) {
+    this.gameState.buildGameState(players);
   }
 
   public attackOrderEvent(soldiers: any) {
@@ -90,4 +86,9 @@ export class EventHandler {
   public updateGameStateEvent(updates: any) {
     this.gameState.update(updates);
   }
+
+  public setCurrentPlayerId(clientId: string) {
+    this.gameState.setCurrentPlayerId(clientId);
+  }
+
 }

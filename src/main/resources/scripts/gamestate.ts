@@ -3,7 +3,7 @@ import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
 
 export class Player {
-  id: number;
+  id: string;
   ai: boolean;
   units: Array<Soldier>;
   castles: Array<Castle>;
@@ -11,7 +11,7 @@ export class Player {
 
   constructor(
     ai: boolean,
-    id: number,
+    id: string,
     units: Array<Soldier>,
     castles: Array<Castle>,
     color: string,
@@ -27,23 +27,23 @@ export class Player {
 export class Gamestate {
   displayDriver: DisplayDriver;
   players = Array<Player>();
-  gameObjects = new Map<number, GameObject>();
-  currentPlayerId: number = -1;
+  gameObjects = new Map<string, GameObject>();
+  currentPlayerId: string = "";
   currentPlayerColor: string = "";
   constructor(displayDriver: DisplayDriver) {
     this.displayDriver = displayDriver;
   }
 
-  public buildGameState(
-    currentPlayerId: number,
-    currentPlayerColor: string,
-    players: any,
-  ) {
+  public setCurrentPlayerId(clientId: string) {
+    this.currentPlayerId = clientId
+  }
+  public buildGameState(players: any) {
     console.log("PLAYERS1: ", players);
-    this.currentPlayerId = currentPlayerId;
-    this.currentPlayerColor = currentPlayerColor;
     let playerArray = new Array<Player>();
     players.forEach((player: any) => {
+      if (player.id == this.currentPlayerId) {
+        this.currentPlayerColor == player.color;
+      }
       const id: Int16Array = player.id;
       let newPlayer = new Player(
         false,

@@ -3,12 +3,12 @@ import { Soldier, Castle } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
 
 export class Controls {
-  selected = new Map<number, Castle>();
+  selected = new Map<string, Castle>();
   is_selecting = false;
   is_targeting = false;
   constructor() {}
   deselect() {
-    this.selected = new Map<number, Castle>();
+    this.selected = new Map<string, Castle>();
   }
 
   /*public move_command(target: Vector){
@@ -60,7 +60,7 @@ export class Controls {
     this.is_targeting = targeting;
   }
 
-  public mouse_down(target: Vector, castles: Array<Castle>, playerId: number) {
+  public mouse_down(target: Vector, castles: Array<Castle>, playerId: string) {
     if (this.is_targeting) {
       // @ts-ignore
       const target_castle: Castle = castles
@@ -69,13 +69,13 @@ export class Controls {
       // @ts-ignore
       target_castle.highlighted = false;
       const target_castle_id = target_castle.id;
-      let selected_castles_ids = new Array<number>();
+      let selected_castles_ids = new Array<string>();
 
       this.selected.forEach((castle) => {
         selected_castles_ids.push(castle.id);
         castle.selected = false;
       });
-      this.selected = new Map<number, Castle>();
+      this.selected = new Map<string, Castle>();
       this.is_targeting = false;
       this.is_selecting = false;
       const orders = {

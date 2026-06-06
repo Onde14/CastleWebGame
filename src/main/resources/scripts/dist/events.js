@@ -18,7 +18,7 @@ export class EventHandler {
         let target = new Vector(e.clientX, e.clientY);
         console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);
         let castles = new Array();
-        let currPlayer = 0;
+        let currPlayer = "";
         this.gameState.players.forEach((player) => {
             if (player.id == this.gameState.currentPlayerId) {
                 currPlayer = player.id;
@@ -62,14 +62,17 @@ export class EventHandler {
         this.canvas.addEventListener("mousemove", (e) => this.mouse_move(e));
         window.addEventListener("resize", () => this.displayDriver.resize());
     }
-    buildGameStateEvent(currentPlayerId, currentPlayerColor, players) {
-        this.gameState.buildGameState(currentPlayerId, currentPlayerColor, players);
+    buildGameStateEvent(players) {
+        this.gameState.buildGameState(players);
     }
     attackOrderEvent(soldiers) {
         this.gameState.create_soldiers(soldiers);
     }
     updateGameStateEvent(updates) {
         this.gameState.update(updates);
+    }
+    setCurrentPlayerId(clientId) {
+        this.gameState.setCurrentPlayerId(clientId);
     }
 }
 //# sourceMappingURL=events.js.map

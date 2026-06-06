@@ -21,6 +21,8 @@ type ResponseMessage = {
 export class MessageHandler {
   webSocketDriver: WebSocketDriver;
   eventHandler: EventHandler;
+  myClientId: string = "";
+  myLobbyId: string = "" ;
   constructor(eventHandler: EventHandler) {
     this.webSocketDriver = new WebSocketDriver(this);
     this.eventHandler = eventHandler;
@@ -30,16 +32,8 @@ export class MessageHandler {
     //console.log("TYPE IS ", msg.msgType);
     switch (msg.msgType) {
       case "BuildGameDataMessage":
-        if (
-          msg.currentPlayerId !== undefined &&
-          msg.currentPlayerColor &&
-          msg.players !== undefined
-        ) {
-          this.eventHandler.buildGameStateEvent(
-            msg.currentPlayerId,
-            msg.currentPlayerColor,
-            msg.players,
-          );
+        if (msg.players !== undefined) {
+          this.eventHandler.buildGameStateEvent(msg.players);
           break;
         } else {
           throw new Error("Unknown types in the message");
@@ -62,7 +56,13 @@ export class MessageHandler {
         console.log("Got the ",msg.msgType, "back.");
         break;
       case "ClientInfoMessage":
-        console.log("Got the ",msg.msgType + ".");
+        console.log("Got the ", msg.msgType + ".");
+        if (msg.clientId !== undefined) {
+          this.myClientId = msg.clientId
+          this.eventHandler.setCurrentPlayerId(msg.clientId)
+        }
+        if (msg.lobbyId !== undefined)
+          this.myLobbyId == msg.lobbyId
         break;
       default:
         throw new Error("Unknown message type!");

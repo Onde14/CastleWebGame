@@ -19,7 +19,7 @@ class Lobby(h: Hub[String],g: GameState):
   val gameState = g
   var clients = ArrayBuffer.empty[UUID]
   var currSize = 0
-  val maxSize = 4
+  val maxSize = 2
   var started = false
   var ended = false
   var isFull = false
