@@ -18,7 +18,7 @@ class GameState:
   private val height = 1000
   private val width = 1000
   private var gameStarted = false
-  var availablePlayerSlots = ArrayBuffer[Player]()
+  var mapData = ArrayBuffer[Player]()
   private var castles = ArrayBuffer[Castle]()
   var soldiers = ArrayBuffer[Soldier]()
   var removedSoldiers = ArrayBuffer[Soldier]()
@@ -56,21 +56,24 @@ class GameState:
     mapContent match
       case Right(value) =>
         println("JSON: " + value)
-        value
+        return value
       case Left(value) =>
         println(s"Failed to decode map content $value")
     return null
 
-  def buildGameState(): Unit =
-    val mapFile = getMap()
-    //val map = mapPositions(content.fromJson)
-    var i = 0
-    for line <- mapFile.MapDataFile do
-      val playerId = UUID.randomUUID()
-      val player = new Player(playerId, colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
-      val castle = new Castle(UUID.randomUUID(), playerId, player.color,line.pos, 1)
-      player.castles += castle
-      i += 1
+  def buildGameState(clients: ArrayBuffer[UUID]): Unit =
+      val mapFile = getMap()
+      //val map = mapPositions(content.fromJson)
+      println(s"MAP:  $mapFile")
+      var i = 0
+      for line <- mapFile.MapDataFile do
+        val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
+        val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1)
+        player.castles += castle
+        mapData += player
+        i += 1
+      println(s"mapData: $mapData")
+
 
     /*
     val player1 = new Player(Random.between(0, 100000), "blue", new ArrayBuffer[Castle](), new ArrayBuffer[Soldier]())
@@ -90,7 +93,7 @@ class GameState:
     println(currentPlayerIterator)
     println(playerLimit)
     if currentPlayerIterator < playerLimit then
-      val player = availablePlayerSlots(currentPlayerIterator)
+      val player = mapData(currentPlayerIterator)
       currentPlayers += player
       currentPlayerIterator += 1
       println(s"ADDED PLAYER: $player, PLAYER LIMIT: $playerLimit, CURRENT PLAYER AMOUNT: $currentPlayerIterator")

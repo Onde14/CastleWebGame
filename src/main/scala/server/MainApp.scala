@@ -29,18 +29,15 @@ object MainApp extends ZIOAppDefault {
 
   val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault())
 
-  def createLobby() =
-    var hub: Hub[String] = null
-    for {
-      h <- Hub.unbounded[String]
-    } yield hub = h
+  def createLobby(hub: Hub[String]) =
     val lobbyId = UUID.randomUUID()
     val clientId = UUID.randomUUID()
     val lobby: Lobby = new Lobby(hub, new GameState())
+    println("LOBBYSDA: " + lobby)
     lobby
 
   def joinLobby(lobbies: Set[Lobby]) =
-    val lobby = lobbies.find(l => l != null)
+    val lobby = lobbies.find(l => l != null && !l.isFull)
     lobby
 
 
@@ -48,7 +45,7 @@ object MainApp extends ZIOAppDefault {
     Handler.webSocket { channel =>
       ZIO.scoped {
         for {
-          hub   <- ZIO.service[Hub[String]]
+          hub   <- Hub.unbounded[String]
           queue <- hub.subscribe
           lobbiesRef <- ZIO.service[Ref[Set[Lobby]]]
           clientsInLobbiesRef <- ZIO.service[Ref[Map[UUID, Lobby]]]
@@ -68,53 +65,72 @@ object MainApp extends ZIOAppDefault {
                 channel.send(ChannelEvent.Read(WebSocketFrame.text(text)))
               else
                 hub.publish(response)
-              //hub.publish(response)
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
               for {
-                //_ <- ZIO.succeed(println("HELLOPRINT"))
-              //  _ <- ZIO.debug("HELLO")
 
+                lobbyHub <- Hub.unbounded[String]
+                _ <- ZIO.debug(s"HUbSDA: $lobbyHub")
                 lobbies <- lobbiesRef.get
-              //  _ <- ZIO.debug(s"LOBBIES: $lobbies")
-
-                //newClientId <- ZIO.succeed(UUID.randomUUID())
                 someLobby <- ZIO.succeed(joinLobby(lobbies))
-               // _ <- ZIO.debug("l: " + someLobby)
                 lobby <- ZIO.succeed(someLobby.getOrElse{
-                  val newLobby = createLobby()
+                  val newLobby = createLobby(lobbyHub)
                   newLobby
                 })
-                //_ <- ZIO.debug("l: " + lobby)
                 _ <- clientsInLobbiesRef.update(_ + ((clientId, lobby)))
                 _ <- ZIO.succeed(lobby.addClient(clientId))
                 _ <- lobbiesRef.update(_ + lobby)
-               // _ <- ZIO.debug(s"LOBBIES: $lobbies")
-
                 clients <- clientsInLobbiesRef.get
-                //_ <- ZIO.debug(s"CLIENTS: $clients")
-
-                //lobby <- ZIO.succeed(lobbyHandle(pair._2,newClientId))
-                //l <- lobbyHandle(l._2, newClientId)
-                //_ <- ZIO.debug("HELLO")
-                response <- ZIO.succeed(outgoingMessageHandling("initialClientInfoMessage",List(clientId.toString,lobby.id.toString)))
+                welcome = ClientInfoMessage("ClientInfoMessage", clientId, lobby.id).toJson
+                response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)
                 _ <- channel.send(Read(WebSocketFrame.text(response)))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
 
-                _ <- ZIO.when(lobby.isFull == true)(
-                      ZIO.succeed(println(s"$lobby.id Game Started"),
-                      lobby.buildGame())
-                    )
-                //_ <- ZIO.attempt(channel.send(Read(WebSocketFrame.text(r))
 
-                //_ <- ZIO.interrupt
+
+
+
+                _ <- ZIO.debug(s"Lobby is full = ${lobby.isFull}")
+                _ <- hub.publish("HEKLLLLLLLLLL")
+                lobbyQueue <- lobby.hub.subscribe
+                _ <- ZIO.debug(1111111111)
+                _ <- ZIO.when(lobby.isFull == true) {
+                  //ZIO.scoped {
+                    for {
+                      //scoped = ZStream.fromHub(lobby.hub)
+                      //stream = ZStream.unwrapScoped(scoped)
+                      //promise <- Promise.make[Nothing,Unit]
+                      _ <- ZIO.debug(1)
+                      _ <- ZIO.debug(3)
+                      _ <- ZIO.debug(4)
+                      _ <- ZIO.debug(3)
+                      _ <- ZIO.succeed(println(s"${lobby.id} Game Started"))
+                      _ <- ZIO.debug(s"LOBBY: ${lobby.id}, CLIENTS: ${lobby.clients}")
+                      _ <- ZIO.succeed(lobby.buildGame())
+
+
+
+                      _ <- ZIO.debug(4)
+
+                      response <- ZIO.succeed(BuildGameDataMessage("BuildGameDataMessage",lobby.gameState.mapData).toJson)
+                      _ <- ZIO.debug(5)
+                      _ <- lobby.hub.publish(response)
+                      _ <- ZIO.debug(6)
+
+
+                    } yield ()
+                  }
+                  lobbyout = ZStream
+                    .fromQueue(lobbyQueue)
+                    .map(WebSocketFrame.text)
+                    .runForeach(frame => {
+                    println(s"FRAME: $frame")
+                    channel.send(Read(frame))
+                    })
+                  _ <- ZIO.debug(7)
+                  _ <- lobbyout
+                  _ <- ZIO.debug(8)
+                //}
               } yield ()
-              //channel.send(Read(WebSocketFrame.text(s"WELCOME ${newClientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull}")))
-              //val player = gameState.addPlayer()
-              //println(s"WebSocket connection established to ${player.id} with color ${player.color}!")
-              //val player_data_response_json = s"""{"type": "PlayerData","id": ${player.id},"color": "${player.color}"}"""
-              //val player_data_response_json = BuildGameDataMessage("BuildGame",player.id,player.color,gameState.availablePlayerSlots).toJson
-              //channel.send(Read(WebSocketFrame.text(player_data_response_json)))
-
 
 
 
@@ -244,5 +260,5 @@ object MainApp extends ZIOAppDefault {
 
   override def run =
     Server.serve(routes)
-    .provide(Server.default, lobbiesLayer, hubLayer, clientsInLobbiesLayer)
+    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer)
 }

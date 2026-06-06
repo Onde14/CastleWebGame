@@ -11,7 +11,7 @@ def outgoingMessageHandling(msgType: String, content: List[String]): String =
       return ""//UpdatedGameDataMessage("UpdatedGameState",updates).toJson
     case s"BuildGameDataMessage" =>
       return ""
-    case s"initialClientInfoMessage" =>
+    case s"ClientInfoMessage" =>
       return ClientInfoMessage("ClientInfo", UUID.fromString(content(0)), UUID.fromString(content(1))).toJson
     case _ =>
       return ""
@@ -19,10 +19,10 @@ def outgoingMessageHandling(msgType: String, content: List[String]): String =
 def incomingMessageHandling(msg: String): String =
 
   val msgType = msg.fromJson[MessageType]
-  print(msgType)
+  //print(msgType)
   msgType match
     case Right(value) =>
-      println("msgType: " + value.msgType)
+      //println("msgType: " + value.msgType)
       value.msgType match
         case s"AttackOrder" =>
           val attackOrder = msg.fromJson[RequestAttackOrderMessage]

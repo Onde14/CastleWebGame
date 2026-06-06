@@ -5,20 +5,25 @@ import zio._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ArrayBuffer
 import server.*
+import zio.stream._
+import zio.http.ChannelEvent.{ExceptionCaught, Read, UserEvent, UserEventTriggered}
+import zio.http._
+
+
+
 
 
 class Lobby(h: Hub[String],g: GameState):
   val id = UUID.randomUUID()
   val hub = h
   val gameState = g
-  var clients = Set.empty[UUID]
-
-  //var id: UUID = null
+  var clients = ArrayBuffer.empty[UUID]
   var currSize = 0
-  val maxSize = 2
+  val maxSize = 4
   var started = false
   var ended = false
   var isFull = false
+
   def setStatus() =
     if currSize < 2 then
       ended = true
@@ -27,19 +32,23 @@ class Lobby(h: Hub[String],g: GameState):
     println("SIZES: " + currSize +  maxSize)
     if currSize == maxSize then isFull = true else isFull = false
   def addClient(id: UUID) =
-    clients += id
-    currSize += 1
-    checkSize()
+    if currSize < maxSize then
+      clients += id
+      currSize += 1
+      checkSize()
   def removeClient(id: UUID) =
     clients -= id
     currSize -= 1
     checkSize()
     setStatus()
+  def getPlayer(clientId: UUID) =
+    val player = gameState.currentPlayers.filter(p => p.id == clientId)
 
 
   def buildGame() =
-    gameState.buildGameState()
+    gameState.buildGameState(clients)
     //return gameState.availablePlayerSlots
+
   def startGame() =
 
     runGame().forkDaemon
@@ -55,6 +64,27 @@ class Lobby(h: Hub[String],g: GameState):
           _ <- ZIO.sleep(16.millis)
         } yield ()
       }
+  def publish() =
+    for {
+      hub <- ZIO.service[Hub[String]]
+    } yield ()
+
+
+  /*def publish(message: String, channel:  Channel[ChannelEvent[WebSocketFrame], ChannelEvent[WebSocketFrame]]) =
+    ZIO.scoped {
+      for {
+        hub <- ZIO.service[Hub[String]]
+        queue <- hub.subscribe
+        outgoing <- ZStream
+          .fromQueue(queue)
+          .map(WebSocketFrame.text)
+          .runForeach(frame => channel.send(Read(frame))
+        _ <- hub.publish
+
+
+      } yield ()
+    }
+ */
 
 
 

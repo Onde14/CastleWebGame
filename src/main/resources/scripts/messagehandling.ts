@@ -29,7 +29,7 @@ export class MessageHandler {
   private handleResponse(msg: ResponseMessage) {
     //console.log("TYPE IS ", msg.msgType);
     switch (msg.msgType) {
-      case "BuildGame":
+      case "BuildGameDataMessage":
         if (
           msg.currentPlayerId !== undefined &&
           msg.currentPlayerColor &&
@@ -61,7 +61,7 @@ export class MessageHandler {
       case "HelloMessage":
         console.log("Got the ",msg.msgType, "back.");
         break;
-      case "ClientInfo":
+      case "ClientInfoMessage":
         console.log("Got the ",msg.msgType + ".");
         break;
       default:
