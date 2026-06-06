@@ -42,12 +42,15 @@ export class MessageHandler {
                 break;
             case "ClientInfoMessage":
                 console.log("Got the ", msg.msgType + ".");
+                console.log(msg.lobbyId);
+                if (msg.lobbyId !== undefined) {
+                    this.myLobbyId == msg.lobbyId;
+                }
                 if (msg.clientId !== undefined) {
                     this.myClientId = msg.clientId;
                     this.eventHandler.setCurrentPlayerId(msg.clientId);
                 }
-                if (msg.lobbyId !== undefined)
-                    this.myLobbyId == msg.lobbyId;
+                console.log(this.myClientId, this.myLobbyId);
                 break;
             default:
                 throw new Error("Unknown message type!");
@@ -65,6 +68,9 @@ export class MessageHandler {
         }
     }
     send(object) {
+        object.clientId = this.myClientId;
+        object.lobbyId = this.myLobbyId;
+        console.log("Sending object:", object);
         this.webSocketDriver.sendMessage(JSON.stringify(object));
     }
 }

@@ -26,14 +26,24 @@ object Castle {
     DeriveJsonDecoder.gen[Castle]
 }
 
+final case class Village (
+  id: UUID,
+  owner: UUID,
+  ownerColor: String,
+  pos: Pos,
+  state: Int, // 0 = dead, 1 = live
+)
+
 final case class Soldier (
   id: UUID,
   owner: UUID,
   ownerColor: String,
   pos: Pos,
   target: Pos,
-  var state: Int, // 0 = dead, 1 = live, 2 = moving
+  var state: Int, // 0 = dead, 1 = live, 2 = moving, 3 = attacking
   radius: Int = 10,
+  health: Int = 100,
+  damage: Int = 10,
 ) extends GameObject
 
 final case class SoldierJSON (

@@ -24,6 +24,7 @@ export class WebSocketDriver {
     sendMessage(message) {
         if (this.webSocket.readyState === WebSocket.OPEN) {
             this.webSocket.send(message);
+            console.log("Message sent to server!");
         }
         else {
             console.error("Socket is not open.");

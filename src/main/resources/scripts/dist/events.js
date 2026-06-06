@@ -34,8 +34,8 @@ export class EventHandler {
             console.log("GOT ORDERS!");
             console.log("ORDERS: " + orders);
             if (this.messageHandler) {
-                const requestJson = {
-                    msgType: "AttackOrder",
+                let requestJson = {
+                    msgType: "AttackOrderMessage",
                     playerId: currPlayer,
                     target_castle_id: orders.target_castle_id,
                     selected_castles_ids: orders.selected_castles_ids,

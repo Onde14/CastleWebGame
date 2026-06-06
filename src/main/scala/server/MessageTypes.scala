@@ -34,6 +34,8 @@ final case class RequestAttackOrderMessage (
   playerId: UUID,
   target_castle_id: UUID,
   selected_castles_ids: List[UUID],
+  clientId: UUID,
+  lobbyId: UUID
 )
 
 object RequestAttackOrderMessage {

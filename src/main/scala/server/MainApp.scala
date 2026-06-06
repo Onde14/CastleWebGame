@@ -21,6 +21,9 @@ object MainApp extends ZIOAppDefault {
   val lobbiesRef = Ref.make(Set.empty[Lobby])
   val lobbiesLayer = ZLayer.fromZIO(lobbiesRef)
 
+  val lobbyoutFibersRef = Ref.make(Set.empty[ZIO[Any, Nothing, Fiber.Runtime[Throwable, Unit]]])
+  val lobbyoutFibersLayer = ZLayer.fromZIO(lobbyoutFibersRef)
+
 
   val clientsInLobbiesRef = Ref.make(Map.empty[UUID,Lobby])
   val clientsInLobbiesLayer = ZLayer.fromZIO(clientsInLobbiesRef)
@@ -44,13 +47,15 @@ object MainApp extends ZIOAppDefault {
   val webSocketHandle =
     Handler.webSocket { channel =>
       ZIO.scoped {
+
+
         for {
           hub   <- Hub.unbounded[String]
           queue <- hub.subscribe
+          //lobbyoutRef <- Ref.make(ZIO.unit: ZIO[Any, Throwable, Unit])
           lobbiesRef <- ZIO.service[Ref[Set[Lobby]]]
           clientsInLobbiesRef <- ZIO.service[Ref[Map[UUID, Lobby]]]
-          clientId <- ZIO.succeed(UUID.randomUUID())
-
+          lobbyoutFibersRef <- ZIO.service[Ref[Set[ZIO[Any, Nothing, Fiber.Runtime[Throwable, Unit]]]]]
 
           outgoing = ZStream
             .fromQueue(queue)
@@ -58,6 +63,7 @@ object MainApp extends ZIOAppDefault {
             .runForeach(frame => channel.send(Read(frame)))
 
           incoming = channel.receiveAll {
+
             case Read(WebSocketFrame.Text(text)) =>
               println(s"GOT MESSAGE: $text")
               val response = incomingMessageHandling(text)
@@ -68,71 +74,58 @@ object MainApp extends ZIOAppDefault {
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
               for {
-
+                clientId <- ZIO.succeed(UUID.randomUUID())
                 lobbyHub <- Hub.unbounded[String]
                 _ <- ZIO.debug(s"HUbSDA: $lobbyHub")
                 lobbies <- lobbiesRef.get
                 someLobby <- ZIO.succeed(joinLobby(lobbies))
-                lobby <- ZIO.succeed(someLobby.getOrElse{
-                  val newLobby = createLobby(lobbyHub)
-                  newLobby
-                })
+
+                lobby <- ZIO.succeed(someLobby.getOrElse(createLobby(lobbyHub)))
+                _ <- ZIO.debug("GELLLO")
+
                 _ <- clientsInLobbiesRef.update(_ + ((clientId, lobby)))
                 _ <- ZIO.succeed(lobby.addClient(clientId))
                 _ <- lobbiesRef.update(_ + lobby)
                 clients <- clientsInLobbiesRef.get
                 welcome = ClientInfoMessage("ClientInfoMessage", clientId, lobby.id).toJson
                 response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)
+                _ <- hub.publish("WHATS UP")
+                _ <- ZIO.debug(response)
                 _ <- channel.send(Read(WebSocketFrame.text(response)))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
 
                 _ <- ZIO.debug(s"Lobby is full = ${lobby.isFull}")
-                _ <- hub.publish("HEKLLLLLLLLLL")
                 lobbyQueue <- lobby.hub.subscribe
-                _ <- ZIO.debug(1111111111)
+
                 _ <- ZIO.when(lobby.isFull == true) {
-                  //ZIO.scoped {
                     for {
-                      //scoped = ZStream.fromHub(lobby.hub)
-                      //stream = ZStream.unwrapScoped(scoped)
-                      //promise <- Promise.make[Nothing,Unit]
-                      _ <- ZIO.debug(1)
-                      _ <- ZIO.debug(3)
-                      _ <- ZIO.debug(4)
-                      _ <- ZIO.debug(3)
                       _ <- ZIO.succeed(println(s"${lobby.id} Game Started"))
                       _ <- ZIO.debug(s"LOBBY: ${lobby.id}, CLIENTS: ${lobby.clients}")
                       _ <- ZIO.succeed(lobby.buildGame())
-
-
-
-                      _ <- ZIO.debug(4)
-
                       response <- ZIO.succeed(BuildGameDataMessage("BuildGameDataMessage",lobby.gameState.mapData).toJson)
-                      _ <- ZIO.debug(5)
                       _ <- lobby.hub.publish(response)
-                      _ <- ZIO.debug(6)
-
-
                     } yield ()
                   }
-                  lobbyout = ZStream
-                    .fromQueue(lobbyQueue)
-                    .map(WebSocketFrame.text)
-                    .runForeach(frame => {
-                    println(s"FRAME: $frame")
-                    channel.send(Read(frame))
-                    })
-                  _ <- ZIO.debug(7)
-                  _ <- lobbyout
-                  _ <- ZIO.debug(8)
-                //}
+                _ <- ZIO.debug(7)
+                newLobbyout = ZStream
+                  .fromQueue(lobbyQueue)
+                  .map(WebSocketFrame.text)
+                  .runForeach(frame => {
+                  println(s"FRAME: $frame")
+                  channel.send(Read(frame))
+                  }).forkDaemon
+                _ <- ZIO.debug("lobbyout: " + newLobbyout)
+                _ <- lobbyoutFibersRef.update(_ + newLobbyout)
+                _ <- newLobbyout
+               // _ <- lobbyoutRef.set(newLobbyout)
+                 // _ <- lobbyout
+                 // _ <- ZIO.debug(8)
               } yield ()
 
 
 
 
             case Read(WebSocketFrame.Close(status, reason)) =>
-              for {
+             /* for {
 
                 clientsInLobbies <- clientsInLobbiesRef.get
                 lobby <- ZIO.succeed(clientsInLobbies.get(clientId).getOrElse(null))
@@ -164,10 +157,11 @@ object MainApp extends ZIOAppDefault {
 
                 _ <- ZIO.debug("Closing channel with status: " + status + " and reason: " + reason)
 
-              } yield ()
+              } yield ()*/
+              Console.readLine("Closing channel with status: " + status + " and reason: " + reason)
 
             case ChannelEvent.Unregistered =>
-              for {
+              /*for {
 
                 clientsInLobbies <- clientsInLobbiesRef.get
                 lobby <- ZIO.succeed(clientsInLobbies.get(clientId).getOrElse(null))
@@ -199,13 +193,18 @@ object MainApp extends ZIOAppDefault {
 
                 _ <- ZIO.debug("Client disconnected")
 
-              } yield ()
+              } yield () */
+              Console.readLine("Client disconnected.")
 
 
             case _ =>
               ZIO.unit
           }
-          _ <- outgoing zipPar incoming
+         // lobbyout <- lobbyoutRef.get
+          //_ <- ZIO.debug("PARS: "+ Set(outgoing,incoming,lobbyout))
+
+          //_ <- ZIO.collectAllPar(Set(outgoing,incoming,lobbyout))
+           _ <- outgoing zipPar incoming
         } yield ()
       }
     }
@@ -221,7 +220,7 @@ object MainApp extends ZIOAppDefault {
         meta(charset("utf-8"))
       ),
       body(
-          canvas(id("canvas"), width(1000), height(1000)),
+          canvas(id("canvas"), width(800), height(800)),
           script.externalModule("scripts/dist/game.js")
       )
     )
@@ -256,5 +255,5 @@ object MainApp extends ZIOAppDefault {
 
   override def run =
     Server.serve(routes)
-    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer)
+    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer, lobbyoutFibersLayer)
 }
