@@ -1,22 +1,22 @@
 export declare enum CastleConfig {
-    width = 50,
-    height = 50,
+    width,
+    height,
     color = "gray",
-    ownerColorWidth = 25,
-    ownerColorHeight = 25
+    ownerColorWidth,
+    ownerColorHeight
 }
 export declare enum SoldierConfig {
-    width = 10,
-    height = 10,
+    width,
+    height,
     color = "black",
-    radius = 15,
-    ownerColorRadius = 8
+    radius,
+    ownerColorRadius
 }
 export declare enum RoadConfig {
     width = 10
 }
 export declare enum VillageSize {
-    width = 150,
-    height = 150
+    width,
+    height
 }
 //# sourceMappingURL=config.d.ts.map

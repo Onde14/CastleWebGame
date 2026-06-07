@@ -1,0 +1,11 @@
+{
+    "width": 1000,
+    "height": 1000,
+    "soldierRadius": 10,
+    "soldierHealth": 100,
+    "soldierDamage": 10,
+    "villageSize": 50,
+    "villageHealth": 100,
+    "castleSize": 100,
+    "castleHealth": 100
+}

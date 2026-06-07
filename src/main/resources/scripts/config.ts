@@ -1,22 +1,26 @@
+import GameConfig from './GameConfig.json';
+console.log(GameConfig.castleHealth);
+
+
 enum GameSize {
-  width = 1000,
-  height = 1000,
+  width = GameConfig.width,
+  height = GameConfig.height,
 }
 
 export enum CastleConfig {
-  width = 50,
-  height = 50,
+  width = GameConfig.castleSize,
+  height = GameConfig.castleSize,
   color = "gray",
   ownerColorWidth = CastleConfig.width / 2,
   ownerColorHeight = CastleConfig.height / 2,
 }
 
 export enum SoldierConfig {
-  width = 10,
-  height = 10,
+  width = GameConfig.soldierRadius,
+  height = GameConfig.soldierRadius,
   color = "black",
-  radius = 15,
-  ownerColorRadius = 8,
+  radius = GameConfig.soldierRadius,
+  ownerColorRadius = SoldierConfig.radius / 2
 }
 
 export enum RoadConfig {
@@ -24,6 +28,6 @@ export enum RoadConfig {
 }
 
 export enum VillageSize {
-  width = 150,
-  height = 150,
+  width = GameConfig.villageSize,
+  height = GameConfig.villageSize
 }

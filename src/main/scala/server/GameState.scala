@@ -70,7 +70,7 @@ class GameState:
     for line <- mapFile.MapDataFile do
       val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier], new ArrayBuffer[Village])
       val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1)
-      /*for i <- 0 until 3 do
+      for i <- 0 until 3 do
         val x = (castle.pos.x + GameConfig.castleSize*2)*math.cos(120*i)
         val y = (castle.pos.y + GameConfig.castleSize*2)*math.sin(120*i)
         println(s"buildGameState: x = $x, y = $y")
@@ -78,7 +78,7 @@ class GameState:
         val villagePos = new Pos(x,y)
         val village = new Village(UUID.randomUUID(), clients(i), colors(i), villagePos)
         player.villages += village
-*/
+
 
       player.castles += castle
       castles += castle
@@ -145,7 +145,7 @@ class GameState:
       return false
 
   def areEnemiesTouching(soldier: Soldier): List[Soldier]  =
-    val touchingSoldiers = soldiers.filter(s => (s.id != soldier.id && calcDistance(soldier.pos,s.pos) <= GameConfig.soldierRadius && s.state != 0)).toList
+    val touchingSoldiers = soldiers.filter(s => (s.id != soldier.id && calcDistance(soldier.pos,s.pos) <= GameConfig.SoldierRadius && s.state != 0)).toList
     return touchingSoldiers
 
 

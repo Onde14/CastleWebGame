@@ -1,23 +1,25 @@
+import GameConfig from './GameConfig.json';
+console.log(GameConfig.castleHealth);
 var GameSize;
 (function (GameSize) {
-    GameSize[GameSize["width"] = 1000] = "width";
-    GameSize[GameSize["height"] = 1000] = "height";
+    GameSize[GameSize["width"] = GameConfig.width] = "width";
+    GameSize[GameSize["height"] = GameConfig.height] = "height";
 })(GameSize || (GameSize = {}));
 export var CastleConfig;
 (function (CastleConfig) {
-    CastleConfig[CastleConfig["width"] = 50] = "width";
-    CastleConfig[CastleConfig["height"] = 50] = "height";
+    CastleConfig[CastleConfig["width"] = GameConfig.castleSize] = "width";
+    CastleConfig[CastleConfig["height"] = GameConfig.castleSize] = "height";
     CastleConfig["color"] = "gray";
-    CastleConfig[CastleConfig["ownerColorWidth"] = 25] = "ownerColorWidth";
-    CastleConfig[CastleConfig["ownerColorHeight"] = 25] = "ownerColorHeight";
+    CastleConfig[CastleConfig["ownerColorWidth"] = CastleConfig.width / 2] = "ownerColorWidth";
+    CastleConfig[CastleConfig["ownerColorHeight"] = CastleConfig.height / 2] = "ownerColorHeight";
 })(CastleConfig || (CastleConfig = {}));
 export var SoldierConfig;
 (function (SoldierConfig) {
-    SoldierConfig[SoldierConfig["width"] = 10] = "width";
-    SoldierConfig[SoldierConfig["height"] = 10] = "height";
+    SoldierConfig[SoldierConfig["width"] = GameConfig.soldierRadius] = "width";
+    SoldierConfig[SoldierConfig["height"] = GameConfig.soldierRadius] = "height";
     SoldierConfig["color"] = "black";
-    SoldierConfig[SoldierConfig["radius"] = 15] = "radius";
-    SoldierConfig[SoldierConfig["ownerColorRadius"] = 8] = "ownerColorRadius";
+    SoldierConfig[SoldierConfig["radius"] = GameConfig.soldierRadius] = "radius";
+    SoldierConfig[SoldierConfig["ownerColorRadius"] = SoldierConfig.radius / 2] = "ownerColorRadius";
 })(SoldierConfig || (SoldierConfig = {}));
 export var RoadConfig;
 (function (RoadConfig) {
@@ -25,7 +27,7 @@ export var RoadConfig;
 })(RoadConfig || (RoadConfig = {}));
 export var VillageSize;
 (function (VillageSize) {
-    VillageSize[VillageSize["width"] = 150] = "width";
-    VillageSize[VillageSize["height"] = 150] = "height";
+    VillageSize[VillageSize["width"] = GameConfig.villageSize] = "width";
+    VillageSize[VillageSize["height"] = GameConfig.villageSize] = "height";
 })(VillageSize || (VillageSize = {}));
 //# sourceMappingURL=config.js.map
