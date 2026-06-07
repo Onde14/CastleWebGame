@@ -1,7 +1,4 @@
 import { WebSocketDriver } from "./websocket.js";
-import { Player } from "./gamestate.js";
-import { EventHandler } from "./events.js";
-import { Soldier, Castle } from "./objects.js";
 export class MessageHandler {
     webSocketDriver;
     eventHandler;

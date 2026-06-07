@@ -1,6 +1,5 @@
 import { Vector } from "./vector.js";
-import { Soldier, Castle } from "./objects.js";
-import { SoldierConfig, CastleConfig } from "./config.js";
+import { CastleConfig } from "./config.js";
 export class Controls {
     selected = new Map();
     isSelecting = false;

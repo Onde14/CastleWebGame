@@ -1,5 +1,4 @@
-import { Soldier, Castle, GameObject } from "./objects.js";
-import { DisplayDriver } from "./display-driver.js";
+import { Soldier, Castle } from "./objects.js";
 import { Vector } from "./vector.js";
 export class Player {
     id;

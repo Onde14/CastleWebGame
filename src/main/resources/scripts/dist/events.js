@@ -1,5 +1,3 @@
-import { Gamestate, Player } from "./gamestate.js";
-import { Soldier, Castle } from "./objects.js";
 import { Vector } from "./vector.js";
 import { MessageHandler } from "./messagehandling.js";
 export class EventHandler {

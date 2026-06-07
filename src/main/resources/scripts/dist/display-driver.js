@@ -1,6 +1,5 @@
-import { Soldier, Castle, GameObject } from "./objects.js";
+import { Soldier, Castle } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
-import { Player } from "./gamestate.js";
 import { UIStates } from "./ui.js";
 export class DisplayDriver {
     canvas;
@@ -86,7 +85,7 @@ export class DisplayDriver {
         });
     }
     draw(gameObjects, currentplayerColor) {
-        //console.log(this.ui.state)
+        console.log(this.ui.state);
         switch (this.ui.state) {
             case UIStates.Game:
                 this.drawGame(gameObjects, currentplayerColor);

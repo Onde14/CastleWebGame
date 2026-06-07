@@ -1,7 +1,6 @@
 import { DisplayDriver } from "./display-driver.js";
-import { Vector } from "./vector.js";
 import { Controls } from "./controls.js";
-import { Gamestate, Player } from "./gamestate.js";
+import { Gamestate } from "./gamestate.js";
 import { EventHandler } from "./events.js";
 import { UserInterface } from "./ui.js";
 async function sleep(ms) {

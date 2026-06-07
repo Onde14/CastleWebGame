@@ -1,8 +1,8 @@
-import GameConfig from './GameConfig.json';
-console.log(GameConfig.castleHealth);
 
 
-enum GameSize {
+import GameConfig from './GameConfig.json' with { type: 'json' };
+
+export enum GameSize {
   width = GameConfig.width,
   height = GameConfig.height,
 }

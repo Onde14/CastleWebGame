@@ -1,3 +1,7 @@
+export declare enum GameSize {
+    width,
+    height
+}
 export declare enum CastleConfig {
     width,
     height,

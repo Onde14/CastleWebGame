@@ -1,15 +1,22 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
     // File Layout
     "rootDir": ".",
     "outDir": "./dist",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "esnext",
-    "target": "esnext",
+    "module": "ESNext",
+    "target": "ESNext",
     "types": [],
+    "moduleResolution": "node",
+
+
+    "allowSyntheticDefaultImports": true,
+
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -37,13 +44,11 @@
     "strict": true,
 
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+   // "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "esModuleInterop": true
+
   }
 }

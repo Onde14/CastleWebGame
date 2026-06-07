@@ -73,10 +73,11 @@ class GameState:
       for i <- 0 until 3 do
         val x = (castle.pos.x + GameConfig.castleSize*2)*math.cos(120*i)
         val y = (castle.pos.y + GameConfig.castleSize*2)*math.sin(120*i)
-        println(s"buildGameState: x = $x, y = $y")
 
         val villagePos = new Pos(x,y)
         val village = new Village(UUID.randomUUID(), clients(i), colors(i), villagePos)
+        println(s"buildGameState: x = $x, y = $y")
+
         player.villages += village
 
 

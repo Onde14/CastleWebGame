@@ -1,4 +1,4 @@
-import { CastleConfig, SoldierConfig, RoadConfig } from "./config.js";
+import { CastleConfig, SoldierConfig } from "./config.js";
 import { Vector } from "./vector.js";
 export class GameObject {
     movable;

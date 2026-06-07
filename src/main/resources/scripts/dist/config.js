@@ -1,6 +1,5 @@
-import GameConfig from './GameConfig.json';
-console.log(GameConfig.castleHealth);
-var GameSize;
+import GameConfig from './GameConfig.json' with { type: 'json' };
+export var GameSize;
 (function (GameSize) {
     GameSize[GameSize["width"] = GameConfig.width] = "width";
     GameSize[GameSize["height"] = GameConfig.height] = "height";

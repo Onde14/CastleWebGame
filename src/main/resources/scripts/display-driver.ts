@@ -144,7 +144,7 @@ export class DisplayDriver {
     gameObjects: Map<string, GameObject>,
     currentplayerColor: string
   ) {
-    //console.log(this.ui.state)
+    console.log(this.ui.state)
     switch (this.ui.state) {
       case UIStates.Game:
         this.drawGame(gameObjects, currentplayerColor)
