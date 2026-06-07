@@ -21,6 +21,7 @@ class Lobby(h: Hub[String],g: GameState):
   var currSize = 0
   val maxSize = 2
   var started = false
+  var running = false
   var ended = false
   var isFull = false
   var runGameFiber: Fiber.Runtime[Nothing, Unit] = null
@@ -45,34 +46,30 @@ class Lobby(h: Hub[String],g: GameState):
   def getPlayer(clientId: UUID) =
     val player = gameState.currentPlayers.filter(p => p.id == clientId)
 
-
+  def startGame() =
+    for {
+      running = true
+      _ <- runGame().forever
+    } yield ()
 
   def buildGame() =
     gameState.buildGameState(clients)
     //return gameState.availablePlayerSlots
 
-  def startGame() =
-    for {
-      fiber <- runGame().forever
-      runGameRef <- Ref.make(fiber)
-    } yield runGameFiber = fiber
-
-
 
   def runGame() =
       println("START GAME!")
-      ZIO.scoped{
         for {
           //hub <- ZIO.service[Hub[String]]
           updates <- ZIO.succeed(gameState.update())
           //_ <- if updates.nonEmpty then hub.publish(outgoingMessageHandling("update",updates)) else ZIO.unit
         // _ <- ZIO.succeed(gameState.changes.clear())
         // _ <- ZIO.debug(gameState.availablePlayerSlots)
-        //
-          _ <- ZIO.debug(s"$id: Tick")
+         // _ <- ZIO.debug(s"RUNNING: $running")
+          //_ <- ZIO.debug(s"$id: Tick")
           _ <- ZIO.sleep(1600.millis)
+          _ <- ZIO.debug(s"$id: Tick")
         } yield ()
-      }
   def publish() =
     for {
       hub <- ZIO.service[Hub[String]]

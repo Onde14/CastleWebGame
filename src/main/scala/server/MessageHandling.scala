@@ -4,6 +4,14 @@ import server.*
 import scala.annotation.switch
 import scala.collection.mutable.ArrayBuffer
 import java.util.UUID
+import zio.stream._
+import zio.http.ChannelEvent.{ExceptionCaught, Read, UserEvent, UserEventTriggered}
+import zio.http._
+import zio._
+
+
+
+
 
 def outgoingMessageHandling(msgType: String, content: List[String]): String =
   msgType match
@@ -40,5 +48,28 @@ def incomingMessageHandling(msg: String): Message =
       println(s"failed to decode: $value")
 
 
+
+
   */
   return null
+
+
+def RequestAttackOrderMessageHandling(target_castle_id: UUID,
+  selected_castles_ids: List[UUID],
+  clientId: UUID,
+  lobby: Lobby,
+  channel: Channel[ChannelEvent[WebSocketFrame],ChannelEvent[WebSocketFrame]]) =
+  for {
+    lobbyQueue <- lobby.hub.subscribe
+    newLobbyout = ZStream
+      .fromQueue(lobbyQueue)
+      .map(WebSocketFrame.text)
+      .runForeach(frame => {
+      println(s"FRAME: $frame")
+      channel.send(Read(frame))
+    }).forkDaemon
+    _ <- ZIO.debug("lobbyout: " + newLobbyout)
+    _ <- newLobbyout
+    _ <- ZIO.debug("lobbyout: " + newLobbyout)
+  } yield()
+

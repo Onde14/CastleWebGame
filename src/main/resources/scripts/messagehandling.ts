@@ -68,6 +68,9 @@ export class MessageHandler {
 
         console.log(this.myClientId,this.myLobbyId)
         break;
+      case "InvalidMessage":
+        console.log("Request was invalid!")
+        break;
       default:
         throw new Error("Unknown message type!");
     }
