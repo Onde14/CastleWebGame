@@ -175,25 +175,37 @@ object MainApp extends ZIOAppDefault {
                 _ <- ZIO.debug("lobbyout: " + newLobbyout)
                 lobbiesMap <- lobbiesRef.get
                 _ <- ZIO.debug(s"LOBBIESMAP: $lobbiesMap")
-                _ <- ZIO.when(lobbiesMap.isEmpty) {
-                  for {
 
-                  newRunnables = new LobbyRunnables(Set(newLobbyoutFiber),runFiber.getOrElse(null))
-
-                  _ <- lobbiesRef.set(Map(lobby -> newRunnables))
-                  } yield ()
-                }
                 _ <- ZIO.when(lobbiesMap.nonEmpty) {
                   for {
-                    hubSet = lobbiesMap.get(lobby).get.lobbyOutGoings incl newLobbyoutFiber
-                    newRunnables = new LobbyRunnables(hubSet,runFiber.get)
-                    newLobbiesMap = lobbiesMap.updated(lobby,newRunnables)
+                    lobbiesMap <- lobbiesRef.get
+                    runnablesOption = lobbiesMap.get(lobby)
+                    runnables <- ZIO.succeed(if runnablesOption.isDefined then {
+                      val hubSet = runnablesOption.get.lobbyOutGoings incl newLobbyoutFiber
+                      new LobbyRunnables(hubSet,runnablesOption.get.lobbyGameRun)
+                    } else {
+                      val newRunnables = new LobbyRunnables(Set(newLobbyoutFiber),runFiber.getOrElse(null))
+                      newRunnables
+                    })
+                    newLobbiesMap = lobbiesMap.updated(lobby,runnables)
+                    _ <- ZIO.debug(s"lobbiesMap: $lobbiesMap, newLobbiesMap: $newLobbiesMap")
                     _ <- lobbiesRef.set(newLobbiesMap)
-
                   } yield ()
                 }
+
+                _ <- ZIO.when(lobbiesMap.isEmpty) {
+                  for {
+                    _ <- ZIO.debug("Creating lobbiesMap")
+                    newRunnables = new LobbyRunnables(Set(newLobbyoutFiber),runFiber.getOrElse(null))
+
+                    _ <- lobbiesRef.set(Map(lobby -> newRunnables))
+                  } yield ()
+                }
+
                 lobbiesMap <- lobbiesRef.get
-                _ <- ZIO.debug(s"LOBBIESMAP: $lobbiesMap")
+                now <- zio.Clock.ClockLive.instant
+
+                _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): LOBBIESMAP: $lobbiesMap")
 
 
 
