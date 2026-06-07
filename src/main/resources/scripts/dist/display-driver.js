@@ -1,6 +1,7 @@
 import { Soldier, Castle, GameObject } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
 import { Player } from "./gamestate.js";
+import { UIStates } from "./ui.js";
 export class DisplayDriver {
     canvas;
     ctx;
@@ -8,7 +9,9 @@ export class DisplayDriver {
     gameHeight;
     renderWidthPositionRatio;
     renderHeightPositionRatio;
-    constructor(canvas, ctx, gameWidth, gameHeight) {
+    ui;
+    constructor(ui, canvas, ctx, gameWidth, gameHeight) {
+        this.ui = ui;
         this.ctx = ctx;
         this.canvas = canvas;
         this.gameWidth = gameWidth;
@@ -22,7 +25,7 @@ export class DisplayDriver {
         this.renderWidthPositionRatio = this.canvas.width / this.gameWidth;
         this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
     }
-    draw(gameObjects, currentplayerColor) {
+    drawGame(gameObjects, currentplayerColor) {
         this.ctx.fillStyle = "green";
         this.ctx.fillRect(0, 0, this.gameWidth * this.renderWidthPositionRatio, this.gameHeight * this.renderHeightPositionRatio);
         //console.log("HEIGHT WINDOW RATIO: ", this.renderWidthPositionRatio);
@@ -81,6 +84,17 @@ export class DisplayDriver {
             this.ctx.save();
             this.ctx.restore();
         });
+    }
+    draw(gameObjects, currentplayerColor) {
+        switch (this.ui.state) {
+            case UIStates.Game:
+                this.drawGame(gameObjects, currentplayerColor);
+                break;
+            case UIStates.Menu:
+                break;
+            default:
+                break;
+        }
     }
 }
 //# sourceMappingURL=display-driver.js.map

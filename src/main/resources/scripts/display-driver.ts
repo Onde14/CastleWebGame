@@ -2,6 +2,7 @@ import { Soldier, Castle, GameObject } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
 import { Player } from "./gamestate.js";
 import type { Game } from "./game.js";
+import { type UserInterface, UIStates } from "./ui.js";
 
 export class DisplayDriver {
   canvas: HTMLCanvasElement;
@@ -10,12 +11,15 @@ export class DisplayDriver {
   gameHeight: number;
   renderWidthPositionRatio: number;
   renderHeightPositionRatio: number;
+  ui: UserInterface;
   constructor(
+    ui: UserInterface,
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D,
     gameWidth: number,
     gameHeight: number,
   ) {
+    this.ui = ui;
     this.ctx = ctx;
     this.canvas = canvas;
     this.gameWidth = gameWidth;
@@ -31,10 +35,7 @@ export class DisplayDriver {
     this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
   }
 
-  public draw(
-    gameObjects: Map<string, GameObject>,
-    currentplayerColor: string,
-  ) {
+  drawGame(gameObjects: Map<string, GameObject>,currentplayerColor: string) {
     this.ctx.fillStyle = "green";
     this.ctx.fillRect(
       0,
@@ -137,5 +138,22 @@ export class DisplayDriver {
       this.ctx.save();
       this.ctx.restore();
     });
+  }
+
+  public draw(
+    gameObjects: Map<string, GameObject>,
+    currentplayerColor: string
+  ) {
+    switch (this.ui.state) {
+      case UIStates.Game:
+        this.drawGame(gameObjects, currentplayerColor)
+        break;
+      case UIStates.Menu:
+
+        break;
+      default:
+        break;
+
+    }
   }
 }

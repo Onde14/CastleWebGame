@@ -1,4 +1,4 @@
-enum UIStates {
+export enum UIStates {
   Menu,
   SessionOptions,
   Session,
@@ -7,6 +7,6 @@ enum UIStates {
 }
 
 export class UserInterface {
-  state = UIStates.Menu;
+  state = UIStates.Game;
   constructor() {}
 }

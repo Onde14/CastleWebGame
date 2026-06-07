@@ -3,6 +3,7 @@ import { Vector } from "./vector.js";
 import { Controls } from "./controls.js";
 import { Gamestate, Player } from "./gamestate.js";
 import { EventHandler } from "./events.js";
+import { UserInterface } from "./ui.js";
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -14,6 +15,7 @@ export class Game {
   displayDriver: DisplayDriver;
   gameState: Gamestate;
   controls: Controls;
+  ui: UserInterface;
   eventHandler: EventHandler;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -22,7 +24,9 @@ export class Game {
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     this.gameWidth = this.canvas.width;
     this.gameHeight = this.canvas.height;
+    this.ui = new UserInterface
     this.displayDriver = new DisplayDriver(
+      this.ui,
       this.canvas,
       this.ctx,
       this.gameWidth,

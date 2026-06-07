@@ -1,4 +1,4 @@
-declare enum UIStates {
+export declare enum UIStates {
     Menu = 0,
     SessionOptions = 1,
     Session = 2,
@@ -9,5 +9,4 @@ export declare class UserInterface {
     state: UIStates;
     constructor();
 }
-export {};
 //# sourceMappingURL=ui.d.ts.map

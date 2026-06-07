@@ -1,4 +1,4 @@
-var UIStates;
+export var UIStates;
 (function (UIStates) {
     UIStates[UIStates["Menu"] = 0] = "Menu";
     UIStates[UIStates["SessionOptions"] = 1] = "SessionOptions";
@@ -7,7 +7,7 @@ var UIStates;
     UIStates[UIStates["Leaderboard"] = 4] = "Leaderboard";
 })(UIStates || (UIStates = {}));
 export class UserInterface {
-    state = UIStates.Menu;
+    state = UIStates.Game;
     constructor() { }
 }
 //# sourceMappingURL=ui.js.map
