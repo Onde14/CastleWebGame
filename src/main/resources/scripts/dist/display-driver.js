@@ -86,6 +86,7 @@ export class DisplayDriver {
         });
     }
     draw(gameObjects, currentplayerColor) {
+        //console.log(this.ui.state)
         switch (this.ui.state) {
             case UIStates.Game:
                 this.drawGame(gameObjects, currentplayerColor);

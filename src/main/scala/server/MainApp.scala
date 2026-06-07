@@ -13,6 +13,8 @@ import java.time.ZoneId
 import zio.json.*
 import zio.Exit
 import scala.collection.mutable.ArrayBuffer
+import zio.Clock.ClockLive
+
 
 case class LobbyRunnables(
   lobbyOutGoings: Set[Fiber.Runtime[Throwable, Unit]] = Set.empty,
@@ -33,7 +35,8 @@ object MainApp extends ZIOAppDefault {
 
   val hubLayer: ZLayer[Any, Nothing, Hub[String]] = ZLayer.fromZIO(Hub.unbounded[String])
 
-  val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.systemDefault())
+  val nowMillis =
+    ClockLive.instant
 
   def createLobby(hub: Hub[String]): Lobby =
     val lobbyId = UUID.randomUUID()
@@ -95,7 +98,7 @@ object MainApp extends ZIOAppDefault {
 
 
                                   } yield ()
-                              case _ =>
+                              case null =>
                                 ZIO.succeed(null)
                 }
                 _ <- ZIO.when(message == null) {
@@ -114,24 +117,32 @@ object MainApp extends ZIOAppDefault {
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
               for {
+                now <- zio.Clock.ClockLive.instant
+                _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): Client connected!")
                 clientId <- ZIO.succeed(UUID.randomUUID())
                 lobbyHub <- Hub.unbounded[String]
                 lobbiesMap <- lobbiesRef.get
                 someLobby <- ZIO.succeed(joinLobby(lobbiesMap))
+                now <- zio.Clock.ClockLive.instant
+                _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): someLobby = $someLobby")
 
-                lobby <- ZIO.succeed(someLobby.getOrElse(createLobby(lobbyHub)))
 
+                lobby <- ZIO.succeed(if someLobby.isDefined then someLobby.get else  createLobby(lobbyHub))
+                now <- zio.Clock.ClockLive.instant
+                _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): lobby = $lobby")
                 _ <- clientsInLobbiesRef.update(_ + ((clientId, lobby)))
+
+
                 _ <- ZIO.succeed(lobby.addClient(clientId))
                 clients <- clientsInLobbiesRef.get
                 welcome = ClientInfoMessage("ClientInfoMessage", clientId, lobby.id).toJson
                 _ <- ZIO.succeed(lobby.gameState.addPlayer(clientId))
                 response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)
-                _ <- ZIO.debug("response HANDSHAKE: " + response)
-
+                now <- zio.Clock.ClockLive.instant
+                _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): response = $response")
                 _ <- channel.send(Read(WebSocketFrame.text(response)))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
-
-                _ <- ZIO.debug(s"Lobby is full = ${lobby.isFull}")
+                now <- zio.Clock.ClockLive.instant
+                _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): Lobby is full = ${lobby.isFull}")
                 lobbyQueue <- lobby.hub.subscribe
 
 
@@ -156,7 +167,7 @@ object MainApp extends ZIOAppDefault {
                   .fromQueue(lobbyQueue)
                   .map(WebSocketFrame.text)
                   .runForeach(frame => {
-                  println(s"FRAME: $frame")
+                  //println(s"FRAME: $frame")
                   channel.send(Read(frame))
                   }).forkDaemon
                 _ <- ZIO.debug("lobbyout: " + newLobbyout)
@@ -294,7 +305,7 @@ object MainApp extends ZIOAppDefault {
         meta(charset("utf-8"))
       ),
       body(
-          canvas(id("canvas"), width(Game.width), height(Game.height)),
+          canvas(id("canvas"), width(GameConfig.width), height(GameConfig.height)),
           script.externalModule("scripts/dist/game.js")
       )
     )

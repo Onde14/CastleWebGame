@@ -44,6 +44,7 @@ export class Game {
     }
     async draw(t) {
         //console.log(this.canvas);
+        //console.log("DRAWING")
         this.gameState.players.forEach((player) => {
             if (t % 1000 == 0) {
                 console.log(player);

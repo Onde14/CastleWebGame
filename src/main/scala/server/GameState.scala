@@ -15,8 +15,8 @@ import java.util.UUID
 
 
 class GameState:
-  private val height = Game.height
-  private val width = Game.width
+  private val height = GameConfig.height
+  private val width = GameConfig.width
   private var gameStarted = false
   var mapData = ArrayBuffer[Player]()
  // var playersIds = ArrayBuffer[UUID]()
@@ -63,18 +63,28 @@ class GameState:
     return null
 
   def buildGameState(clients: ArrayBuffer[UUID]): Unit =
-      val mapFile = getMap()
-      //val map = mapPositions(content.fromJson)
-      println(s"MAP:  $mapFile")
-      var i = 0
-      for line <- mapFile.MapDataFile do
-        val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
-        val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1)
-        player.castles += castle
-        castles += castle
-        mapData += player
-        i += 1
-      println(s"mapData: $mapData")
+    val mapFile = getMap()
+    //val map = mapPositions(content.fromJson)
+    println(s"MAP:  $mapFile")
+    var i = 0
+    for line <- mapFile.MapDataFile do
+      val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier], new ArrayBuffer[Village])
+      val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1)
+      /*for i <- 0 until 3 do
+        val x = (castle.pos.x + GameConfig.castleSize*2)*math.cos(120*i)
+        val y = (castle.pos.y + GameConfig.castleSize*2)*math.sin(120*i)
+        println(s"buildGameState: x = $x, y = $y")
+
+        val villagePos = new Pos(x,y)
+        val village = new Village(UUID.randomUUID(), clients(i), colors(i), villagePos)
+        player.villages += village
+*/
+
+      player.castles += castle
+      castles += castle
+      mapData += player
+      i += 1
+    println(s"mapData: $mapData")
 
 
     /*
@@ -92,13 +102,8 @@ class GameState:
     //println(s"GAME BUILD: $availablePlayerSlots")
 
   def addPlayer(clientId: UUID) =
-    println(currentPlayerIterator)
-    println(playerLimit)
     if currentPlayersIds.size < playerLimit then
       currentPlayersIds += clientId
-      println(s"ADDED PLAYER: $clientId, PLAYER LIMIT: $playerLimit, CURRENT PLAYER AMOUNT: $currentPlayerIterator")
-    else
-      println("ERROR: too many players!")
 
   def removePlayer(clientId: UUID): Unit =
     currentPlayersIds -= clientId
@@ -124,7 +129,6 @@ class GameState:
     }
 
     println(s"createSoldier: soldiers = $soldiers")
-
     val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("ResponseAttackOrderMessage",new_soldiers.toList)
     println(s"createSoldier: CREATED SOLDIER AND RESPONSE: $response")
 
@@ -141,7 +145,7 @@ class GameState:
       return false
 
   def areEnemiesTouching(soldier: Soldier): List[Soldier]  =
-    val touchingSoldiers = soldiers.filter(s => (s.id != soldier.id && calcDistance(soldier.pos,s.pos) <= soldier.radius && s.state != 0)).toList
+    val touchingSoldiers = soldiers.filter(s => (s.id != soldier.id && calcDistance(soldier.pos,s.pos) <= GameConfig.soldierRadius && s.state != 0)).toList
     return touchingSoldiers
 
 
@@ -203,7 +207,7 @@ class GameState:
 
   def update(): ArrayBuffer[UpdateData] =
     val updates = moveSoldiers()
-    println(s"update: updates = $updates")
+    //println(s"update: updates = $updates")
     val removedSoldiers = updates.filter(u => u.state.getOrElse(null) == 0)
     removeSoldiers(removedSoldiers)
     return updates

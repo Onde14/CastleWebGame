@@ -4,14 +4,23 @@ import zio.json._
 import java.util.UUID
 
 
-object Game{
+object GameConfig {
   val width = 1000
   val height = 1000
+  val soldierRadius = 10
+  val villageSize = 50
+  val castleSize = 50
 }
+
+
+
 case class Pos(
   var x: Double,
   var y: Double,
 )
+
+
+
 
 
 
@@ -28,12 +37,14 @@ final case class Player (
   color: String,
   castles: ArrayBuffer[Castle],
   units: ArrayBuffer[Soldier],
+  villages: ArrayBuffer[Village]
 )
 
 object Player {
   implicit val encoder: JsonEncoder[Player] =
     DeriveJsonEncoder.gen[Player]
 }
+
 
 final case class MapData (
   id: Int,

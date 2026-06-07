@@ -32,7 +32,7 @@ class Lobby(h: Hub[String],g: GameState):
       ended = true
 
   def checkSize() =
-    println("SIZES: " + currSize +  maxSize)
+    println(s"checkSize: currSize = $currSize, maxSize = $maxSize")
     if currSize == maxSize then isFull = true else isFull = false
   def addClient(id: UUID) =
     if currSize < maxSize then
@@ -68,7 +68,7 @@ class Lobby(h: Hub[String],g: GameState):
          // _ <- ZIO.debug(s"RUNNING: $running")
           //_ <- ZIO.debug(s"$id: Tick")
           _ <- ZIO.sleep(16.millis)
-          _ <- ZIO.debug(s"$id: Tick")
+       //  _ <- ZIO.debug(s"$id: Tick")
         } yield ()
   def publish() =
     for {

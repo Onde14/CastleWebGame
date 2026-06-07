@@ -15,9 +15,9 @@ final case class Castle (
   owner: UUID,
   ownerColor: String,
   pos: Pos,
-  state: Int, // 0 = dead, 1 = live
+  state: Int = 1, // 0 = dead, 1 = live
+  health: Int = 100,
 ) extends GameObject
-
 
 object Castle {
   implicit val encoder: JsonEncoder[Castle] =
@@ -31,8 +31,17 @@ final case class Village (
   owner: UUID,
   ownerColor: String,
   pos: Pos,
-  state: Int, // 0 = dead, 1 = live
-)
+  state: Int = 1, // 0 = dead, 1 = live
+  health: Int = 100,
+) extends GameObject
+
+
+object Village {
+  implicit val encoder: JsonEncoder[Village] =
+    DeriveJsonEncoder.gen[Village]
+  implicit val decoder: JsonDecoder[Village] =
+    DeriveJsonDecoder.gen[Village]
+}
 
 final case class Soldier (
   id: UUID,
@@ -40,26 +49,18 @@ final case class Soldier (
   ownerColor: String,
   pos: Pos,
   target: Pos,
-  var state: Int, // 0 = dead, 1 = live, 2 = moving, 3 = attacking
-  radius: Int = 10,
+  var state: Int = 1, // 0 = dead, 1 = live, 2 = moving, 3 = attacking
   health: Int = 100,
   damage: Int = 10,
 ) extends GameObject
 
-final case class SoldierJSON (
-  id: String,
-  owner: String,
-  ownerColor: String,
-  pos: Pos,
-  target: Pos,
-  state: Int, // 0 = dead, 1 = live, 2 = moving
-)
 
 object Soldier {
   implicit val encoder: JsonEncoder[Soldier] =
     DeriveJsonEncoder.gen[Soldier]
   implicit val decoder: JsonDecoder[Soldier] =
     DeriveJsonDecoder.gen[Soldier]
+
 }
 
 object GameObject {

@@ -60,11 +60,12 @@ export class Game {
 
   public async draw(t: number) {
     //console.log(this.canvas);
-
+    //console.log("DRAWING")
     this.gameState.players.forEach((player) => {
       if (t % 1000 == 0) {
         console.log(player);
       }
+
       this.displayDriver.draw(
         this.gameState.gameObjects,
         this.gameState.currentPlayerColor,
