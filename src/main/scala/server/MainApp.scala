@@ -43,12 +43,9 @@ object MainApp extends ZIOAppDefault {
     val lobby = lobbies.find(l => l != null && !l.isFull)
     lobby
 
-
   val webSocketHandle =
     Handler.webSocket { channel =>
       ZIO.scoped {
-
-
         for {
           hub   <- Hub.unbounded[String]
           queue <- hub.subscribe
@@ -65,12 +62,35 @@ object MainApp extends ZIOAppDefault {
           incoming = channel.receiveAll {
 
             case Read(WebSocketFrame.Text(text)) =>
-              println(s"GOT MESSAGE: $text")
-              val response = incomingMessageHandling(text)
-              if response == "" then
-                channel.send(ChannelEvent.Read(WebSocketFrame.text(text)))
-              else
-                hub.publish(response)
+              for {
+                _ <- ZIO.succeed(println(s"GOT MESSAGE: $text"))
+                lobbies <- lobbiesRef.get
+                messageEither <- ZIO.succeed(text.fromJson[Message])
+                message <- messageEither match
+                            case Right(value) =>
+                              ZIO.succeed(value)
+                            case Left(value) =>
+                              ZIO.succeed(null)
+                response <- if message != null then message.msgType match
+                              case s"RequestAttackOrderMessage" =>
+                                  for {
+                                    clientId = message.clientId
+                                    lobbyId = message.lobbyId
+                                    lobby = lobbies.filter(l => l.id == lobbyId)
+                                    selected_castles_ids = message.selected_castles_ids
+                                    target_castle_id = message.target_castle_id
+                                    response <- ZIO.succeed(null)// ZIO.succeed(lobby.sendAttack(clientId,selected_castles_ids,target_castle_id))
+                                  } yield response
+                              case _ =>
+                                ZIO.succeed(null)
+                            else ZIO.succeed(null)
+
+
+
+
+
+
+              } yield ()
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
               for {
@@ -103,6 +123,8 @@ object MainApp extends ZIOAppDefault {
                       _ <- ZIO.succeed(lobby.buildGame())
                       response <- ZIO.succeed(BuildGameDataMessage("BuildGameDataMessage",lobby.gameState.mapData).toJson)
                       _ <- lobby.hub.publish(response)
+                      _ <- lobby.startGame().forkDaemon
+
                     } yield ()
                   }
                 _ <- ZIO.debug(7)
@@ -194,7 +216,7 @@ object MainApp extends ZIOAppDefault {
                 _ <- ZIO.debug("Client disconnected")
 
               } yield () */
-              Console.readLine("Client disconnected.")
+              Console.readLine("CHANNEL: "+ channel + ", " + ChannelEvent.Unregistered)
 
 
             case _ =>
@@ -204,6 +226,8 @@ object MainApp extends ZIOAppDefault {
           //_ <- ZIO.debug("PARS: "+ Set(outgoing,incoming,lobbyout))
 
           //_ <- ZIO.collectAllPar(Set(outgoing,incoming,lobbyout))
+           lobbies <- lobbiesRef.get
+           _ <- ZIO.debug(s"LOBBIES AMOUNT: ${lobbies.size}")
            _ <- outgoing zipPar incoming
         } yield ()
       }
@@ -220,7 +244,7 @@ object MainApp extends ZIOAppDefault {
         meta(charset("utf-8"))
       ),
       body(
-          canvas(id("canvas"), width(Game.width), height(1000)),
+          canvas(id("canvas"), width(Game.width), height(Game.height)),
           script.externalModule("scripts/dist/game.js")
       )
     )
@@ -255,5 +279,5 @@ object MainApp extends ZIOAppDefault {
 
   override def run =
     Server.serve(routes)
-    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer, lobbyoutFibersLayer)
+    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer, lobbyoutFibersLayer, hubLayer)
 }

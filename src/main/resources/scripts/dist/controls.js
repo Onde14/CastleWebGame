@@ -90,7 +90,6 @@ export class Controls {
         castles?.forEach((castle, id) => {
             if (this.isMouseTargetingCastle(this.visualVector(castle.pos), target)) {
                 if (castle.owner == playerId) {
-                    console.log("HEHEHEHEHEHEH", castle.selected);
                     this.selected.set(castle.id, castle);
                     castle.selected = true;
                     console.log(castle.id, " is selected", castle.selected);
@@ -103,7 +102,6 @@ export class Controls {
         if (selected_castle) {
             return undefined;
         }
-        console.log("HEHEHEHEHEHEH2222");
         this.selected.forEach((castle, _) => castle.selected = false);
         this.deselect();
         this.isSelecting = false;
