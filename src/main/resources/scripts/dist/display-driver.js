@@ -46,13 +46,13 @@ export class DisplayDriver {
         });
         soldiers.forEach((unit) => {
             this.ctx.beginPath();
-            this.ctx.arc(unit.pos.x, unit.pos.y, SoldierConfig.radius, 0, Math.PI * 2);
+            this.ctx.arc((unit.pos.x * this.renderWidthPositionRatio), (unit.pos.y * this.renderHeightPositionRatio), SoldierConfig.radius, 0, Math.PI * 2);
             this.ctx.closePath();
             this.ctx.fillStyle = SoldierConfig.color;
             this.ctx.fill();
             this.ctx.save();
             this.ctx.beginPath();
-            this.ctx.arc(unit.pos.x, unit.pos.y, SoldierConfig.ownerColorRadius, 0, Math.PI * 2);
+            this.ctx.arc((unit.pos.x * this.renderWidthPositionRatio), (unit.pos.y * this.renderHeightPositionRatio), SoldierConfig.ownerColorRadius, 0, Math.PI * 2);
             this.ctx.closePath();
             this.ctx.fillStyle = unit.ownerColor;
             this.ctx.fill();

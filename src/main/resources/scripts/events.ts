@@ -78,7 +78,7 @@ export class EventHandler {
     this.gameState.buildGameState(players);
   }
 
-  public attackOrderEvent(soldiers: any) {
+  public responseAttackOrder(soldiers: any) {
     this.gameState.createSoldiers(soldiers);
   }
 

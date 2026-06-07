@@ -66,8 +66,8 @@ export class DisplayDriver {
     soldiers.forEach((unit: Soldier) => {
       this.ctx.beginPath();
       this.ctx.arc(
-        unit.pos.x,
-        unit.pos.y,
+        (unit.pos.x * this.renderWidthPositionRatio),
+        (unit.pos.y * this.renderHeightPositionRatio),
         SoldierConfig.radius,
         0,
         Math.PI * 2,
@@ -79,8 +79,8 @@ export class DisplayDriver {
 
       this.ctx.beginPath();
       this.ctx.arc(
-        unit.pos.x,
-        unit.pos.y,
+        (unit.pos.x * this.renderWidthPositionRatio),
+        (unit.pos.y * this.renderHeightPositionRatio),
         SoldierConfig.ownerColorRadius,
         0,
         Math.PI * 2,

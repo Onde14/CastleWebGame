@@ -14,7 +14,7 @@ export declare class EventHandler {
     startConnection(): void;
     eventHandling(): void;
     buildGameStateEvent(players: any): void;
-    attackOrderEvent(soldiers: any): void;
+    responseAttackOrder(soldiers: any): void;
     updateGameStateEvent(updates: any): void;
     setCurrentPlayerId(clientId: string): void;
 }

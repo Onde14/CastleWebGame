@@ -104,7 +104,7 @@ class GameState:
     currentPlayersIds -= clientId
     println("PLAYER REMOVED")
 
-  def createSoldier(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]): ResponseAttackOrderMessage =
+  def createSoldier(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]):  ResponseAttackOrderMessage =
 
 
     val player: Player = mapData.find(_.id == playerId).get
@@ -123,8 +123,10 @@ class GameState:
       player.units += soldier
     }
 
-    val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("AttackOrder",new_soldiers.toList)
-    //println(s"CREATED SOLDIER AND RESPONSE: $response")
+    println(s"createSoldier: soldiers = $soldiers")
+
+    val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("ResponseAttackOrderMessage",new_soldiers.toList)
+    println(s"createSoldier: CREATED SOLDIER AND RESPONSE: $response")
 
     return response
 
@@ -201,6 +203,7 @@ class GameState:
 
   def update(): ArrayBuffer[UpdateData] =
     val updates = moveSoldiers()
+    println(s"update: updates = $updates")
     val removedSoldiers = updates.filter(u => u.state.getOrElse(null) == 0)
     removeSoldiers(removedSoldiers)
     return updates

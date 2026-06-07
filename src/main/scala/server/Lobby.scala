@@ -8,6 +8,7 @@ import server.*
 import zio.stream._
 import zio.http.ChannelEvent.{ExceptionCaught, Read, UserEvent, UserEventTriggered}
 import zio.http._
+import zio.json.*
 
 
 
@@ -47,7 +48,7 @@ class Lobby(h: Hub[String],g: GameState):
   def startGame() =
     for {
       running = true
-      runGameFiber <- runGame()
+      runGameFiber <- runGame().forever
     } yield runGameFiber
 
   def buildGame() =
@@ -60,12 +61,13 @@ class Lobby(h: Hub[String],g: GameState):
         for {
           //hub <- ZIO.service[Hub[String]]
           updates <- ZIO.succeed(gameState.update())
-          //_ <- if updates.nonEmpty then hub.publish(outgoingMessageHandling("update",updates)) else ZIO.unit
+          response <- ZIO.succeed(UpdatedGameDataMessage("UpdatedGameState",updates).toJson)
+          _ <- ZIO.when(response != null) (hub.publish(response))
         // _ <- ZIO.succeed(gameState.changes.clear())
         // _ <- ZIO.debug(gameState.availablePlayerSlots)
          // _ <- ZIO.debug(s"RUNNING: $running")
           //_ <- ZIO.debug(s"$id: Tick")
-          _ <- ZIO.sleep(1600.millis)
+          _ <- ZIO.sleep(16.millis)
           _ <- ZIO.debug(s"$id: Tick")
         } yield ()
   def publish() =

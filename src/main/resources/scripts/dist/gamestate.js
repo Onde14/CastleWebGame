@@ -56,11 +56,15 @@ export class Gamestate {
     }
     createSoldiers(soldiers) {
         soldiers.forEach((soldier) => {
+            console.log("createSoldiers: 1");
             let new_soldier = new Soldier(new Vector(soldier.pos.x, soldier.pos.y), soldier.id, soldier.owner, soldier.ownerColor);
+            console.log("createSoldiers: 2");
             let attackerPlayer = this.players.find((player) => player.id == soldier.owner);
+            console.log("createSoldiers: 3");
             if (attackerPlayer !== undefined) {
                 attackerPlayer.units.push(new_soldier);
             }
+            console.log("createSoldiers: 4");
             new_soldier.give_target(new Vector(soldier.target.x, soldier.target.y));
             this.gameObjects.set(new_soldier.id, new_soldier);
             console.log("NEW SOLDIER CREATED: ", new_soldier);

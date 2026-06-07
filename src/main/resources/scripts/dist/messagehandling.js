@@ -24,9 +24,9 @@ export class MessageHandler {
                 }
             case "Message":
                 break;
-            case "AttackOrder":
+            case "ResponseAttackOrderMessage":
                 if (msg.soldiers !== undefined) {
-                    this.eventHandler.attackOrderEvent(msg.soldiers);
+                    this.eventHandler.responseAttackOrder(msg.soldiers);
                     break;
                 }
                 else {

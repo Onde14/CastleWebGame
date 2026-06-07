@@ -144,7 +144,7 @@ object MainApp extends ZIOAppDefault {
                       response <- ZIO.succeed(BuildGameDataMessage("BuildGameDataMessage",lobby.gameState.mapData).toJson)
                       _ <- lobby.hub.publish(response)
                       runFiber <- lobby.startGame().forkDaemon
-                      _ <- ZIO.debug(s"HELLOOOOOOOOOOOOOOOOOOOOOOOOOOO: $runFiber")
+                      _ <- ZIO.debug(s"UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): runFiber = $runFiber")
 
 
 

@@ -59,12 +59,10 @@ def RequestAttackOrderMessageHandling(target_castle_id: UUID,
   clientId: UUID,
   lobby: Lobby,
   channel: Channel[ChannelEvent[WebSocketFrame],ChannelEvent[WebSocketFrame]]) =
-
   for {
-    lobbyQueue <- lobby.hub.subscribe
-    response = lobby.gameState.createSoldier(clientId,target_castle_id,selected_castles_ids)
-    _ <- lobby.hub.publish(response.toString())
-    _ <- ZIO.debug(s"RequestAttackOrderMessageHandling: response = $response")
+    response <- ZIO.succeed(lobby.gameState.createSoldier(clientId,target_castle_id,selected_castles_ids).toJson)
+    _ <- lobby.hub.publish(response)
+  } yield ()
     /*newLobbyout = ZStream
       .fromQueue(lobbyQueue)
       .map(WebSocketFrame.text)
@@ -75,5 +73,4 @@ def RequestAttackOrderMessageHandling(target_castle_id: UUID,
     _ <- ZIO.debug("lobbyout: " + newLobbyout)
     _ <- newLobbyout
     _ <- ZIO.debug("lobbyout: " + newLobbyout)*/
-  } yield()
 
