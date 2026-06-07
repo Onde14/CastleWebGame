@@ -56,10 +56,11 @@ export class MessageHandler {
         console.log("Got the ",msg.msgType, "back.");
         break;
       case "ClientInfoMessage":
-        console.log("Got the ", msg.msgType + ".");
+        console.log("Got the", msg.msgType + ".");
         console.log(msg.lobbyId)
         if (msg.lobbyId !== undefined){
-          this.myLobbyId == msg.lobbyId;
+          this.myLobbyId = msg.lobbyId;
+          console.log("this.myLobbyId:",this.myLobbyId)
         }
         if (msg.clientId !== undefined) {
           this.myClientId = msg.clientId

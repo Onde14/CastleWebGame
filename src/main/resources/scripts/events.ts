@@ -43,7 +43,7 @@ export class EventHandler {
       console.log("ORDERS: " + orders);
       if (this.messageHandler) {
         let requestJson = {
-          msgType: "AttackOrderMessage",
+          msgType: "RequestAttackOrderMessage",
           target_castle_id: orders.target_castle_id,
           selected_castles_ids: orders.selected_castles_ids,
         };

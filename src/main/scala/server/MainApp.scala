@@ -65,7 +65,8 @@ object MainApp extends ZIOAppDefault {
                 _ <- ZIO.succeed(println(s"GOT MESSAGE: $text"))
                 lobbies <- lobbiesRef.get
                 messageEither <- ZIO.succeed(text.fromJson[Message])
-                message <- messageEither match
+                _ <- ZIO.debug(s"MESSAGEEITHER: $messageEither")
+                /*message <- messageEither match
                             case Right(value) =>
                               ZIO.succeed(value)
                             case Left(value) =>
@@ -74,27 +75,29 @@ object MainApp extends ZIOAppDefault {
                 _ <- ZIO.when(message != null) { message.msgType match
                               case s"RequestAttackOrderMessage" =>
                                   for {
-                                    clientId = message.clientId
+                                    /*clientId = message.clientId.getOrElse(null)
                                     _ <- ZIO.debug(s"1: $clientId")
-                                    lobbyId = message.lobbyId
+                                    lobbyId = message.lobbyId.getOrElse(null)
                                     _ <- ZIO.debug(s"2: $lobbyId")
 
-                                    lobby = lobbies.find(l => l.id == lobbyId).getOrElse(null)
-                                    _ <- ZIO.debug(s"3: $lobby")
+                                    //lobby = lobbies.find(l => l.id == lobbyId).getOrElse(null)
+                                    //_ <- ZIO.debug(s"3: $lobby")
 
-                                    selected_castles_ids = message.selected_castles_ids
+                                    selected_castles_ids = message.selected_castles_ids.getOrElse(null)
                                     _ <- ZIO.debug(s"4: $selected_castles_ids")
 
-                                    target_castle_id = message.target_castle_id
+                                    target_castle_id = message.target_castle_id.getOrElse(null)
                                     _ <- ZIO.debug(s"5: $target_castle_id")
-                                    _ <- RequestAttackOrderMessageHandling(target_castle_id, selected_castles_ids,clientId, lobby, channel)// ZIO.succeed(lobby.sendAttack(clientId,selected_castles_ids,target_castle_id))
+                                    //_ <- RequestAttackOrderMessageHandling(target_castle_id, selected_castles_ids,clientId, lobby, channel)// ZIO.succeed(lobby.sendAttack(clientId,selected_castles_ids,target_castle_id))
+                                    */
+
                                   } yield ()
                               case _ =>
                                 ZIO.succeed(null)
                 }
                 _ <- ZIO.when(message == null) {
                   channel.send(Read(WebSocketFrame.text("""{"msgType": "InvalidMessage"}""")))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
-                }
+                }*/
 
 
 
@@ -121,6 +124,8 @@ object MainApp extends ZIOAppDefault {
                 clients <- clientsInLobbiesRef.get
                 welcome = ClientInfoMessage("ClientInfoMessage", clientId, lobby.id).toJson
                 response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)
+                _ <- ZIO.debug("response HANDSHAKE: " + response)
+
                 _ <- channel.send(Read(WebSocketFrame.text(response)))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
 
                 _ <- ZIO.debug(s"Lobby is full = ${lobby.isFull}")

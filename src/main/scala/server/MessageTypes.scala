@@ -5,16 +5,17 @@ import scala.collection.mutable.ArrayBuffer
 import server.*
 import java.util.UUID
 
-final case class Message(
+sealed trait Message
+/* final case class Message(
   msgType: String,
-  target_castle_id: UUID,
-  selected_castles_ids: List[UUID],
-  clientId: UUID,
-  lobbyId: UUID,
-  status: UUID,
-  village: List[Int],
+  target_castle_id: Option[String],
+  selected_castles_ids: Option[List[String]],
+  clientId: Option[String],
+  lobbyId: Option[String],
+  status: Option[UUID],
+  village: Option[List[Int]],
 )
-
+*/
 object Message {
   implicit val encoder: JsonEncoder[Message] =
     DeriveJsonEncoder.gen[Message]
@@ -24,7 +25,7 @@ object Message {
 
 final case class MessageType (
   msgType: String
-)
+) extends Message
 
 object MessageType {
   implicit val decoder: JsonDecoder[MessageType] =
@@ -48,7 +49,7 @@ final case class RequestAttackOrderMessage (
   selected_castles_ids: List[UUID],
   clientId: UUID,
   lobbyId: UUID
-)
+) extends Message
 
 object RequestAttackOrderMessage {
   implicit val encoder: JsonEncoder[RequestAttackOrderMessage] =
