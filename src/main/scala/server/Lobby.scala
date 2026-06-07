@@ -43,14 +43,12 @@ class Lobby(h: Hub[String],g: GameState):
     currSize -= 1
     checkSize()
     setStatus()
-  def getPlayer(clientId: UUID) =
-    val player = gameState.currentPlayers.filter(p => p.id == clientId)
 
   def startGame() =
     for {
       running = true
-      _ <- runGame().forever
-    } yield ()
+      runGameFiber <- runGame()
+    } yield runGameFiber
 
   def buildGame() =
     gameState.buildGameState(clients)

@@ -19,10 +19,11 @@ class GameState:
   private val width = Game.width
   private var gameStarted = false
   var mapData = ArrayBuffer[Player]()
+ // var playersIds = ArrayBuffer[UUID]()
   private var castles = ArrayBuffer[Castle]()
   var soldiers = ArrayBuffer[Soldier]()
   var removedSoldiers = ArrayBuffer[Soldier]()
-  var currentPlayers = ArrayBuffer[Player]()
+  var currentPlayersIds = ArrayBuffer[UUID]()
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
   val colors = List("blue","red")
@@ -70,6 +71,7 @@ class GameState:
         val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
         val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1)
         player.castles += castle
+        castles += castle
         mapData += player
         i += 1
       println(s"mapData: $mapData")
@@ -89,31 +91,29 @@ class GameState:
     */
     //println(s"GAME BUILD: $availablePlayerSlots")
 
-  def addPlayer(): Player =
+  def addPlayer(clientId: UUID) =
     println(currentPlayerIterator)
     println(playerLimit)
-    if currentPlayerIterator < playerLimit then
-      val player = mapData(currentPlayerIterator)
-      currentPlayers += player
-      currentPlayerIterator += 1
-      println(s"ADDED PLAYER: $player, PLAYER LIMIT: $playerLimit, CURRENT PLAYER AMOUNT: $currentPlayerIterator")
-      return player
+    if currentPlayersIds.size < playerLimit then
+      currentPlayersIds += clientId
+      println(s"ADDED PLAYER: $clientId, PLAYER LIMIT: $playerLimit, CURRENT PLAYER AMOUNT: $currentPlayerIterator")
     else
       println("ERROR: too many players!")
-      return null
 
-  def removePlayer(): Unit =
-    currentPlayers -= currentPlayers(0)
-    currentPlayerIterator -= 1
+  def removePlayer(clientId: UUID): Unit =
+    currentPlayersIds -= clientId
     println("PLAYER REMOVED")
 
   def createSoldier(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]): ResponseAttackOrderMessage =
 
 
-    val player: Player = currentPlayers.filter(_.id == playerId)(0)
+    val player: Player = mapData.find(_.id == playerId).get
+
     val new_soldiers = new ArrayBuffer[Soldier]()
 
-    val target_castle: Castle = castles.filter(_.id == target_castle_id)(0)
+    val target_castle: Castle = castles.find(_.id == target_castle_id).get
+
+
     val selected_castles_ids_set = selected_castles_ids.toSet
     val selected_castles = castles.filter(c => selected_castles_ids_set(c.id))
     for (castle <- selected_castles) {
@@ -122,8 +122,10 @@ class GameState:
       new_soldiers += soldier
       player.units += soldier
     }
+
     val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("AttackOrder",new_soldiers.toList)
     //println(s"CREATED SOLDIER AND RESPONSE: $response")
+
     return response
 
   def calcDistance(pos1: Pos, pos2: Pos): Double =

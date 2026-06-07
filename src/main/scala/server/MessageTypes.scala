@@ -5,6 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 import server.*
 import java.util.UUID
 
+@jsonDiscriminator("msgType")
 sealed trait Message
 /* final case class Message(
   msgType: String,
@@ -17,15 +18,13 @@ sealed trait Message
 )
 */
 object Message {
-  implicit val encoder: JsonEncoder[Message] =
-    DeriveJsonEncoder.gen[Message]
   implicit val decoder: JsonDecoder[Message] =
     DeriveJsonDecoder.gen[Message]
 }
 
 final case class MessageType (
   msgType: String
-) extends Message
+)
 
 object MessageType {
   implicit val decoder: JsonDecoder[MessageType] =
