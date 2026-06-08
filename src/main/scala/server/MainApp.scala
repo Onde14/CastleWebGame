@@ -23,7 +23,7 @@ case class LobbyRunnables(
 
 
 object MainApp extends ZIOAppDefault {
-  val lobbiesRef = Ref.make(Map.empty[Lobby,LobbyRunnables])
+  val lobbiesRef = Ref.make(Set.empty[Lobby])
   val lobbiesLayer = ZLayer.fromZIO(lobbiesRef)
 
   val lobbyoutFibersRef = Ref.make(Set.empty[ZIO[Any, Nothing, Fiber.Runtime[Throwable, Unit]]])
@@ -44,25 +44,47 @@ object MainApp extends ZIOAppDefault {
     val lobby: Lobby = new Lobby(hub, new GameState())
     lobby
 
-  def joinLobby(lobbies: Map[Lobby,LobbyRunnables]) =
-    val lobby = lobbies.find((l,_) => {l != null && !l.isFull}).map(_._1)
+  def joinLobby(lobbies: Set[Lobby]) =
+    //val lobby = lobbies.find((l,_) => {l != null && !l.isFull}).map(_._1)
+    val lobby = lobbies.find((l) => {l != null && !l.isFull})
     lobby
 
   val webSocketHandle =
     Handler.webSocket { channel =>
       ZIO.scoped {
+
         for {
-          hub   <- ZIO.service[Hub[String]]
-          queue <- hub.subscribe
-          //lobbyoutRef <- Ref.make(ZIO.unit: ZIO[Any, Throwable, Unit])
-          lobbiesRef <- ZIO.service[Ref[Map[Lobby,LobbyRunnables]]]
+          lobbyPromise <- Promise.make[Nothing, Lobby]
+          queueRef <- Ref.make[Dequeue[String]](null)
+          /*_ <- ZIO.debug(s"lobbyRef: $lobbyRef")
+          _ <- channel.receiveAll {
+            case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
+              for {
+                hub <- Hub.unbounded[String]
+                lobby = createLobby(hub)
+                _ <- ZIO.debug(s"UserEventTriggered LOBBY: $lobby")
+                _ <- lobbyRef.set(Option(lobby))
+              } yield ()
+            case _ =>
+              for {
+                hub <- Hub.unbounded[String]
+                lobby: Lobby = createLobby(hub)
+                _ <- ZIO.debug(s"_ LOBBY: $lobby")
+                _ <- lobbyRef.set(Option(lobby))
+              } yield ()
+              ZIO.unit
+          }.fork*/
+
+          lobbiesRef <- ZIO.service[Ref[Set[Lobby]]]
           clientsInLobbiesRef <- ZIO.service[Ref[Map[UUID, Lobby]]]
           lobbyoutFibersRef <- ZIO.service[Ref[Set[ZIO[Any, Nothing, Fiber.Runtime[Throwable, Unit]]]]]
 
-          outgoing = ZStream
-            .fromQueue(queue)
-            .map(WebSocketFrame.text)
-            .runForeach(frame => channel.send(Read(frame)))
+
+         // hub   <- ZIO.service[Hub[String]]
+
+          //lobbyoutRef <- Ref.make(ZIO.unit: ZIO[Any, Throwable, Unit])
+
+
 
           incoming = channel.receiveAll {
 
@@ -86,8 +108,12 @@ object MainApp extends ZIOAppDefault {
                                     lobbyId = attackOrder.lobbyId
                                     _ <- ZIO.debug(s"2: $lobbyId")
 
-                                    lobby = lobbies.find((l,_) => l.id == lobbyId).map(_._1).getOrElse(null)
+                                    //lobby = lobbies.find((l,_) => l.id == lobbyId).map(_._1).getOrElse(null)
+                                    lobby = lobbies.find((l) => l.id == lobbyId).getOrElse(null)
+                                    //lobbyQueue <- lobby.hub.subscribe
+                                    //_ <- queueRef.set(lobbyQueue)
                                     _ <- ZIO.debug(s"3: $lobby")
+
 
                                     selected_castles_ids = attackOrder.selected_castles_ids
                                     _ <- ZIO.debug(s"4: $selected_castles_ids")
@@ -103,7 +129,11 @@ object MainApp extends ZIOAppDefault {
                 }
                 _ <- ZIO.when(message == null) {
                   channel.send(Read(WebSocketFrame.text("""{"msgType": "InvalidMessage"}""")))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
+
                 }
+
+                _ <- lobbyPromise.succeed(null)
+
 
 
 
@@ -127,10 +157,11 @@ object MainApp extends ZIOAppDefault {
                 _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): someLobby = $someLobby")
 
 
-                lobby <- ZIO.succeed(if someLobby.isDefined then someLobby.get else  createLobby(lobbyHub))
+                lobby <- ZIO.succeed(if someLobby.isDefined then someLobby.get else createLobby(lobbyHub))
                 now <- zio.Clock.ClockLive.instant
                 _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): lobby = $lobby")
                 _ <- clientsInLobbiesRef.update(_ + ((clientId, lobby)))
+
 
 
                 _ <- ZIO.succeed(lobby.addClient(clientId))
@@ -144,6 +175,7 @@ object MainApp extends ZIOAppDefault {
                 now <- zio.Clock.ClockLive.instant
                 _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): Lobby is full = ${lobby.isFull}")
                 lobbyQueue <- lobby.hub.subscribe
+
 
 
 
@@ -163,7 +195,11 @@ object MainApp extends ZIOAppDefault {
 
                     } yield runFiber
                   }
-                newLobbyout = ZStream
+                _ <- lobbiesRef.update(_ + lobby)
+                _ <- queueRef.set(lobbyQueue)
+                _ <- lobbyPromise.succeed(lobby)
+
+               /* newLobbyout = ZStream
                   .fromQueue(lobbyQueue)
                   .map(WebSocketFrame.text)
                   .runForeach(frame => {
@@ -200,7 +236,7 @@ object MainApp extends ZIOAppDefault {
 
                     _ <- lobbiesRef.set(Map(lobby -> newRunnables))
                   } yield ()
-                }
+                }*/
 
                 lobbiesMap <- lobbiesRef.get
                 now <- zio.Clock.ClockLive.instant
@@ -293,15 +329,33 @@ object MainApp extends ZIOAppDefault {
             case _ =>
               ZIO.unit
           }
-         // lobbyout <- lobbyoutRef.get
-          //_ <- ZIO.debug("PARS: "+ Set(outgoing,incoming,lobbyout))
+          _ <- ZIO.debug(s"webSocketHandle: incoming: ${incoming}")
+          _ <- incoming.fork
+          lobby <- lobbyPromise.await
+          _ <- ZIO.debug(s"GG lobby: $lobby")
+          queue <- queueRef.get
+          _ <- ZIO.debug(s"GG queue: $queue")
+          _ <- ZIO.debug(s"GG hub size: " + lobby.hub)
 
-          //_ <- ZIO.collectAllPar(Set(outgoing,incoming,lobbyout))
-            _ <- ZIO.debug("outgoing: " + outgoing)
-           lobbies <- lobbiesRef.get
-           _ <- ZIO.debug(s"LOBBIES AMOUNT: ${lobbies.size}")
-           _ <- outgoing zipPar incoming
-           _ <- ZIO.debug("outgoing: " + outgoing)
+          _ <- ZIO.when(queue != null){
+            for {
+              outgoing = ZStream
+                .fromQueue(queue)
+                .map(WebSocketFrame.text)
+                .runForeach(frame => {
+                println("FRAME: "+frame)
+                channel.send(Read(frame))})
+              // lobbyout <- lobbyoutRef.get
+              //_ <- ZIO.debug("PARS: "+ Set(outgoing,incoming,lobbyout))
+
+              _ <- ZIO.debug("webSocketHandle: outgoing: " + outgoing)
+              _ <- outgoing
+              _ <- ZIO.debug("webSocketHandle: outgoing: " + outgoing)
+              //_ <- ZIO.collectAllPar(Set(outgoing,incoming,lobbyout))
+            } yield ()
+          }
+
+
         } yield ()
       }
     }
@@ -352,5 +406,5 @@ object MainApp extends ZIOAppDefault {
 
   override def run =
     Server.serve(routes)
-    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer, lobbyoutFibersLayer, hubLayer)
+    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer, lobbyoutFibersLayer)
 }
