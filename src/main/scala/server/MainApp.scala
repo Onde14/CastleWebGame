@@ -343,7 +343,7 @@ object MainApp extends ZIOAppDefault {
                 .fromQueue(queue)
                 .map(WebSocketFrame.text)
                 .runForeach(frame => {
-                println("FRAME: "+frame)
+                //println("FRAME: "+frame)
                 channel.send(Read(frame))})
               // lobbyout <- lobbyoutRef.get
               //_ <- ZIO.debug("PARS: "+ Set(outgoing,incoming,lobbyout))
@@ -371,7 +371,7 @@ object MainApp extends ZIOAppDefault {
         meta(charset("utf-8"))
       ),
       body(
-          canvas(id("canvas"), width(GameConfig.width), height(GameConfig.height)),
+          canvas(id("canvas"), width(GameConfig.Width), height(GameConfig.Height)),
           script.externalModule("scripts/dist/game.js")
       )
     )

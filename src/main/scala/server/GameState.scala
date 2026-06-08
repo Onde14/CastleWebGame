@@ -17,8 +17,8 @@ import scala.util.Random
 
 
 class GameState:
-  private val height = GameConfig.height
-  private val width = GameConfig.width
+  private val height = GameConfig.Height
+  private val width = GameConfig.Width
   private var gameStarted = false
   var mapData = ArrayBuffer[Player]()
  // var playersIds = ArrayBuffer[UUID]()
@@ -30,7 +30,7 @@ class GameState:
   private var currentPlayerIterator: Int = 0
   val colors = List("blue","red")
   private var testOrdersGiven = 0
-  private val soldierSpeed = 2.5
+  private val soldierSpeed = GameConfig.SoldierSpeed
 
   def isGameStarted: Boolean = this.gameStarted
   def changeGameStarted(): Unit = gameStarted = true
@@ -74,15 +74,15 @@ class GameState:
     var i = 0
     for line <- mapFile.MapDataFile do
       val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
-      val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1, GameConfig.castleHealth, null)
+      val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1, GameConfig.CastleHealth, null)
       var villagesArray = new ArrayBuffer[Village]
       for j <- 1 until 4 do
         println("I: " +  i)
         println(s"CASTLE POS: ${castle.pos}")
 
-        val r = GameConfig.villageSize*3
-        val x = castle.pos.x + r * math.cos(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.villageSize)
-        val y = castle.pos.y - r * math.sin(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.villageSize)
+        val r = GameConfig.VillageSize*3
+        val x = castle.pos.x + r * math.cos(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
+        val y = castle.pos.y - r * math.sin(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
         val villagePos = new Pos(x,y)
 
 
@@ -120,10 +120,33 @@ class GameState:
     currentPlayersIds -= clientId
     println("PLAYER REMOVED")
 
-  def damageStructures(castleId: UUID) =
-    val castle = castles.find(c => c.id == castleId).get
-    //castle.find(c => c.id == cas
-    val newHealth = castle.health
+  def damageStructures(soldier: Soldier): UpdateData =
+    val castle = castles.find(c => c.id == soldier.targetCastleId).get
+    val villages = castle.villages.filter(v => v.state == 1)
+    if (villages.nonEmpty) then
+      val damagedVillage = villages(0)
+
+
+      damagedVillage.health = damagedVillage.health - GameConfig.SoldierDamage
+
+      if damagedVillage.health <= 0 then
+        damagedVillage.state = 0
+
+        return new UpdateData(damagedVillage.id,Option(castle.owner),Option(null),Option(damagedVillage.state),Option(null))
+      else
+
+        return new UpdateData(damagedVillage.id,Option(castle.owner),Option(null),Option(null),Option(damagedVillage.health))
+    else
+      castle.health = castle.health - GameConfig.SoldierDamage
+      if castle.health <= 0 then
+        castle.owner = soldier.owner
+        castle.ownerColor = soldier.ownerColor
+        castle.health = GameConfig.CastleHealth
+        castle.villages.foreach(v => v.owner = soldier.owner)
+
+        return new UpdateData(castle.id,Option(soldier.owner),Option(null),Option(3), Option(castle.health))
+      else
+        return new UpdateData(castle.id,Option(castle.owner),Option(null),Option(null),Option(castle.health))
 
 
   def createSoldier(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]):  ResponseAttackOrderMessage =
@@ -139,7 +162,7 @@ class GameState:
     val selected_castles_ids_set = selected_castles_ids.toSet
     val selected_castles = castles.filter(c => selected_castles_ids_set(c.id))
     for (castle <- selected_castles) {
-      val soldier = new Soldier(UUID.randomUUID(), playerId, player.color, new Pos(castle.pos.x,castle.pos.y), target_castle.pos,castle.id,2)
+      val soldier = new Soldier(UUID.randomUUID(), playerId, player.color, new Pos(castle.pos.x,castle.pos.y), target_castle.pos,target_castle.id,2)
       soldiers += soldier
       new_soldiers += soldier
       player.units += soldier
@@ -187,7 +210,10 @@ class GameState:
       val foundTarget = isSoldierInTarget(s.pos,s.target)
       if foundTarget then
         s.state = 0
-        damageStructures(s.targetCastleId)
+        val damageUpdates = damageStructures(s)
+        updates += damageUpdates
+
+
       else
         s.pos.x = moveCalcX(s.pos.x, s.target.x)
         s.pos.y = moveCalcY(s.pos.y, s.target.y)
@@ -196,33 +222,24 @@ class GameState:
         if touchingSoldiers.nonEmpty then
           touchingSoldiers.foreach(ts =>
             ts.state = 0
-            updates += new UpdateData(ts.id,Option(ts.owner),Option(ts.pos),Option(ts.state))
+            updates += new UpdateData(ts.id,Option(ts.owner),Option(ts.pos),Option(ts.state),Option(null))
           )
           s.state = 0
-      s.state match
-        case 0 =>
-          updates += new UpdateData(s.id,Option(s.owner),Option(s.pos),Option(s.state))
-        case 2 =>
-          updates += new UpdateData(s.id,Option(null),Option(s.pos),Option(s.state))
+          updates += new UpdateData(s.id,Option(s.owner),Option(s.pos),Option(s.state),Option(null))
+      if s.state == 2 then
+        updates += new UpdateData(s.id,Option(null),Option(s.pos),Option(s.state),Option(null))
     )
+
     return updates
 
-  def removeSoldiers(updates: ArrayBuffer[UpdateData]): Unit =
-    updates.foreach(u =>
-      //println(s"REMOVING SOLDIER: ${u.id}")
-      //println(s"Soldiers list $soldiers")
-      val tempSoldiers = soldiers.toList
-      tempSoldiers.foreach(s =>
-        if u.id == s.id then
-          soldiers -= s
-      )
-      //println(s"Soldiers list $soldiers")
-    )
+  def removeSoldiers(): Unit =
+    val newArray = soldiers.filter(s => s.state != 0)
+    soldiers = newArray
 
 
   def update(): ArrayBuffer[UpdateData] =
     val updates = moveSoldiers()
     //println(s"update: updates = $updates")
-    val removedSoldiers = updates.filter(u => u.state.getOrElse(null) == 0)
-    removeSoldiers(removedSoldiers)
+    removeSoldiers()
+
     return updates

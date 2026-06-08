@@ -13,6 +13,7 @@ final case class ConfigFile (
   villageHealth: Int,
   castleSize: Int,
   castleHealth: Int,
+  soldierSpeed: Int,
 )
 
 object ConfigFile {
@@ -32,15 +33,17 @@ object GameConfig {
       null
 
 
-  val width = config.width
-  val height = config.height
+  val Width = config.width
+  val Height = config.height
   val SoldierRadius = config.soldierRadius
   val SoldierHealth = config.soldierHealth
   val SoldierDamage = config.soldierDamage
-  val villageSize = config.villageSize
-  val villageHealth = config.villageHealth
-  val castleSize = config.castleSize
-  val castleHealth = config.castleHealth
+  val SoldierSpeed = config.soldierSpeed
+  val VillageSize = config.villageSize
+  val VillageHealth = config.villageHealth
+  val CastleSize = config.castleSize
+  val CastleHealth = config.castleHealth
+
 }
 
 

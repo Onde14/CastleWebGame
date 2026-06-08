@@ -78,7 +78,7 @@ export class MessageHandler {
   }
 
   public incoming(msg: string) {
-    console.log("MESSAGE:::", JSON.stringify(msg, null, 2));
+    console.log("MESSAGE:::", msg)
     try {
       const parsedJson: ResponseMessage = JSON.parse(msg);
       //console.log(parsedJson);

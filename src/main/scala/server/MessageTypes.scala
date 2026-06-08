@@ -84,6 +84,7 @@ final case class UpdateData (
   playerId: Option[UUID],
   updatedPos: Option[Pos],
   state: Option[Int],
+  health: Option[Int],
 )
 
 object UpdateData {

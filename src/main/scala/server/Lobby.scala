@@ -62,6 +62,8 @@ class Lobby(h: Hub[String],g: GameState):
           //hub <- ZIO.service[Hub[String]]
           updates <- ZIO.succeed(gameState.update())
           response <- ZIO.succeed(UpdatedGameDataMessage("UpdatedGameState",updates).toJson)
+          //_ <- ZIO.debug(s"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:,     $response")
+
           _ <- ZIO.when(response != null) (hub.publish(response))
         // _ <- ZIO.succeed(gameState.changes.clear())
         // _ <- ZIO.debug(gameState.availablePlayerSlots)

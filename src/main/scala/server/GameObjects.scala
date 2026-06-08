@@ -13,11 +13,11 @@ sealed trait GameObject
 
 final case class Castle (
   id: UUID,
-  owner: UUID,
-  ownerColor: String,
+  var owner: UUID,
+  var ownerColor: String,
   pos: Pos,
-  state: Int = 1, // 0 = dead, 1 = live
-  health: Int = 100,
+  var state: Int = 1, // 0 = dead, 1 = live, 3 = captured
+  var health: Int = GameConfig.CastleHealth,
   var villages: List[Village]
 ) extends GameObject
 
@@ -30,10 +30,10 @@ object Castle {
 
 final case class Village (
   id: UUID,
-  owner: UUID,
+  var owner: UUID,
   pos: Pos,
-  state: Int = 1, // 0 = dead, 1 = live
-  health: Int = 100,
+  var state: Int = 1, // 0 = dead, 1 = live
+  var health: Int = GameConfig.VillageHealth,
 ) extends GameObject
 
 
@@ -51,8 +51,8 @@ final case class Soldier (
   pos: Pos,
   target: Pos,
   targetCastleId: UUID,
-  var state: Int = 1, // 0 = dead, 1 = live, 2 = moving, 3 = attacking
-  health: Int = 100,
+  var state: Int = 1, // 0 = dead, 1 = live, 2 = moving,
+  var health: Int = GameConfig.SoldierHealth,
   damage: Int = 10,
 ) extends GameObject
 
