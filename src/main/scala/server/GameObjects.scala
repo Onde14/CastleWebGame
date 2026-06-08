@@ -3,6 +3,7 @@ import scala.collection.mutable.ArrayBuffer
 import zio.json._
 import scala.compiletime.ops.boolean
 import java.util.UUID
+import server.*
 
 
 
@@ -17,6 +18,7 @@ final case class Castle (
   pos: Pos,
   state: Int = 1, // 0 = dead, 1 = live
   health: Int = 100,
+  var villages: List[Village]
 ) extends GameObject
 
 object Castle {
@@ -29,7 +31,6 @@ object Castle {
 final case class Village (
   id: UUID,
   owner: UUID,
-  ownerColor: String,
   pos: Pos,
   state: Int = 1, // 0 = dead, 1 = live
   health: Int = 100,
@@ -49,6 +50,7 @@ final case class Soldier (
   ownerColor: String,
   pos: Pos,
   target: Pos,
+  targetCastleId: UUID,
   var state: Int = 1, // 0 = dead, 1 = live, 2 = moving, 3 = attacking
   health: Int = 100,
   damage: Int = 10,

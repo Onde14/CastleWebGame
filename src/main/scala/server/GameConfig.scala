@@ -28,7 +28,7 @@ object GameConfig {
     case Right(v) =>
       v
     case Left(v) =>
-      println("ERROR getting config file")
+      println("ERROR: could not load config file")
       null
 
 
@@ -62,8 +62,7 @@ final case class Player (
   id: UUID,
   color: String,
   castles: ArrayBuffer[Castle],
-  units: ArrayBuffer[Soldier],
-  villages: ArrayBuffer[Village]
+  units: ArrayBuffer[Soldier]
 )
 
 object Player {

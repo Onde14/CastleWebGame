@@ -73,9 +73,9 @@ class GameState:
     println(s"MAP:  $mapFile")
     var i = 0
     for line <- mapFile.MapDataFile do
-      val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier], new ArrayBuffer[Village])
-      val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1)
-
+      val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
+      val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1, GameConfig.castleHealth, null)
+      var villagesArray = new ArrayBuffer[Village]
       for j <- 1 until 4 do
         println("I: " +  i)
         println(s"CASTLE POS: ${castle.pos}")
@@ -86,10 +86,10 @@ class GameState:
         val villagePos = new Pos(x,y)
 
 
-        var village = new Village(UUID.randomUUID(), clients(i), colors(i), villagePos)
-        player.villages += village
-        println(s"player.villages: ${player.villages}")
-
+        val village = new Village(UUID.randomUUID(), clients(i), villagePos)
+        villagesArray += village
+        println(s"buildGameState: castle.villages = ${castle.villages}")
+      castle.villages = villagesArray.toList
 
       player.castles += castle
       castles += castle
@@ -120,6 +120,12 @@ class GameState:
     currentPlayersIds -= clientId
     println("PLAYER REMOVED")
 
+  def damageStructures(castleId: UUID) =
+    val castle = castles.find(c => c.id == castleId).get
+    //castle.find(c => c.id == cas
+    val newHealth = castle.health
+
+
   def createSoldier(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]):  ResponseAttackOrderMessage =
 
 
@@ -133,7 +139,7 @@ class GameState:
     val selected_castles_ids_set = selected_castles_ids.toSet
     val selected_castles = castles.filter(c => selected_castles_ids_set(c.id))
     for (castle <- selected_castles) {
-      val soldier = new Soldier(UUID.randomUUID(), playerId, player.color, new Pos(castle.pos.x,castle.pos.y), target_castle.pos,2)
+      val soldier = new Soldier(UUID.randomUUID(), playerId, player.color, new Pos(castle.pos.x,castle.pos.y), target_castle.pos,castle.id,2)
       soldiers += soldier
       new_soldiers += soldier
       player.units += soldier
@@ -144,8 +150,6 @@ class GameState:
     println(s"createSoldier: CREATED SOLDIER AND RESPONSE: $response")
 
     return response
-
-
 
   def isSoldierInTarget(currPos: Pos, targetPos: Pos): Boolean =
     val distance = calcDistance(currPos, targetPos)
@@ -183,6 +187,7 @@ class GameState:
       val foundTarget = isSoldierInTarget(s.pos,s.target)
       if foundTarget then
         s.state = 0
+        damageStructures(s.targetCastleId)
       else
         s.pos.x = moveCalcX(s.pos.x, s.target.x)
         s.pos.y = moveCalcY(s.pos.y, s.target.y)

@@ -38,19 +38,24 @@ export class Gamestate {
             const id = player.id;
             let newPlayer = new Player(false, player.id, new Array(), new Array(), new Array(), player.color);
             player.castles.forEach((castle) => {
-                const newCastle = new Castle(new Vector(castle.pos.x, castle.pos.y), castle.id, castle.owner, castle.ownerColor);
+                let villages = new Array();
+                castle.villages.forEach((village) => {
+                    const newVillage = new Village(new Vector(village.pos.x, village.pos.y), village.id, village.id, village.health);
+                    villages.push(newVillage);
+                    this.gameObjects.set(newVillage.id, newVillage);
+                });
+                const newCastle = new Castle(new Vector(castle.pos.x, castle.pos.y), castle.id, castle.owner, castle.ownerColor, castle.health, castle.villages = villages);
+                castle.villages.forEach((village) => {
+                    const newVillage = new Village(new Vector(village.pos.x, village.pos.y), village.id, village.id, village.health);
+                    newCastle.villages.push(newVillage);
+                });
                 newPlayer.castles.push(newCastle);
                 this.gameObjects.set(newCastle.id, newCastle);
             });
-            player.villages.forEach((village) => {
-                const newVillage = new Village(new Vector(village.pos.x, village.pos.y), village.id, village.owner);
-                newPlayer.villages.push(newVillage);
-                this.gameObjects.set(newVillage.id, newVillage);
-            });
-            player.units.forEach((unit) => {
-                const newSoldier = new Soldier(new Vector(unit.pos.x, unit.pos.y), unit.id, unit.owner, unit.ownerColor);
-                if (unit.target !== undefined) {
-                    newSoldier.give_target(new Vector(unit.target.x, unit.target.y));
+            player.units.forEach((soldier) => {
+                const newSoldier = new Soldier(new Vector(soldier.pos.x, soldier.pos.y), soldier.id, soldier.owner, soldier.ownerColor, soldier.health);
+                if (soldier.target !== undefined) {
+                    newSoldier.give_target(new Vector(soldier.target.x, soldier.target.y));
                 }
                 newPlayer.units.push(newSoldier);
                 this.gameObjects.set(newSoldier.id, newSoldier);
@@ -63,7 +68,7 @@ export class Gamestate {
     createSoldiers(soldiers) {
         soldiers.forEach((soldier) => {
             console.log("createSoldiers: 1");
-            let new_soldier = new Soldier(new Vector(soldier.pos.x, soldier.pos.y), soldier.id, soldier.owner, soldier.ownerColor);
+            let new_soldier = new Soldier(new Vector(soldier.pos.x, soldier.pos.y), soldier.id, soldier.owner, soldier.ownerColor, soldier.health);
             console.log("createSoldiers: 2");
             let attackerPlayer = this.players.find((player) => player.id == soldier.owner);
             console.log("createSoldiers: 3");

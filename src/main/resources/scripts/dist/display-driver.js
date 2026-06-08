@@ -25,7 +25,7 @@ export class DisplayDriver {
         this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
     }
     drawGame(gameObjects, currentplayerColor) {
-        this.ctx.fillStyle = "green";
+        this.ctx.fillStyle = "#2F8619";
         this.ctx.fillRect(0, 0, this.gameWidth * this.renderWidthPositionRatio, this.gameHeight * this.renderHeightPositionRatio);
         //console.log("HEIGHT WINDOW RATIO: ", this.renderWidthPositionRatio);
         //console.log("WIDTH WINDOW RATIO: ", this.renderHeightPositionRatio);
@@ -84,7 +84,7 @@ export class DisplayDriver {
                 this.ctx.save();
             }
             this.ctx.fillStyle = CastleConfig.color;
-            //console.log("GAME WIDTH: ", this.gameWidth,"WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.width,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.width / 2) * this.renderWidthPositionRatio)
+            //console.log("GAME WIDTH: ", this.gameWidth,"castle.width: ", castle.width,"WIDTH POS: ",  castle.pos.x, "CASTLE WIDTH: ", CastleConfig.width,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.width / 2) * this.renderWidthPositionRatio)
             this.ctx.fillRect((castle.pos.x * this.renderWidthPositionRatio) - CastleConfig.width / 2, (castle.pos.y * this.renderHeightPositionRatio) - CastleConfig.height / 2, castle.width, castle.height);
             this.ctx.save();
             //console.log("GAME WIDTH: ", this.gameWidth,"WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.ownerColorWidth,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.ownerColorWidth / 2) * this.renderWidthPositionRatio)

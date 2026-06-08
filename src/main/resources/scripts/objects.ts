@@ -4,9 +4,11 @@ import { Vector } from "./vector.js";
 export class GameObject {
   movable: boolean;
   selectable: boolean;
-  constructor(movable: boolean, selectable: boolean) {
+  health: number;
+  constructor(movable: boolean, selectable: boolean, health: number) {
     this.movable = movable;
     this.selectable = selectable;
+    this.health = health;
   }
 }
 
@@ -24,8 +26,9 @@ class Structure extends GameObject {
     width: number,
     height: number,
     id: string,
+    health: number,
   ) {
-    super(false, selectable);
+    super(false, selectable, health);
     this.id = id;
     this.type = type;
     this.pos = pos;
@@ -50,8 +53,9 @@ class Unit extends GameObject {
     pos: Vector,
     width: number,
     height: number,
+    health: number,
   ) {
-    super(movable, false);
+    super(movable, false, health);
     this.id = id;
     this.type = type;
     this.pos = pos;
@@ -67,11 +71,13 @@ export class Castle extends Structure {
   owner: string;
   ownerColor: string;
   highlighted = false;
+  villages: Array<Village>;
 
-  constructor(pos: Vector, id: string, owner: string, ownerColor: string) {
-    super(true, "castle", pos, CastleConfig.width, CastleConfig.height, id);
+  constructor(pos: Vector, id: string, owner: string, ownerColor: string, health: number, villages: Array<Village>) {
+    super(true, "castle", pos, CastleConfig.width, CastleConfig.height, id, health);
     this.owner = owner;
     this.ownerColor = ownerColor;
+    this.villages = villages;
   }
 }
 /* export class Road extends Structure {
@@ -83,8 +89,8 @@ export class Castle extends Structure {
 
 export class Village extends Structure {
   owner: string;
-  constructor(pos: Vector, id: string, owner: string) {
-    super(true, "village", pos, VillageConfig.width, VillageConfig.height, id);
+  constructor(pos: Vector, id: string, owner: string, health: number) {
+    super(true, "village", pos, VillageConfig.width, VillageConfig.height, id, health);
     this.owner = owner;
   }
 }
@@ -92,8 +98,8 @@ export class Village extends Structure {
 export class Soldier extends Unit {
   owner: string;
   ownerColor: string;
-  constructor(pos: Vector, id: string, owner: string, ownerColor: string) {
-    super(true, id, "soldier", pos, SoldierConfig.width, SoldierConfig.height);
+  constructor(pos: Vector, id: string, owner: string, ownerColor: string, health: number) {
+    super(true, id, "soldier", pos, SoldierConfig.width, SoldierConfig.height, health);
     this.owner = owner;
     this.ownerColor = ownerColor;
   }

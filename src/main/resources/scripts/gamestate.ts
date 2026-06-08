@@ -57,34 +57,48 @@ export class Gamestate {
         player.color,
       );
       player.castles.forEach((castle: any) => {
+        let villages = new Array<Village>();
+        castle.villages.forEach((village: any) => {
+          const newVillage = new Village(
+            new Vector(village.pos.x, village.pos.y),
+            village.id,
+            village.id,
+            village.health,
+          );
+          villages.push(newVillage);
+          this.gameObjects.set(newVillage.id, newVillage);
+        });
         const newCastle = new Castle(
           new Vector(castle.pos.x, castle.pos.y),
           castle.id,
           castle.owner,
           castle.ownerColor,
+          castle.health,
+          castle.villages = villages
         );
+        castle.villages.forEach((village: any) => {
+          const newVillage = new Village(
+            new Vector(village.pos.x, village.pos.y),
+            village.id,
+            village.id,
+            village.health,
+          );
+          newCastle.villages.push(newVillage);
+        });
         newPlayer.castles.push(newCastle);
         this.gameObjects.set(newCastle.id, newCastle);
       });
-      player.villages.forEach((village: any) => {
-        const newVillage = new Village(
-          new Vector(village.pos.x, village.pos.y),
-          village.id,
-          village.owner,
-        );
-        newPlayer.villages.push(newVillage);
-        this.gameObjects.set(newVillage.id, newVillage);
-      });
 
-      player.units.forEach((unit: any) => {
+      player.units.forEach((soldier: any) => {
         const newSoldier = new Soldier(
-          new Vector(unit.pos.x, unit.pos.y),
-          unit.id,
-          unit.owner,
-          unit.ownerColor,
+          new Vector(soldier.pos.x, soldier.pos.y),
+          soldier.id,
+          soldier.owner,
+          soldier.ownerColor,
+          soldier.health,
         );
-        if (unit.target !== undefined) {
-          newSoldier.give_target(new Vector(unit.target.x, unit.target.y));
+        if (soldier.target !== undefined) {
+          newSoldier.give_target(new Vector(soldier.target.x, soldier.target.y));
         }
         newPlayer.units.push(newSoldier);
         this.gameObjects.set(newSoldier.id, newSoldier);
@@ -103,6 +117,7 @@ export class Gamestate {
         soldier.id,
         soldier.owner,
         soldier.ownerColor,
+        soldier.health,
       );
       console.log("createSoldiers: 2")
 
