@@ -9,6 +9,11 @@ export declare enum CastleConfig {
     ownerColorWidth,
     ownerColorHeight
 }
+export declare enum VillageConfig {
+    width,
+    height,
+    color = "brown"
+}
 export declare enum SoldierConfig {
     width,
     height,

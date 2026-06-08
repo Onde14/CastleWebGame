@@ -30,6 +30,10 @@ export declare class Castle extends Structure {
     highlighted: boolean;
     constructor(pos: Vector, id: string, owner: string, ownerColor: string);
 }
+export declare class Village extends Structure {
+    owner: string;
+    constructor(pos: Vector, id: string, owner: string);
+}
 export declare class Soldier extends Unit {
     owner: string;
     ownerColor: string;

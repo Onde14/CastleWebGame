@@ -1,4 +1,4 @@
-import { Soldier, Castle, GameObject } from "./objects.js";
+import { Soldier, Castle, Village, GameObject } from "./objects.js";
 import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
 
@@ -7,6 +7,7 @@ export class Player {
   ai: boolean;
   units: Array<Soldier>;
   castles: Array<Castle>;
+  villages: Array<Village>;
   color: string;
 
   constructor(
@@ -14,12 +15,14 @@ export class Player {
     id: string,
     units: Array<Soldier>,
     castles: Array<Castle>,
+    villages: Array<Village>,
     color: string,
   ) {
     this.id = id;
     this.ai = ai;
     this.units = units;
     this.castles = castles;
+    this.villages = villages;
     this.color = color;
   }
 }
@@ -50,6 +53,7 @@ export class Gamestate {
         player.id,
         new Array<Soldier>(),
         new Array<Castle>(),
+        new Array<Village>(),
         player.color,
       );
       player.castles.forEach((castle: any) => {
@@ -62,6 +66,16 @@ export class Gamestate {
         newPlayer.castles.push(newCastle);
         this.gameObjects.set(newCastle.id, newCastle);
       });
+      player.villages.forEach((village: any) => {
+        const newVillage = new Village(
+          new Vector(village.pos.x, village.pos.y),
+          village.id,
+          village.owner,
+        );
+        newPlayer.villages.push(newVillage);
+        this.gameObjects.set(newVillage.id, newVillage);
+      });
+
       player.units.forEach((unit: any) => {
         const newSoldier = new Soldier(
           new Vector(unit.pos.x, unit.pos.y),
@@ -109,14 +123,14 @@ export class Gamestate {
   }
 
   public update(updates: any) {
-    console.log(1);
+   // console.log(1);
     updates.forEach((u: any) => {
       //console.log(2, u, u, u.id, u.pos);
       if (u.state == 2) {
-        console.log(3, u.id, this.gameObjects);
+       // console.log(3, u.id, this.gameObjects);
         let object: any = this.gameObjects.get(u.id);
-        console.log(object);
-        console.log(4);
+        //console.log(object);
+        //console.log(4);
         object.pos = new Vector(u.updatedPos.x, u.updatedPos.y);
       } else if (u.state == 0) {
         let object: any = this.gameObjects.get(u.id);

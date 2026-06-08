@@ -10,6 +10,8 @@ import os.*
 import zio.json.*
 import scala.compiletime.ops.double
 import java.util.UUID
+import scala.util.Random
+import scala.util.Random
 
 
 
@@ -62,6 +64,9 @@ class GameState:
         println(s"Failed to decode map content $value")
     return null
 
+  def calcDistance(pos1: Pos, pos2: Pos): Double =
+    return (pos1.x - pos2.x).abs + (pos1.y - pos2.y).abs
+
   def buildGameState(clients: ArrayBuffer[UUID]): Unit =
     val mapFile = getMap()
     //val map = mapPositions(content.fromJson)
@@ -70,15 +75,20 @@ class GameState:
     for line <- mapFile.MapDataFile do
       val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier], new ArrayBuffer[Village])
       val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1)
-      for i <- 0 until 3 do
-        val x = (castle.pos.x + GameConfig.castleSize*2)*math.cos(120*i)
-        val y = (castle.pos.y + GameConfig.castleSize*2)*math.sin(120*i)
 
+      for j <- 1 until 4 do
+        println("I: " +  i)
+        println(s"CASTLE POS: ${castle.pos}")
+
+        val r = GameConfig.villageSize*3
+        val x = castle.pos.x + r * math.cos(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.villageSize)
+        val y = castle.pos.y - r * math.sin(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.villageSize)
         val villagePos = new Pos(x,y)
-        val village = new Village(UUID.randomUUID(), clients(i), colors(i), villagePos)
-        println(s"buildGameState: x = $x, y = $y")
 
+
+        var village = new Village(UUID.randomUUID(), clients(i), colors(i), villagePos)
         player.villages += village
+        println(s"player.villages: ${player.villages}")
 
 
       player.castles += castle
@@ -135,8 +145,7 @@ class GameState:
 
     return response
 
-  def calcDistance(pos1: Pos, pos2: Pos): Double =
-    return (pos1.x - pos2.x).abs + (pos1.y - pos2.y).abs
+
 
   def isSoldierInTarget(currPos: Pos, targetPos: Pos): Boolean =
     val distance = calcDistance(currPos, targetPos)

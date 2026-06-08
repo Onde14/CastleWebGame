@@ -12,6 +12,12 @@ export var CastleConfig;
     CastleConfig[CastleConfig["ownerColorWidth"] = CastleConfig.width / 2] = "ownerColorWidth";
     CastleConfig[CastleConfig["ownerColorHeight"] = CastleConfig.height / 2] = "ownerColorHeight";
 })(CastleConfig || (CastleConfig = {}));
+export var VillageConfig;
+(function (VillageConfig) {
+    VillageConfig[VillageConfig["width"] = GameConfig.villageSize] = "width";
+    VillageConfig[VillageConfig["height"] = GameConfig.villageSize] = "height";
+    VillageConfig["color"] = "brown";
+})(VillageConfig || (VillageConfig = {}));
 export var SoldierConfig;
 (function (SoldierConfig) {
     SoldierConfig[SoldierConfig["width"] = GameConfig.soldierRadius] = "width";

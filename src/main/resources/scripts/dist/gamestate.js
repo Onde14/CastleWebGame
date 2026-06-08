@@ -1,16 +1,18 @@
-import { Soldier, Castle } from "./objects.js";
+import { Soldier, Castle, Village } from "./objects.js";
 import { Vector } from "./vector.js";
 export class Player {
     id;
     ai;
     units;
     castles;
+    villages;
     color;
-    constructor(ai, id, units, castles, color) {
+    constructor(ai, id, units, castles, villages, color) {
         this.id = id;
         this.ai = ai;
         this.units = units;
         this.castles = castles;
+        this.villages = villages;
         this.color = color;
     }
 }
@@ -34,11 +36,16 @@ export class Gamestate {
                 this.currentPlayerColor == player.color;
             }
             const id = player.id;
-            let newPlayer = new Player(false, player.id, new Array(), new Array(), player.color);
+            let newPlayer = new Player(false, player.id, new Array(), new Array(), new Array(), player.color);
             player.castles.forEach((castle) => {
                 const newCastle = new Castle(new Vector(castle.pos.x, castle.pos.y), castle.id, castle.owner, castle.ownerColor);
                 newPlayer.castles.push(newCastle);
                 this.gameObjects.set(newCastle.id, newCastle);
+            });
+            player.villages.forEach((village) => {
+                const newVillage = new Village(new Vector(village.pos.x, village.pos.y), village.id, village.owner);
+                newPlayer.villages.push(newVillage);
+                this.gameObjects.set(newVillage.id, newVillage);
             });
             player.units.forEach((unit) => {
                 const newSoldier = new Soldier(new Vector(unit.pos.x, unit.pos.y), unit.id, unit.owner, unit.ownerColor);
@@ -70,14 +77,14 @@ export class Gamestate {
         });
     }
     update(updates) {
-        console.log(1);
+        // console.log(1);
         updates.forEach((u) => {
             //console.log(2, u, u, u.id, u.pos);
             if (u.state == 2) {
-                console.log(3, u.id, this.gameObjects);
+                // console.log(3, u.id, this.gameObjects);
                 let object = this.gameObjects.get(u.id);
-                console.log(object);
-                console.log(4);
+                //console.log(object);
+                //console.log(4);
                 object.pos = new Vector(u.updatedPos.x, u.updatedPos.y);
             }
             else if (u.state == 0) {

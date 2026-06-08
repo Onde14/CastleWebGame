@@ -1,5 +1,5 @@
-import { Soldier, Castle, GameObject } from "./objects.js";
-import { SoldierConfig, CastleConfig } from "./config.js";
+import { Soldier, Castle, Village, GameObject } from "./objects.js";
+import { SoldierConfig, CastleConfig, VillageConfig } from "./config.js";
 import { Player } from "./gamestate.js";
 import type { Game } from "./game.js";
 import { type UserInterface, UIStates } from "./ui.js";
@@ -35,7 +35,7 @@ export class DisplayDriver {
     this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
   }
 
-  drawGame(gameObjects: Map<string, GameObject>,currentplayerColor: string) {
+  drawGame(gameObjects: Map<string, GameObject>, currentplayerColor: string) {
     this.ctx.fillStyle = "green";
     this.ctx.fillRect(
       0,
@@ -56,12 +56,16 @@ export class DisplayDriver {
 
     let castles = Array<Castle>();
     let soldiers = Array<Soldier>();
+    let villages = Array<Village>();
     gameObjects.forEach((gameObject, key) => {
       if (gameObject instanceof Soldier) {
         soldiers.push(gameObject);
       }
       if (gameObject instanceof Castle) {
         castles.push(gameObject);
+      }
+      if (gameObject instanceof Village) {
+        villages.push(gameObject)
       }
     });
     soldiers.forEach((unit: Soldier) => {
@@ -92,6 +96,19 @@ export class DisplayDriver {
       this.ctx.save();
       this.ctx.restore();
     });
+
+    villages.forEach((village: Village) => {
+      this.ctx.fillStyle = VillageConfig.color;
+      //console.log("GAME WIDTH: ", this.gameWidth,"WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.width,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.width / 2) * this.renderWidthPositionRatio)
+      this.ctx.fillRect(
+        (village.pos.x * this.renderWidthPositionRatio) - VillageConfig.width / 2,
+        (village.pos.y * this.renderHeightPositionRatio) - VillageConfig.height / 2,
+        village.width,
+        village.height,
+      );
+      this.ctx.save();
+    });
+
 
     castles.forEach((castle) => {
       if (castle.selected) {
@@ -144,7 +161,7 @@ export class DisplayDriver {
     gameObjects: Map<string, GameObject>,
     currentplayerColor: string
   ) {
-    console.log(this.ui.state)
+    //console.log(this.ui.state)
     switch (this.ui.state) {
       case UIStates.Game:
         this.drawGame(gameObjects, currentplayerColor)

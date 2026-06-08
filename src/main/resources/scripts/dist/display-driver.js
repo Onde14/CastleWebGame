@@ -1,5 +1,5 @@
-import { Soldier, Castle } from "./objects.js";
-import { SoldierConfig, CastleConfig } from "./config.js";
+import { Soldier, Castle, Village } from "./objects.js";
+import { SoldierConfig, CastleConfig, VillageConfig } from "./config.js";
 import { UIStates } from "./ui.js";
 export class DisplayDriver {
     canvas;
@@ -38,12 +38,16 @@ export class DisplayDriver {
         this.ctx.fillText(currentplayerColor, 50, 50);
         let castles = Array();
         let soldiers = Array();
+        let villages = Array();
         gameObjects.forEach((gameObject, key) => {
             if (gameObject instanceof Soldier) {
                 soldiers.push(gameObject);
             }
             if (gameObject instanceof Castle) {
                 castles.push(gameObject);
+            }
+            if (gameObject instanceof Village) {
+                villages.push(gameObject);
             }
         });
         soldiers.forEach((unit) => {
@@ -60,6 +64,12 @@ export class DisplayDriver {
             this.ctx.fill();
             this.ctx.save();
             this.ctx.restore();
+        });
+        villages.forEach((village) => {
+            this.ctx.fillStyle = VillageConfig.color;
+            //console.log("GAME WIDTH: ", this.gameWidth,"WIDTH POS: ", castle.pos.x, "CASTLE WIDTH: ", CastleConfig.width,"RATIO: ", this.renderWidthPositionRatio, "WIDTH CALC: ",(castle.pos.x - CastleConfig.width / 2) * this.renderWidthPositionRatio)
+            this.ctx.fillRect((village.pos.x * this.renderWidthPositionRatio) - VillageConfig.width / 2, (village.pos.y * this.renderHeightPositionRatio) - VillageConfig.height / 2, village.width, village.height);
+            this.ctx.save();
         });
         castles.forEach((castle) => {
             if (castle.selected) {
@@ -85,7 +95,7 @@ export class DisplayDriver {
         });
     }
     draw(gameObjects, currentplayerColor) {
-        console.log(this.ui.state);
+        //console.log(this.ui.state)
         switch (this.ui.state) {
             case UIStates.Game:
                 this.drawGame(gameObjects, currentplayerColor);

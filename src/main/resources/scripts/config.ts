@@ -15,6 +15,12 @@ export enum CastleConfig {
   ownerColorHeight = CastleConfig.height / 2,
 }
 
+export enum VillageConfig {
+  width = GameConfig.villageSize,
+  height = GameConfig.villageSize,
+  color = "brown",
+}
+
 export enum SoldierConfig {
   width = GameConfig.soldierRadius,
   height = GameConfig.soldierRadius,

@@ -1,4 +1,4 @@
-import { CastleConfig, SoldierConfig, RoadConfig } from "./config.js";
+import { CastleConfig, SoldierConfig, RoadConfig, VillageConfig } from "./config.js";
 import { Vector } from "./vector.js";
 
 export class GameObject {
@@ -80,6 +80,14 @@ export class Castle extends Structure {
     super(false, "road", pos, RoadConfig.width, height);
   }
 }*/
+
+export class Village extends Structure {
+  owner: string;
+  constructor(pos: Vector, id: string, owner: string) {
+    super(true, "village", pos, VillageConfig.width, VillageConfig.height, id);
+    this.owner = owner;
+  }
+}
 
 export class Soldier extends Unit {
   owner: string;
