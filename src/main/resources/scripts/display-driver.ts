@@ -40,7 +40,7 @@ export class DisplayDriver {
   }
 
   drawGame() {
-    this.ctx.fillStyle = "#2F8619";
+    this.ctx.fillStyle = "#407231";
     this.ctx.fillRect(
       0,
       0,
@@ -178,6 +178,59 @@ export class DisplayDriver {
     });
   }
 
+  drawMenu() {
+    this.ctx.fillStyle = "#407231";
+    this.ctx.fillRect(
+      0,
+      0,
+      this.gameWidth * this.renderWidthPositionRatio,
+      this.gameHeight * this.renderHeightPositionRatio,
+    );
+    this.ctx.save();
+    this.ctx.restore();
+
+
+    this.ctx.font = this.renderWidthPositionRatio*100 + "px serif";
+    this.ctx.fillStyle = "black";
+    this.ctx.fillText("CASTLEGAME", this.canvas.width * 0.205, this.canvas.height * 0.205);
+    this.ctx.font = this.renderWidthPositionRatio*100 + "px serif";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("CASTLEGAME", this.canvas.width*0.2, this.canvas.height*0.2);
+    this.ctx.save();
+    this.ctx.restore();
+
+    this.ui.menu.forEach(b => {
+      const buttonRatio = 0.95
+      this.ctx.fillStyle = "black";
+      this.ctx.fillRect(
+        (b.pos.x * this.renderWidthPositionRatio),
+        (b.pos.y * this.renderHeightPositionRatio),
+        (b.width* this.renderWidthPositionRatio),
+        (b.height * this.renderHeightPositionRatio),
+      );
+      this.ctx.save();
+      this.ctx.restore();
+      this.ctx.fillStyle = "white";
+      this.ctx.fillRect(
+        (b.pos.x * this.renderWidthPositionRatio),
+        (b.pos.y * this.renderHeightPositionRatio),
+        (b.width* this.renderWidthPositionRatio),
+        (b.height * this.renderHeightPositionRatio),
+      );
+      this.ctx.save();
+      this.ctx.restore();
+
+
+      this.ctx.font = this.renderWidthPositionRatio*100 + "px serif";
+      this.ctx.fillStyle = "black";
+      this.ctx.fillText(b.text, ((b.pos.x*1.7)* this.renderWidthPositionRatio), ((b.pos.y*1.27) * this.renderHeightPositionRatio));
+      this.ctx.save();
+      this.ctx.restore();
+    });
+
+
+  }
+
   public draw() {
     //console.log(this.ui.state)
     switch (this.ui.state) {
@@ -185,11 +238,10 @@ export class DisplayDriver {
         this.drawGame()
         break;
       case UIStates.Menu:
-
+        this.drawMenu()
         break;
       default:
         break;
-
     }
   }
 }

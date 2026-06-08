@@ -8,8 +8,10 @@ export class WebSocketDriver {
         this.webSocket = new WebSocket(this.wsUri);
         this.messageHandler = messageHandler;
         this.webSocket.onopen = (event) => {
-            console.log("Connected to ZIO server!", event);
-            this.sendMessage(JSON.stringify({ msgType: "HelloMessage" }));
+            if (this.open) {
+                console.log("Connected to ZIO server!", event);
+                this.sendMessage(JSON.stringify({ msgType: "HelloMessage" }));
+            }
         };
         this.webSocket.onmessage = (event) => {
             this.messageHandler.incoming(event.data);

@@ -32,6 +32,16 @@ export class Controls {
     }
   
       */
+    isMouseTargetingButton(target, mouse_pos, button) {
+        const visualLengths = this.visualVector(new Vector(button.width, button.height));
+        //const centerToBorderWidth = button.width / 2;
+        //const centerToBorderHeight = button.height / 2;
+        console.log("is_mouse_targeting_button: Target =", target, ", mouse_pos=", mouse_pos, "visualLengths.x", visualLengths.x, "visualLengths.y", visualLengths.y);
+        return (target.x <= mouse_pos.x &&
+            target.x + visualLengths.x >= mouse_pos.x &&
+            target.y <= mouse_pos.y &&
+            target.y + visualLengths.y >= mouse_pos.y);
+    }
     isMouseTargetingCastle(target, mouse_pos) {
         const centerToBorderWidth = CastleConfig.width / 2;
         const centerToBorderHeight = CastleConfig.height / 2;
@@ -77,7 +87,18 @@ export class Controls {
         });
         this.isTargetingEnemyCastle = targeting;
     }
-    mouseDown(target, castles, playerId) {
+    mouseDown(target, castles = Array(), playerId = "") {
+        if (this.ui.state == UIStates.Menu) {
+            this.ui.menu.forEach(b => {
+                //console.log("b.pos:",b.pos,"target:",target)
+                if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
+                    console.log("CLICKED BUTTON:", b);
+                }
+                else {
+                    console.log("NO BUTTON");
+                }
+            });
+        }
         if (this.ui.state != UIStates.Game &&
             this.gameState.currentPlayer?.state != PlayerState.Playing &&
             this.gameState.state == GameStatus.Ended) {

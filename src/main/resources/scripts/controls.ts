@@ -2,7 +2,7 @@ import { Vector } from "./vector.js";
 import { Soldier, Castle } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
 import { Gamestate, GameStatus, PlayerState } from "./gamestate.js";
-import { UIStates, UserInterface } from "./ui.js";
+import { UIStates, UserInterface, Button } from "./ui.js";
 
 export class Controls {
   selected = new Map<string, Castle>();
@@ -37,6 +37,18 @@ export class Controls {
   }
 
     */
+  isMouseTargetingButton(target: Vector, mouse_pos: Vector, button: Button) {
+    const visualLengths = this.visualVector(new Vector(button.width,button.height))
+    //const centerToBorderWidth = button.width / 2;
+    //const centerToBorderHeight = button.height / 2;
+    console.log("is_mouse_targeting_button: Target =",target,", mouse_pos=",mouse_pos,"visualLengths.x",visualLengths.x,"visualLengths.y",visualLengths.y)
+    return (
+      target.x  <= mouse_pos.x &&
+      target.x + visualLengths.x >= mouse_pos.x &&
+      target.y <= mouse_pos.y &&
+      target.y + visualLengths.y >= mouse_pos.y
+    );
+  }
 
   isMouseTargetingCastle(target: Vector, mouse_pos: Vector) {
     const centerToBorderWidth = CastleConfig.width / 2;
@@ -87,7 +99,18 @@ export class Controls {
     this.isTargetingEnemyCastle = targeting;
   }
 
-  public mouseDown(target: Vector, castles: Array<Castle>, playerId: string) {
+  public mouseDown(target: Vector, castles: Array<Castle> = Array<Castle>(), playerId: string = "") {
+    if (this.ui.state == UIStates.Menu) {
+      this.ui.menu.forEach(b => {
+        //console.log("b.pos:",b.pos,"target:",target)
+        if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
+          console.log("CLICKED BUTTON:", b)
+        } else {
+          console.log("NO BUTTON")
+        }
+      });
+    }
+
     if (this.ui.state != UIStates.Game &&
       this.gameState.currentPlayer?.state != PlayerState.Playing &&
       this.gameState.state == GameStatus.Ended) {

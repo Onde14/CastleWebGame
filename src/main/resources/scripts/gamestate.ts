@@ -11,8 +11,6 @@ export enum GameStatus {
   Ended,
 }
 
-
-
 export class Player {
   id: string;
   ai: boolean;

@@ -24,7 +24,7 @@ export class Game {
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     this.gameWidth = this.canvas.width;
     this.gameHeight = this.canvas.height;
-    this.ui = new UserInterface
+    this.ui = new UserInterface(this.gameWidth,this.gameHeight)
 
     this.gameState = new Gamestate();
     this.controls = new Controls(this.gameWidth, this.gameHeight,this.gameState,this.ui);
@@ -43,6 +43,7 @@ export class Game {
       this.gameState,
       this.controls,
       this.displayDriver,
+      this.ui
     );
     this.eventHandler.eventHandling();
   }

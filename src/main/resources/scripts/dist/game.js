@@ -21,13 +21,13 @@ export class Game {
         this.ctx = this.canvas.getContext("2d");
         this.gameWidth = this.canvas.width;
         this.gameHeight = this.canvas.height;
-        this.ui = new UserInterface;
+        this.ui = new UserInterface(this.gameWidth, this.gameHeight);
         this.gameState = new Gamestate();
         this.controls = new Controls(this.gameWidth, this.gameHeight, this.gameState, this.ui);
         this.displayDriver = new DisplayDriver(this.ui, this.gameState, this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
         console.log("Game built");
-        this.eventHandler = new EventHandler(this.canvas, this.gameState, this.controls, this.displayDriver);
+        this.eventHandler = new EventHandler(this.canvas, this.gameState, this.controls, this.displayDriver, this.ui);
         this.eventHandler.eventHandling();
     }
     found_goal(pos, target) {

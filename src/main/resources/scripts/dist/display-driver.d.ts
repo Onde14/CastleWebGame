@@ -12,6 +12,7 @@ export declare class DisplayDriver {
     constructor(ui: UserInterface, gameState: Gamestate, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, gameWidth: number, gameHeight: number);
     resize(): void;
     drawGame(): void;
+    drawMenu(): void;
     draw(): void;
 }
 //# sourceMappingURL=display-driver.d.ts.map

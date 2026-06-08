@@ -4,6 +4,7 @@ import { Vector } from "./vector.js";
 import type { Controls } from "./controls.js";
 import type { DisplayDriver } from "./display-driver.js";
 import { MessageHandler } from "./messagehandling.js";
+import { UIStates, UserInterface } from "./ui.js";
 
 export class EventHandler {
   canvas: HTMLCanvasElement;
@@ -11,44 +12,56 @@ export class EventHandler {
   controls: Controls;
   displayDriver: DisplayDriver;
   messageHandler?: MessageHandler;
+  ui: UserInterface;
   constructor(
     canvas: HTMLCanvasElement,
     gameState: Gamestate,
     controls: Controls,
     displayDriver: DisplayDriver,
+    ui: UserInterface
   ) {
     this.canvas = canvas;
     this.gameState = gameState;
     this.controls = controls;
     this.displayDriver = displayDriver;
+    this.ui = ui;
   }
 
   mouseDown(e: MouseEvent) {
-    let target = new Vector(e.clientX, e.clientY);
-    console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);
-    let castles = new Array<Castle>();
-    let currPlayer = "";
-    this.gameState.players.forEach((player) => {
-      if (player.id == this.gameState.currentPlayerId) {
-        currPlayer = player.id;
-      }
-      castles = castles.concat(player.castles);
-    });
-    //console.log("CASTLES: ", castles);
-    const orders: any = this.controls.mouseDown(target, castles, currPlayer);
-    if (orders === undefined) {
-      console.log("NO ORDERS.");
-    } else {
-      console.log("GOT ORDERS!");
-      console.log("ORDERS: " + orders);
-      if (this.messageHandler) {
-        let requestJson = {
-          msgType: "RequestAttackOrderMessage",
-          target_castle_id: orders.target_castle_id,
-          selected_castles_ids: orders.selected_castles_ids,
-        };
-        this.messageHandler.send(requestJson);
-      }
+    const target = new Vector(e.clientX, e.clientY);
+    switch (this.ui.state) {
+      case UIStates.Menu:
+        const res = this.controls.mouseDown(target);
+        break;
+      case UIStates.Game:
+        console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);
+        let castles = new Array<Castle>();
+        let currPlayer = "";
+        this.gameState.players.forEach((player) => {
+          if (player.id == this.gameState.currentPlayerId) {
+            currPlayer = player.id;
+          }
+          castles = castles.concat(player.castles);
+        });
+        //console.log("CASTLES: ", castles);
+        const orders: any = this.controls.mouseDown(target, castles, currPlayer);
+        if (orders === undefined) {
+          console.log("NO ORDERS.");
+        } else {
+          console.log("GOT ORDERS!");
+          console.log("ORDERS: " + orders);
+          if (this.messageHandler) {
+            let requestJson = {
+              msgType: "RequestAttackOrderMessage",
+              target_castle_id: orders.target_castle_id,
+              selected_castles_ids: orders.selected_castles_ids,
+            };
+            this.messageHandler.send(requestJson);
+          }
+        }
+        break;
+      default:
+        break;
     }
   }
 
@@ -93,5 +106,4 @@ export class EventHandler {
   public gameEnd(winner: string) {
     this.gameState.gameEnd(winner);
   }
-
 }
