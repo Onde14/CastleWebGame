@@ -22,7 +22,7 @@ class GameState:
   private var gameStarted = false
   var mapData = ArrayBuffer[Player]()
  // var playersIds = ArrayBuffer[UUID]()
-  private var castles = ArrayBuffer[Castle]()
+  var castles = ArrayBuffer[Castle]()
   var soldiers = ArrayBuffer[Soldier]()
   var removedSoldiers = ArrayBuffer[Soldier]()
   var currentPlayersIds = ArrayBuffer[UUID]()
@@ -31,6 +31,7 @@ class GameState:
   val colors = List("blue","red")
   private var testOrdersGiven = 0
   private val soldierSpeed = GameConfig.SoldierSpeed
+  var winner: UUID = null
 
   def isGameStarted: Boolean = this.gameStarted
   def changeGameStarted(): Unit = gameStarted = true
@@ -119,6 +120,14 @@ class GameState:
   def removePlayer(clientId: UUID): Unit =
     currentPlayersIds -= clientId
     println("PLAYER REMOVED")
+
+  def isGameWon(): Boolean =
+    val owner = castles(0).owner
+    val oneOwnerCastle = castles.find(c1 => c1.owner != owner).getOrElse(null)
+    println(s"oneOwnerCastle: $oneOwnerCastle")
+    val res = oneOwnerCastle == null
+    if res then winner = owner
+    return res
 
   def damageStructures(soldier: Soldier): UpdateData =
     val castle = castles.find(c => c.id == soldier.targetCastleId && c.owner != soldier.owner).get

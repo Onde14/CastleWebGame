@@ -50,6 +50,9 @@ export class MessageHandler {
                 }
                 console.log(this.myClientId, this.myLobbyId);
                 break;
+            case "GameEndMessage":
+                this.eventHandler.gameEnd(msg.winner);
+                break;
             case "InvalidMessage":
                 console.log("Request was invalid!");
                 break;

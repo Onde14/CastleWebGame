@@ -84,7 +84,7 @@ final case class UpdateData (
   playerId: Option[UUID],
   newOwner: Option[UUID],
   updatedPos: Option[Pos],
-  state: Option[Int],
+  state: Option[Int], // 5 = playerDefeated
   health: Option[Int],
 
 )
@@ -104,4 +104,14 @@ final case class UpdatedGameDataMessage (
 object UpdatedGameDataMessage {
 implicit val encoder: JsonEncoder[UpdatedGameDataMessage] =
   DeriveJsonEncoder.gen[UpdatedGameDataMessage]
+}
+
+final case class GameEndMessage (
+  msgType: String,
+  winner: UUID,
+)
+
+object GameEndMessage {
+implicit val encoder: JsonEncoder[GameEndMessage] =
+  DeriveJsonEncoder.gen[GameEndMessage]
 }

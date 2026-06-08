@@ -5,6 +5,11 @@ export var PlayerState;
     PlayerState[PlayerState["Playing"] = 0] = "Playing";
     PlayerState[PlayerState["Defeated"] = 1] = "Defeated";
 })(PlayerState || (PlayerState = {}));
+export var GameStatus;
+(function (GameStatus) {
+    GameStatus[GameStatus["Started"] = 0] = "Started";
+    GameStatus[GameStatus["Ended"] = 1] = "Ended";
+})(GameStatus || (GameStatus = {}));
 export class Player {
     id;
     ai;
@@ -28,12 +33,15 @@ export class Gamestate {
     currentPlayerId = "";
     currentPlayer = undefined;
     clock = 0;
+    winner = null;
+    state = GameStatus.Ended;
     constructor() {
     }
     setCurrentPlayerId(clientId) {
         this.currentPlayerId = clientId;
     }
     buildGameState(players) {
+        this.state = GameStatus.Started;
         console.log("PLAYERS1: ", players);
         let playerArray = new Array();
         players.forEach((player) => {
@@ -157,6 +165,11 @@ export class Gamestate {
                 }
             });
         });
+    }
+    gameEnd(winner) {
+        const player = this.players.find(p => p.id == winner);
+        this.winner = player;
+        this.state = GameStatus.Ended;
     }
 }
 //# sourceMappingURL=gamestate.js.map

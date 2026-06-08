@@ -71,5 +71,8 @@ export class EventHandler {
     setCurrentPlayerId(clientId) {
         this.gameState.setCurrentPlayerId(clientId);
     }
+    gameEnd(winner) {
+        this.gameState.gameEnd(winner);
+    }
 }
 //# sourceMappingURL=events.js.map

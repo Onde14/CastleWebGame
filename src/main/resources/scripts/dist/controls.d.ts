@@ -1,12 +1,16 @@
 import { Vector } from "./vector.js";
 import { Castle } from "./objects.js";
+import { Gamestate } from "./gamestate.js";
+import { UserInterface } from "./ui.js";
 export declare class Controls {
     selected: Map<string, Castle>;
     isSelecting: boolean;
     isTargetingEnemyCastle: boolean;
     gameWidth: number;
     gameHeight: number;
-    constructor(gameWidth: number, gameHeight: number);
+    gameState: Gamestate;
+    ui: UserInterface;
+    constructor(gameWidth: number, gameHeight: number, gameState: Gamestate, ui: UserInterface);
     deselect(): void;
     visualVector(v: Vector): Vector;
     isMouseTargetingCastle(target: Vector, mouse_pos: Vector): boolean;

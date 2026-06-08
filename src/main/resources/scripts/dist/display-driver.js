@@ -1,6 +1,6 @@
 import { Soldier, Castle, Village } from "./objects.js";
 import { SoldierConfig, CastleConfig, VillageConfig } from "./config.js";
-import { PlayerState } from "./gamestate.js";
+import { GameStatus, PlayerState } from "./gamestate.js";
 import { UIStates } from "./ui.js";
 export class DisplayDriver {
     canvas;
@@ -30,13 +30,20 @@ export class DisplayDriver {
     drawGame() {
         this.ctx.fillStyle = "#2F8619";
         this.ctx.fillRect(0, 0, this.gameWidth * this.renderWidthPositionRatio, this.gameHeight * this.renderHeightPositionRatio);
+        if (this.gameState.state == GameStatus.Ended) {
+            this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
+            this.ctx.fillStyle = "white";
+            const winnerColor = this.gameState.winner?.color + "";
+            const text = winnerColor.toUpperCase();
+            this.ctx.fillText(text + " PLAYER WON!", this.canvas.width * 0.05, this.canvas.height / 2);
+        }
         //console.log("HEIGHT WINDOW RATIO: ", this.renderWidthPositionRatio);
         //console.log("WIDTH WINDOW RATIO: ", this.renderHeightPositionRatio);
         /*this.ctx.fillStyle = "brown";
         this.ctx.fillRect(this.gameWidth / 2 - 5, 75, 10, this.gameHeight - 175);
         this.ctx.save();
         this.ctx.restore();*/
-        console.log("this.gameState.currentPlayer?.state: ", this.gameState.currentPlayer?.state);
+        //console.log("this.gameState.currentPlayer?.state: ",this.gameState.currentPlayer?.state)
         if (this.gameState.currentPlayer?.state == PlayerState.Playing) {
             this.ctx.font = "48px serif";
             this.ctx.fillStyle = this.gameState.currentPlayer?.color;

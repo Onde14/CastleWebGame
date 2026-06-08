@@ -23,7 +23,7 @@ export class Game {
         this.gameHeight = this.canvas.height;
         this.ui = new UserInterface;
         this.gameState = new Gamestate();
-        this.controls = new Controls(this.gameWidth, this.gameHeight);
+        this.controls = new Controls(this.gameWidth, this.gameHeight, this.gameState, this.ui);
         this.displayDriver = new DisplayDriver(this.ui, this.gameState, this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
         console.log("Game built");

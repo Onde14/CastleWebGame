@@ -1,14 +1,20 @@
 import { Vector } from "./vector.js";
 import { CastleConfig } from "./config.js";
+import { GameStatus, PlayerState } from "./gamestate.js";
+import { UIStates } from "./ui.js";
 export class Controls {
     selected = new Map();
     isSelecting = false;
     isTargetingEnemyCastle = false;
     gameWidth;
     gameHeight;
-    constructor(gameWidth, gameHeight) {
+    gameState;
+    ui;
+    constructor(gameWidth, gameHeight, gameState, ui) {
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
+        this.gameState = gameState;
+        this.ui = ui;
     }
     deselect() {
         this.selected = new Map();
@@ -45,25 +51,38 @@ export class Controls {
       */
     // create_attack_unit_logic(start: Vector, target: Vector) {}
     mouseMove(mouse_pos, castles, playerId) {
-        if (!this.isSelecting) {
+        if (!this.isSelecting &&
+            this.ui.state != UIStates.Game &&
+            this.gameState.currentPlayer?.state != PlayerState.Playing &&
+            this.gameState.state == GameStatus.Ended) {
             return;
         }
         let targeting = false;
         castles.forEach((castle) => {
-            if (castle.owner != playerId) {
-                if (this.isMouseTargetingCastle(this.visualVector(castle.pos), mouse_pos)) {
+            if (this.isMouseTargetingCastle(this.visualVector(castle.pos), mouse_pos)) {
+                if (castle.owner != playerId) {
                     if (!this.selected.has(castle.id)) {
                         castle.highlighted = true;
                         targeting = true;
                         return;
                     }
                 }
+                else {
+                    castle.highlighted = false;
+                }
+            }
+            else {
                 castle.highlighted = false;
             }
         });
         this.isTargetingEnemyCastle = targeting;
     }
     mouseDown(target, castles, playerId) {
+        if (this.ui.state != UIStates.Game &&
+            this.gameState.currentPlayer?.state != PlayerState.Playing &&
+            this.gameState.state == GameStatus.Ended) {
+            return;
+        }
         if (this.isTargetingEnemyCastle) {
             // @ts-ignore
             const target_castle = castles

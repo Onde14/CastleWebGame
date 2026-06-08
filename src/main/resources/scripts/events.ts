@@ -90,4 +90,8 @@ export class EventHandler {
     this.gameState.setCurrentPlayerId(clientId);
   }
 
+  public gameEnd(winner: string) {
+    this.gameState.gameEnd(winner);
+  }
+
 }

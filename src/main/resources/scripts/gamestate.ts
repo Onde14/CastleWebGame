@@ -6,6 +6,11 @@ export enum PlayerState {
   Defeated
 }
 
+export enum GameStatus {
+  Started,
+  Ended,
+}
+
 
 
 export class Player {
@@ -40,6 +45,8 @@ export class Gamestate {
   currentPlayerId: string = "";
   currentPlayer: Player | undefined = undefined;
   clock = 0;
+  winner: Player | null = null
+  state: GameStatus = GameStatus.Ended;
   constructor() {
   }
 
@@ -47,6 +54,7 @@ export class Gamestate {
     this.currentPlayerId = clientId
   }
   public buildGameState(players: any) {
+    this.state = GameStatus.Started
     console.log("PLAYERS1: ", players);
     let playerArray = new Array<Player>();
     players.forEach((player: any) => {
@@ -213,5 +221,11 @@ export class Gamestate {
         }
       });
     });
+  }
+
+  public gameEnd(winner: string) {
+    const player = this.players.find(p => p.id == winner)!
+    this.winner = player;
+    this.state = GameStatus.Ended;
   }
 }

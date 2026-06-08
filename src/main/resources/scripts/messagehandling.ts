@@ -17,6 +17,7 @@ type ResponseMessage = {
   lobbyId?: string;
   clientId?: string;
   tick?: number;
+  winner?: string;
 };
 
 export class MessageHandler {
@@ -70,9 +71,13 @@ export class MessageHandler {
 
         console.log(this.myClientId,this.myLobbyId)
         break;
+      case "GameEndMessage":
+        this.eventHandler.gameEnd(msg.winner!)
+        break;
       case "InvalidMessage":
         console.log("Request was invalid!")
         break;
+
       default:
         throw new Error("Unknown message type!");
     }

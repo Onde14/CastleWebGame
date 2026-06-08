@@ -27,7 +27,7 @@ export class Game {
     this.ui = new UserInterface
 
     this.gameState = new Gamestate();
-    this.controls = new Controls(this.gameWidth, this.gameHeight);
+    this.controls = new Controls(this.gameWidth, this.gameHeight,this.gameState,this.ui);
     this.displayDriver = new DisplayDriver(
       this.ui,
       this.gameState,

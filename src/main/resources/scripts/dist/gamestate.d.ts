@@ -3,6 +3,10 @@ export declare enum PlayerState {
     Playing = 0,
     Defeated = 1
 }
+export declare enum GameStatus {
+    Started = 0,
+    Ended = 1
+}
 export declare class Player {
     id: string;
     ai: boolean;
@@ -19,11 +23,14 @@ export declare class Gamestate {
     currentPlayerId: string;
     currentPlayer: Player | undefined;
     clock: number;
+    winner: Player | null;
+    state: GameStatus;
     constructor();
     setCurrentPlayerId(clientId: string): void;
     buildGameState(players: any): void;
     createSoldiers(soldiers: any): void;
     update(updates: Array<any>, tick: number): void;
     private move_commands;
+    gameEnd(winner: string): void;
 }
 //# sourceMappingURL=gamestate.d.ts.map
