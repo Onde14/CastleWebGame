@@ -18,6 +18,6 @@ export declare class Game {
     found_goal(pos: Vector, target: Vector): boolean;
     private debug_print;
     run(): void;
-    draw(t: number): Promise<void>;
+    draw(t: number): void;
 }
 //# sourceMappingURL=game.d.ts.map

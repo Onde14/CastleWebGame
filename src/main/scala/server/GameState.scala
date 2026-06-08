@@ -121,7 +121,7 @@ class GameState:
     println("PLAYER REMOVED")
 
   def damageStructures(soldier: Soldier): UpdateData =
-    val castle = castles.find(c => c.id == soldier.targetCastleId).get
+    val castle = castles.find(c => c.id == soldier.targetCastleId && c.owner != soldier.owner).get
     val villages = castle.villages.filter(v => v.state == 1)
     if (villages.nonEmpty) then
       val damagedVillage = villages(0)

@@ -86,6 +86,7 @@ final case class UpdateData (
   updatedPos: Option[Pos],
   state: Option[Int],
   health: Option[Int],
+
 )
 
 object UpdateData {
@@ -93,9 +94,11 @@ implicit val encoder: JsonEncoder[UpdateData] =
   DeriveJsonEncoder.gen[UpdateData]
 }
 
+
 final case class UpdatedGameDataMessage (
   msgType: String,
   updates: ArrayBuffer[UpdateData],
+  tick: Int,
 )
 
 object UpdatedGameDataMessage {

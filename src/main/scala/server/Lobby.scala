@@ -26,6 +26,7 @@ class Lobby(h: Hub[String],g: GameState):
   var ended = false
   var isFull = false
   var runGameFiber: Fiber.Runtime[Nothing, Unit] = null
+  var tick = 0;
 
   def setStatus() =
     if currSize < 2 then
@@ -61,7 +62,10 @@ class Lobby(h: Hub[String],g: GameState):
         for {
           //hub <- ZIO.service[Hub[String]]
           updates <- ZIO.succeed(gameState.update())
-          response <- ZIO.succeed(UpdatedGameDataMessage("UpdatedGameState",updates).toJson)
+          response <- ZIO.succeed(UpdatedGameDataMessage("UpdatedGameState",updates,tick).toJson)
+          _ <- ZIO.succeed(if tick % 401 == 0 && tick != 0 then tick = 0 else tick += 1)
+          _ <- ZIO.debug(tick % 400)
+
           //_ <- ZIO.debug(s"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:,     $response")
 
           _ <- ZIO.when(response != null) (hub.publish(response))

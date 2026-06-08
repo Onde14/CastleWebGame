@@ -1,6 +1,12 @@
 import { Soldier, Castle, Village, GameObject } from "./objects.js";
-import { DisplayDriver } from "./display-driver.js";
 import { Vector } from "./vector.js";
+
+export enum PlayerState {
+  Playing,
+  Defeated
+}
+
+
 
 export class Player {
   id: string;
@@ -9,6 +15,7 @@ export class Player {
   castles: Array<Castle>;
   villages: Array<Village>;
   color: string;
+  state: PlayerState = PlayerState.Playing;
 
   constructor(
     ai: boolean,
@@ -28,13 +35,12 @@ export class Player {
 }
 
 export class Gamestate {
-  displayDriver: DisplayDriver;
   players = Array<Player>();
   gameObjects = new Map<string, GameObject>();
   currentPlayerId: string = "";
-  currentPlayerColor: string = "";
-  constructor(displayDriver: DisplayDriver) {
-    this.displayDriver = displayDriver;
+  currentPlayer: Player | undefined = undefined;
+  clock = 0;
+  constructor() {
   }
 
   public setCurrentPlayerId(clientId: string) {
@@ -44,9 +50,6 @@ export class Gamestate {
     console.log("PLAYERS1: ", players);
     let playerArray = new Array<Player>();
     players.forEach((player: any) => {
-      if (player.id == this.currentPlayerId) {
-        this.currentPlayerColor == player.color;
-      }
       const id: Int16Array = player.id;
       let newPlayer = new Player(
         false,
@@ -104,6 +107,10 @@ export class Gamestate {
         this.gameObjects.set(newSoldier.id, newSoldier);
       });
       playerArray.push(newPlayer);
+      if (newPlayer.id == this.currentPlayerId) {
+        this.currentPlayer = newPlayer;
+        console.log("if (player.id == this.currentPlayerId): ", this.currentPlayer)
+      }
     });
     this.players = playerArray;
     console.log("PLAYERS2: ", this.players);
@@ -137,7 +144,8 @@ export class Gamestate {
     });
   }
 
-  public update(updates: Array<any>) {
+  public update(updates: Array<any>, tick: number) {
+    this.clock = Math.trunc(tick / 100);
     updates.forEach((u: any) => {
       const object: any = this.gameObjects.get(u.id);
 
@@ -169,18 +177,18 @@ export class Gamestate {
         }
       }
       else {
-        console.log("ELSE: ", object)
+        //console.log("ELSE: ", object)
         if (updates.length != 0)console.log(1, updates);
 
         if (object instanceof Castle) {
           const castleOwner = this.players.find((p) => p.id == u.playerId)!;
           const castle = castleOwner.castles.find((c) => c.id == u.id)!;
           if (u.health !== undefined) {
-            console.log("castle.health",castle.health, "u.health",u.health)
+            //console.log("castle.health",castle.health, "u.health",u.health)
             castle.health = u.health;
           }
           if (u.newOwner !== undefined) {
-            console.log("NEWOWNER: ",object)
+            //console.log("NEWOWNER: ",object)
             const newOwner = this.players.find((p) => p.id == u.newOwner)!;
             castleOwner.castles = castleOwner.castles.filter(c => c.id != u.id);
             newOwner.castles.push(castle);
@@ -190,6 +198,7 @@ export class Gamestate {
         }
       }
     });
+    if (this.currentPlayer?.castles.length == 0) this.currentPlayer.state = PlayerState.Defeated
   }
 
   private move_commands() {
@@ -197,15 +206,6 @@ export class Gamestate {
       let moving_units = player.units?.filter((unit) => unit.moving == true);
       moving_units.forEach((unit, i) => {
         if (unit.has_found_target()) {
-          console.log(
-            "Unit",
-            unit.id,
-            " reached target [",
-            unit.pos.x,
-            ",",
-            unit.pos.y,
-            "]",
-          );
           unit.moving = false;
         } else {
           //console.log("Moving Unit", unit.unit.id, " from [", unit.unit.pos.x, ",", unit.unit.pos.y, "] to [", unit.unit.target.x, ",", unit.unit.target.y,"]")

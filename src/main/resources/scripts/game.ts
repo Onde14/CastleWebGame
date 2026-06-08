@@ -25,16 +25,18 @@ export class Game {
     this.gameWidth = this.canvas.width;
     this.gameHeight = this.canvas.height;
     this.ui = new UserInterface
+
+    this.gameState = new Gamestate();
+    this.controls = new Controls(this.gameWidth, this.gameHeight);
     this.displayDriver = new DisplayDriver(
       this.ui,
+      this.gameState,
       this.canvas,
       this.ctx,
       this.gameWidth,
       this.gameHeight,
     );
     this.displayDriver.resize();
-    this.gameState = new Gamestate(this.displayDriver);
-    this.controls = new Controls(this.gameWidth,this.gameHeight);
     console.log("Game built");
     this.eventHandler = new EventHandler(
       this.canvas,
@@ -58,7 +60,7 @@ export class Game {
     this.draw(0);
   }
 
-  public async draw(t: number) {
+  public draw(t: number) {
     //console.log(this.canvas);
     //console.log("DRAWING")
     this.gameState.players.forEach((player) => {
@@ -66,12 +68,8 @@ export class Game {
         console.log(player);
       }
 
-      this.displayDriver.draw(
-        this.gameState.gameObjects,
-        this.gameState.currentPlayerColor,
-      );
+      this.displayDriver.draw();
     });
-    await sleep(16);
     window.requestAnimationFrame((t) => {
       this.draw(t);
     });

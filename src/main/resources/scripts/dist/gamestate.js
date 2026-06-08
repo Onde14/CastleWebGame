@@ -1,5 +1,10 @@
 import { Soldier, Castle, Village } from "./objects.js";
 import { Vector } from "./vector.js";
+export var PlayerState;
+(function (PlayerState) {
+    PlayerState[PlayerState["Playing"] = 0] = "Playing";
+    PlayerState[PlayerState["Defeated"] = 1] = "Defeated";
+})(PlayerState || (PlayerState = {}));
 export class Player {
     id;
     ai;
@@ -7,6 +12,7 @@ export class Player {
     castles;
     villages;
     color;
+    state = PlayerState.Playing;
     constructor(ai, id, units, castles, villages, color) {
         this.id = id;
         this.ai = ai;
@@ -17,13 +23,12 @@ export class Player {
     }
 }
 export class Gamestate {
-    displayDriver;
     players = Array();
     gameObjects = new Map();
     currentPlayerId = "";
-    currentPlayerColor = "";
-    constructor(displayDriver) {
-        this.displayDriver = displayDriver;
+    currentPlayer = undefined;
+    clock = 0;
+    constructor() {
     }
     setCurrentPlayerId(clientId) {
         this.currentPlayerId = clientId;
@@ -32,9 +37,6 @@ export class Gamestate {
         console.log("PLAYERS1: ", players);
         let playerArray = new Array();
         players.forEach((player) => {
-            if (player.id == this.currentPlayerId) {
-                this.currentPlayerColor == player.color;
-            }
             const id = player.id;
             let newPlayer = new Player(false, player.id, new Array(), new Array(), new Array(), player.color);
             player.castles.forEach((castle) => {
@@ -61,6 +63,10 @@ export class Gamestate {
                 this.gameObjects.set(newSoldier.id, newSoldier);
             });
             playerArray.push(newPlayer);
+            if (newPlayer.id == this.currentPlayerId) {
+                this.currentPlayer = newPlayer;
+                console.log("if (player.id == this.currentPlayerId): ", this.currentPlayer);
+            }
         });
         this.players = playerArray;
         console.log("PLAYERS2: ", this.players);
@@ -81,7 +87,8 @@ export class Gamestate {
             console.log("NEW SOLDIER CREATED: ", new_soldier);
         });
     }
-    update(updates) {
+    update(updates, tick) {
+        this.clock = Math.trunc(tick / 100);
         updates.forEach((u) => {
             const object = this.gameObjects.get(u.id);
             //console.log(2, u, u, u.id, u.pos);
@@ -113,18 +120,18 @@ export class Gamestate {
                 }
             }
             else {
-                console.log("ELSE: ", object);
+                //console.log("ELSE: ", object)
                 if (updates.length != 0)
                     console.log(1, updates);
                 if (object instanceof Castle) {
                     const castleOwner = this.players.find((p) => p.id == u.playerId);
                     const castle = castleOwner.castles.find((c) => c.id == u.id);
                     if (u.health !== undefined) {
-                        console.log("castle.health", castle.health, "u.health", u.health);
+                        //console.log("castle.health",castle.health, "u.health",u.health)
                         castle.health = u.health;
                     }
                     if (u.newOwner !== undefined) {
-                        console.log("NEWOWNER: ", object);
+                        //console.log("NEWOWNER: ",object)
                         const newOwner = this.players.find((p) => p.id == u.newOwner);
                         castleOwner.castles = castleOwner.castles.filter(c => c.id != u.id);
                         newOwner.castles.push(castle);
@@ -134,13 +141,14 @@ export class Gamestate {
                 }
             }
         });
+        if (this.currentPlayer?.castles.length == 0)
+            this.currentPlayer.state = PlayerState.Defeated;
     }
     move_commands() {
         this.players.forEach((player) => {
             let moving_units = player.units?.filter((unit) => unit.moving == true);
             moving_units.forEach((unit, i) => {
                 if (unit.has_found_target()) {
-                    console.log("Unit", unit.id, " reached target [", unit.pos.x, ",", unit.pos.y, "]");
                     unit.moving = false;
                 }
                 else {

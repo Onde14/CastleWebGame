@@ -30,8 +30,8 @@ export class MessageHandler {
                     throw new Error("Unknown types in the message");
                 }
             case "UpdatedGameState":
-                if (msg.updates !== undefined) {
-                    this.eventHandler.updateGameStateEvent(msg.updates);
+                if (msg.updates !== undefined && msg.tick !== undefined) {
+                    this.eventHandler.updateGameStateEvent(msg.updates, msg.tick);
                 }
                 break;
             case "HelloMessage":

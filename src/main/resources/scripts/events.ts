@@ -82,8 +82,8 @@ export class EventHandler {
     this.gameState.createSoldiers(soldiers);
   }
 
-  public updateGameStateEvent(updates: any) {
-    this.gameState.update(updates);
+  public updateGameStateEvent(updates: any, tick: number) {
+    this.gameState.update(updates, tick);
   }
 
   public setCurrentPlayerId(clientId: string) {

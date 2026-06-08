@@ -1,12 +1,13 @@
 import { Soldier, Castle, Village, GameObject } from "./objects.js";
 import { SoldierConfig, CastleConfig, VillageConfig } from "./config.js";
-import { Player } from "./gamestate.js";
+import { Gamestate, Player, PlayerState } from "./gamestate.js";
 import type { Game } from "./game.js";
 import { type UserInterface, UIStates } from "./ui.js";
 
 export class DisplayDriver {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  gameState: Gamestate;
   gameWidth: number;
   gameHeight: number;
   renderWidthPositionRatio: number;
@@ -14,14 +15,17 @@ export class DisplayDriver {
   ui: UserInterface;
   constructor(
     ui: UserInterface,
+    gameState: Gamestate,
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D,
     gameWidth: number,
     gameHeight: number,
+
   ) {
     this.ui = ui;
     this.ctx = ctx;
     this.canvas = canvas;
+    this.gameState = gameState;
     this.gameWidth = gameWidth;
     this.gameHeight = gameHeight;
     this.renderWidthPositionRatio = this.canvas.width / this.gameWidth;
@@ -35,7 +39,7 @@ export class DisplayDriver {
     this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
   }
 
-  drawGame(gameObjects: Map<string, GameObject>, currentplayerColor: string) {
+  drawGame() {
     this.ctx.fillStyle = "#2F8619";
     this.ctx.fillRect(
       0,
@@ -49,15 +53,22 @@ export class DisplayDriver {
     this.ctx.fillRect(this.gameWidth / 2 - 5, 75, 10, this.gameHeight - 175);
     this.ctx.save();
     this.ctx.restore();*/
+    console.log("this.gameState.currentPlayer?.state: ",this.gameState.currentPlayer?.state)
+    if (this.gameState.currentPlayer?.state == PlayerState.Playing) {
+      this.ctx.font = "48px serif";
+      this.ctx.fillStyle = this.gameState.currentPlayer?.color!;
+      this.ctx.fillText(this.gameState.currentPlayer?.color!, 50, 50);
+    } else {
+      this.ctx.font = "60px serif";
+      this.ctx.fillStyle = "White";
+      this.ctx.fillText("Defeated", 50, 50);
+    }
 
-    this.ctx.font = "48px serif";
-    this.ctx.fillStyle = currentplayerColor;
-    this.ctx.fillText(currentplayerColor, 50, 50);
 
     let castles = Array<Castle>();
     let soldiers = Array<Soldier>();
     let villages = Array<Village>();
-    gameObjects.forEach((gameObject, key) => {
+    this.gameState.gameObjects.forEach((gameObject, key) => {
       if (gameObject instanceof Soldier) {
         soldiers.push(gameObject);
       }
@@ -157,14 +168,11 @@ export class DisplayDriver {
     });
   }
 
-  public draw(
-    gameObjects: Map<string, GameObject>,
-    currentplayerColor: string
-  ) {
+  public draw() {
     //console.log(this.ui.state)
     switch (this.ui.state) {
       case UIStates.Game:
-        this.drawGame(gameObjects, currentplayerColor)
+        this.drawGame()
         break;
       case UIStates.Menu:
 

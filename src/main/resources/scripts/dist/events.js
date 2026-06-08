@@ -65,8 +65,8 @@ export class EventHandler {
     responseAttackOrder(soldiers) {
         this.gameState.createSoldiers(soldiers);
     }
-    updateGameStateEvent(updates) {
-        this.gameState.update(updates);
+    updateGameStateEvent(updates, tick) {
+        this.gameState.update(updates, tick);
     }
     setCurrentPlayerId(clientId) {
         this.gameState.setCurrentPlayerId(clientId);
