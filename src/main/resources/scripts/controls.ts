@@ -55,20 +55,22 @@ export class Controls {
 
  // create_attack_unit_logic(start: Vector, target: Vector) {}
 
-  public mouseMove(mouse_pos: Vector, castles: Array<Castle>) {
+  public mouseMove(mouse_pos: Vector, castles: Array<Castle>, playerId: string) {
     if (!this.isSelecting) {
       return;
     }
     let targeting = false;
     castles.forEach((castle) => {
-      if (this.isMouseTargetingCastle(this.visualVector(castle.pos), mouse_pos)) {
-        if (!this.selected.has(castle.id)) {
-          castle.highlighted = true;
-          targeting = true;
-          return;
+      if (castle.owner != playerId) {
+        if (this.isMouseTargetingCastle(this.visualVector(castle.pos), mouse_pos)) {
+          if (!this.selected.has(castle.id)) {
+            castle.highlighted = true;
+            targeting = true;
+            return;
+          }
         }
+        castle.highlighted = false;
       }
-      castle.highlighted = false;
     });
     this.isTargetingEnemyCastle = targeting;
   }

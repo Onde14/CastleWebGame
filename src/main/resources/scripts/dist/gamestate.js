@@ -67,27 +67,26 @@ export class Gamestate {
     }
     createSoldiers(soldiers) {
         soldiers.forEach((soldier) => {
-            console.log("createSoldiers: 1");
+            //console.log("createSoldiers: 1")
             let new_soldier = new Soldier(new Vector(soldier.pos.x, soldier.pos.y), soldier.id, soldier.owner, soldier.ownerColor, soldier.health);
-            console.log("createSoldiers: 2");
+            //console.log("createSoldiers: 2")
             let attackerPlayer = this.players.find((player) => player.id == soldier.owner);
-            console.log("createSoldiers: 3");
+            //console.log("createSoldiers: 3")
             if (attackerPlayer !== undefined) {
                 attackerPlayer.units.push(new_soldier);
             }
-            console.log("createSoldiers: 4");
+            //console.log("createSoldiers: 4")
             new_soldier.give_target(new Vector(soldier.target.x, soldier.target.y));
             this.gameObjects.set(new_soldier.id, new_soldier);
             console.log("NEW SOLDIER CREATED: ", new_soldier);
         });
     }
     update(updates) {
-        console.log(1, updates);
         updates.forEach((u) => {
+            const object = this.gameObjects.get(u.id);
             //console.log(2, u, u, u.id, u.pos);
             if (u.state == 2) {
                 // console.log(3, u.id, this.gameObjects);
-                let object = this.gameObjects.get(u.id);
                 //console.log(object);
                 //console.log(4);
                 object.pos = new Vector(u.updatedPos.x, u.updatedPos.y);
@@ -111,6 +110,27 @@ export class Gamestate {
                     const castle = player.castles.find((c) => c.owner == u.playerId);
                     castle.villages = castle.villages.filter((v) => v.id != u.id);
                     this.gameObjects.delete(u.id);
+                }
+            }
+            else {
+                console.log("ELSE: ", object);
+                if (updates.length != 0)
+                    console.log(1, updates);
+                if (object instanceof Castle) {
+                    const castleOwner = this.players.find((p) => p.id == u.playerId);
+                    const castle = castleOwner.castles.find((c) => c.id == u.id);
+                    if (u.health !== undefined) {
+                        console.log("castle.health", castle.health, "u.health", u.health);
+                        castle.health = u.health;
+                    }
+                    if (u.newOwner !== undefined) {
+                        console.log("NEWOWNER: ", object);
+                        const newOwner = this.players.find((p) => p.id == u.newOwner);
+                        castleOwner.castles = castleOwner.castles.filter(c => c.id != u.id);
+                        newOwner.castles.push(castle);
+                        castle.owner = newOwner.id;
+                        castle.ownerColor = newOwner.color;
+                    }
                 }
             }
         });

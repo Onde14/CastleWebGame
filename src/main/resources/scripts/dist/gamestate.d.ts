@@ -19,7 +19,7 @@ export declare class Gamestate {
     setCurrentPlayerId(clientId: string): void;
     buildGameState(players: any): void;
     createSoldiers(soldiers: any): void;
-    update(updates: any): void;
+    update(updates: Array<any>): void;
     private move_commands;
 }
 //# sourceMappingURL=gamestate.d.ts.map

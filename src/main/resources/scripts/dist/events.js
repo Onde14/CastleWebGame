@@ -48,7 +48,7 @@ export class EventHandler {
             this.gameState.players.forEach((player) => {
                 castles = castles.concat(player.castles);
             });
-            this.controls.mouseMove(target, castles);
+            this.controls.mouseMove(target, castles, this.gameState.currentPlayerId);
         }
     }
     startConnection() {

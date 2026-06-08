@@ -82,6 +82,7 @@ implicit val encoder: JsonEncoder[BuildGameDataMessage] =
 final case class UpdateData (
   id: UUID,
   playerId: Option[UUID],
+  newOwner: Option[UUID],
   updatedPos: Option[Pos],
   state: Option[Int],
   health: Option[Int],

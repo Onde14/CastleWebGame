@@ -111,7 +111,7 @@ export class Gamestate {
 
   public createSoldiers(soldiers: any) {
     soldiers.forEach((soldier: any) => {
-      console.log("createSoldiers: 1")
+      //console.log("createSoldiers: 1")
       let new_soldier = new Soldier(
         new Vector(soldier.pos.x, soldier.pos.y),
         soldier.id,
@@ -119,17 +119,17 @@ export class Gamestate {
         soldier.ownerColor,
         soldier.health,
       );
-      console.log("createSoldiers: 2")
+      //console.log("createSoldiers: 2")
 
       let attackerPlayer = this.players.find(
         (player) => player.id == soldier.owner,
       );
-      console.log("createSoldiers: 3")
+      //console.log("createSoldiers: 3")
 
       if (attackerPlayer !== undefined) {
         attackerPlayer.units.push(new_soldier);
       }
-      console.log("createSoldiers: 4")
+      //console.log("createSoldiers: 4")
 
       new_soldier.give_target(new Vector(soldier.target.x, soldier.target.y));
       this.gameObjects.set(new_soldier.id, new_soldier);
@@ -137,13 +137,13 @@ export class Gamestate {
     });
   }
 
-  public update(updates: any) {
-    console.log(1, updates);
+  public update(updates: Array<any>) {
     updates.forEach((u: any) => {
+      const object: any = this.gameObjects.get(u.id);
+
       //console.log(2, u, u, u.id, u.pos);
       if (u.state == 2) {
         // console.log(3, u.id, this.gameObjects);
-        let object: any = this.gameObjects.get(u.id);
         //console.log(object);
         //console.log(4);
         object.pos = new Vector(u.updatedPos.x, u.updatedPos.y);
@@ -151,14 +151,14 @@ export class Gamestate {
         let object: any = this.gameObjects.get(u.id);
         if (object instanceof Soldier) {
           const player = this.players.find((p) => p.id == u.playerId);
-          console.log("PLAYER",player)
+          console.log("PLAYER", player)
           if (player !== undefined) {
             //console.log(6, player);
             player.units = player.units.filter((unit) => unit.id != u.id);
             this.gameObjects.delete(u.id);
             //console.log(6, player.units, this.gameObjects);
           }
-          console.log("IS SOLDIER",object)
+          console.log("IS SOLDIER", object)
         }
         if (object instanceof Village) {
           console.log("IS VILLAGE", object)
@@ -166,6 +166,27 @@ export class Gamestate {
           const castle = player.castles.find((c) => c.owner == u.playerId)!;
           castle.villages = castle.villages.filter((v) => v.id != u.id)
           this.gameObjects.delete(u.id);
+        }
+      }
+      else {
+        console.log("ELSE: ", object)
+        if (updates.length != 0)console.log(1, updates);
+
+        if (object instanceof Castle) {
+          const castleOwner = this.players.find((p) => p.id == u.playerId)!;
+          const castle = castleOwner.castles.find((c) => c.id == u.id)!;
+          if (u.health !== undefined) {
+            console.log("castle.health",castle.health, "u.health",u.health)
+            castle.health = u.health;
+          }
+          if (u.newOwner !== undefined) {
+            console.log("NEWOWNER: ",object)
+            const newOwner = this.players.find((p) => p.id == u.newOwner)!;
+            castleOwner.castles = castleOwner.castles.filter(c => c.id != u.id);
+            newOwner.castles.push(castle);
+            castle.owner = newOwner.id;
+            castle.ownerColor = newOwner.color;
+          }
         }
       }
     });
