@@ -6,8 +6,9 @@ export var UIStates;
     UIStates[UIStates["Session"] = 2] = "Session";
     UIStates[UIStates["Game"] = 3] = "Game";
     UIStates[UIStates["Leaderboard"] = 4] = "Leaderboard";
+    UIStates[UIStates["Matchmaking"] = 5] = "Matchmaking";
 })(UIStates || (UIStates = {}));
-var ButtonEvent;
+export var ButtonEvent;
 (function (ButtonEvent) {
     ButtonEvent[ButtonEvent["Matchmake"] = 0] = "Matchmake";
 })(ButtonEvent || (ButtonEvent = {}));
@@ -30,16 +31,24 @@ export class UserInterface {
     gameHeight;
     state = UIStates.Menu;
     menu;
+    matchMaking;
     constructor(gameWidth, gameHeight) {
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
-        this.menu = this.menuConstruction();
+        this.menu = this.menuConstructor();
+        this.matchMaking = this.matchMakingConstructor();
     }
-    menuConstruction() {
+    menuConstructor() {
         let menu = new Array();
         const matchmakingButton = new Button(this.gameWidth * 0.8, this.gameHeight * 0.2, new Vector(this.gameWidth * 0.1, this.gameHeight / 2), ButtonEvent.Matchmake, "MATCHMAKE");
         menu.push(matchmakingButton);
         return menu;
+    }
+    matchMakingConstructor() {
+        let matchmaking = new Array();
+        const matchmakingButton = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.1, this.gameHeight / 2 * 1.1), ButtonEvent.Matchmake, "CANCEL");
+        matchmaking.push(matchmakingButton);
+        return matchmaking;
     }
 }
 //# sourceMappingURL=ui.js.map

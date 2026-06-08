@@ -60,12 +60,11 @@ class Lobby(h: Hub[String],g: GameState):
   def runGame() =
       println("START GAME!")
         for {
-          //hub <- ZIO.service[Hub[String]]
           gameStatus <- ZIO.succeed(gameState.isGameWon())
           _ <- ZIO.debug(gameStatus)
           _ <- ZIO.when(gameStatus){
             for {
-              _ <- ZIO.debug("GAME IS DONE!")
+              _ <- ZIO.debug(s"GAME: IS DONE:")
               _ <- hub.publish(GameEndMessage("GameEndMessage",gameState.winner).toJson)
               _ <- ZIO.interrupt
             } yield ()
@@ -74,7 +73,6 @@ class Lobby(h: Hub[String],g: GameState):
           response <- ZIO.succeed(UpdatedGameDataMessage("UpdatedGameState",updates,tick).toJson)
           _ <- ZIO.succeed(if tick % 401 == 0 && tick != 0 then tick = 0 else tick += 1)
 
-          //_ <- ZIO.debug(s"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:,     $response")
 
           _ <- ZIO.when(response != null) (hub.publish(response))
         // _ <- ZIO.succeed(gameState.changes.clear())

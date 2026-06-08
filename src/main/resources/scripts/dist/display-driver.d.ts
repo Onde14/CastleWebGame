@@ -9,10 +9,13 @@ export declare class DisplayDriver {
     renderWidthPositionRatio: number;
     renderHeightPositionRatio: number;
     ui: UserInterface;
+    matchmakingDots: number;
+    iterator: number;
     constructor(ui: UserInterface, gameState: Gamestate, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, gameWidth: number, gameHeight: number);
     resize(): void;
     drawGame(): void;
     drawMenu(): void;
+    drawMatchmaking(): void;
     draw(): void;
 }
 //# sourceMappingURL=display-driver.d.ts.map

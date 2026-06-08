@@ -4,7 +4,7 @@ import { Vector } from "./vector.js";
 import type { Controls } from "./controls.js";
 import type { DisplayDriver } from "./display-driver.js";
 import { MessageHandler } from "./messagehandling.js";
-import { UIStates, UserInterface } from "./ui.js";
+import { UIStates, UserInterface, ButtonEvent, Button } from "./ui.js";
 
 export class EventHandler {
   canvas: HTMLCanvasElement;
@@ -27,11 +27,23 @@ export class EventHandler {
     this.ui = ui;
   }
 
+
+
   mouseDown(e: MouseEvent) {
     const target = new Vector(e.clientX, e.clientY);
     switch (this.ui.state) {
       case UIStates.Menu:
         const res = this.controls.mouseDown(target);
+        if (res) {
+          switch (res.event) {
+            case ButtonEvent.Matchmake:
+              this.ui.state = UIStates.Matchmaking;
+              this.startConnection();
+              break;
+            default:
+              break;
+          }
+        }
         break;
       case UIStates.Game:
         console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);

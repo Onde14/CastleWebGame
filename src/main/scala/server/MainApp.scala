@@ -15,20 +15,9 @@ import zio.Exit
 import scala.collection.mutable.ArrayBuffer
 import zio.Clock.ClockLive
 
-
-case class LobbyRunnables(
-  lobbyOutGoings: Set[Fiber.Runtime[Throwable, Unit]] = Set.empty,
-  lobbyGameRun: Fiber.Runtime[Nothing, Unit] = null,
-)
-
-
 object MainApp extends ZIOAppDefault {
   val lobbiesRef = Ref.make(Set.empty[Lobby])
   val lobbiesLayer = ZLayer.fromZIO(lobbiesRef)
-
-  val lobbyoutFibersRef = Ref.make(Set.empty[ZIO[Any, Nothing, Fiber.Runtime[Throwable, Unit]]])
-  val lobbyoutFibersLayer = ZLayer.fromZIO(lobbyoutFibersRef)
-
 
   val clientsInLobbiesRef = Ref.make(Map.empty[UUID,Lobby])
   val clientsInLobbiesLayer = ZLayer.fromZIO(clientsInLobbiesRef)
@@ -77,7 +66,6 @@ object MainApp extends ZIOAppDefault {
 
           lobbiesRef <- ZIO.service[Ref[Set[Lobby]]]
           clientsInLobbiesRef <- ZIO.service[Ref[Map[UUID, Lobby]]]
-          lobbyoutFibersRef <- ZIO.service[Ref[Set[ZIO[Any, Nothing, Fiber.Runtime[Throwable, Unit]]]]]
 
 
          // hub   <- ZIO.service[Hub[String]]
@@ -406,5 +394,5 @@ object MainApp extends ZIOAppDefault {
 
   override def run =
     Server.serve(routes)
-    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer, lobbyoutFibersLayer)
+    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer)
 }

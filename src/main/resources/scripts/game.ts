@@ -37,7 +37,6 @@ export class Game {
       this.gameHeight,
     );
     this.displayDriver.resize();
-    console.log("Game built");
     this.eventHandler = new EventHandler(
       this.canvas,
       this.gameState,
@@ -57,23 +56,17 @@ export class Game {
 
   public run() {
     this.debug_print();
-    this.eventHandler.startConnection();
     this.draw(0);
   }
 
   public draw(t: number) {
     //console.log(this.canvas);
     //console.log("DRAWING")
-    this.gameState.players.forEach((player) => {
-      if (t % 1000 == 0) {
-        console.log(player);
-      }
-
-      this.displayDriver.draw();
-    });
+    this.displayDriver.draw();
     window.requestAnimationFrame((t) => {
       this.draw(t);
     });
+
   }
 }
 

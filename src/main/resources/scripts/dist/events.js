@@ -1,6 +1,6 @@
 import { Vector } from "./vector.js";
 import { MessageHandler } from "./messagehandling.js";
-import { UIStates } from "./ui.js";
+import { UIStates, ButtonEvent } from "./ui.js";
 export class EventHandler {
     canvas;
     gameState;
@@ -20,6 +20,16 @@ export class EventHandler {
         switch (this.ui.state) {
             case UIStates.Menu:
                 const res = this.controls.mouseDown(target);
+                if (res) {
+                    switch (res.event) {
+                        case ButtonEvent.Matchmake:
+                            this.ui.state = UIStates.Matchmaking;
+                            this.startConnection();
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 break;
             case UIStates.Game:
                 console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);

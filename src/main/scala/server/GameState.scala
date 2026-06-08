@@ -124,7 +124,7 @@ class GameState:
   def isGameWon(): Boolean =
     val owner = castles(0).owner
     val oneOwnerCastle = castles.find(c1 => c1.owner != owner).getOrElse(null)
-    println(s"oneOwnerCastle: $oneOwnerCastle")
+    //println(s"oneOwnerCastle: $oneOwnerCastle")
     val res = oneOwnerCastle == null
     if res then winner = owner
     return res

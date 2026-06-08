@@ -11,6 +11,8 @@ export class DisplayDriver {
     renderWidthPositionRatio;
     renderHeightPositionRatio;
     ui;
+    matchmakingDots = 1;
+    iterator = 0;
     constructor(ui, gameState, canvas, ctx, gameWidth, gameHeight) {
         this.ui = ui;
         this.ctx = ctx;
@@ -126,7 +128,6 @@ export class DisplayDriver {
         this.ctx.save();
         this.ctx.restore();
         this.ui.menu.forEach(b => {
-            const buttonRatio = 0.95;
             this.ctx.fillStyle = "black";
             this.ctx.fillRect((b.pos.x * this.renderWidthPositionRatio), (b.pos.y * this.renderHeightPositionRatio), (b.width * this.renderWidthPositionRatio), (b.height * this.renderHeightPositionRatio));
             this.ctx.save();
@@ -142,11 +143,66 @@ export class DisplayDriver {
             this.ctx.restore();
         });
     }
+    drawMatchmaking() {
+        let matchmakingText = "MATCHMAKING";
+        var i;
+        for (i = 1; i < this.matchmakingDots; i++) {
+            matchmakingText += ".";
+        }
+        console.log("this.matchmakingDots", this.matchmakingDots);
+        if (Math.trunc(this.iterator / 90) > this.matchmakingDots) {
+            this.matchmakingDots++;
+        }
+        if (Math.trunc(this.iterator / 450) == 1) {
+            this.iterator = 0;
+            this.matchmakingDots = 1;
+        }
+        this.iterator++;
+        console.log("MATCHMAKING DRAWING");
+        this.ctx.fillStyle = "#407231";
+        this.ctx.fillRect(0, 0, this.gameWidth * this.renderWidthPositionRatio, this.gameHeight * this.renderHeightPositionRatio);
+        this.ctx.save();
+        this.ctx.restore();
+        this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText("CASTLEGAME", this.canvas.width * 0.205, this.canvas.height * 0.205);
+        this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText("CASTLEGAME", this.canvas.width * 0.2, this.canvas.height * 0.2);
+        this.ctx.save();
+        this.ctx.restore();
+        this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(matchmakingText, this.canvas.width * 0.105, this.canvas.height * 0.405);
+        this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText(matchmakingText, this.canvas.width * 0.1, this.canvas.height * 0.4);
+        this.ctx.save();
+        this.ctx.restore();
+        this.ui.matchMaking.forEach(b => {
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect((b.pos.x * this.renderWidthPositionRatio), (b.pos.y * this.renderHeightPositionRatio), (b.width * this.renderWidthPositionRatio), (b.height * this.renderHeightPositionRatio));
+            this.ctx.save();
+            this.ctx.restore();
+            this.ctx.fillStyle = "white";
+            this.ctx.fillRect((b.pos.x * this.renderWidthPositionRatio), (b.pos.y * this.renderHeightPositionRatio), (b.width * this.renderWidthPositionRatio), (b.height * this.renderHeightPositionRatio));
+            this.ctx.save();
+            this.ctx.restore();
+            this.ctx.font = this.renderWidthPositionRatio * 90 + "px serif";
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(b.text, ((b.pos.x * 1.1) * this.renderWidthPositionRatio), ((b.pos.y * 1.13) * this.renderHeightPositionRatio));
+            this.ctx.save();
+            this.ctx.restore();
+        });
+    }
     draw() {
         //console.log(this.ui.state)
         switch (this.ui.state) {
             case UIStates.Game:
                 this.drawGame();
+                break;
+            case UIStates.Matchmaking:
+                this.drawMatchmaking();
                 break;
             case UIStates.Menu:
                 this.drawMenu();

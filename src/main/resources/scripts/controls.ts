@@ -101,14 +101,17 @@ export class Controls {
 
   public mouseDown(target: Vector, castles: Array<Castle> = Array<Castle>(), playerId: string = "") {
     if (this.ui.state == UIStates.Menu) {
+      let button: any = null
       this.ui.menu.forEach(b => {
         //console.log("b.pos:",b.pos,"target:",target)
         if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
-          console.log("CLICKED BUTTON:", b)
+          button = b
+          return;
         } else {
           console.log("NO BUTTON")
         }
       });
+      return button
     }
 
     if (this.ui.state != UIStates.Game &&

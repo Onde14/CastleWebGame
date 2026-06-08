@@ -4,9 +4,10 @@ export declare enum UIStates {
     SessionOptions = 1,
     Session = 2,
     Game = 3,
-    Leaderboard = 4
+    Leaderboard = 4,
+    Matchmaking = 5
 }
-declare enum ButtonEvent {
+export declare enum ButtonEvent {
     Matchmake = 0
 }
 export declare class Button {
@@ -22,8 +23,9 @@ export declare class UserInterface {
     gameHeight: number;
     state: UIStates;
     menu: Array<Button>;
+    matchMaking: Array<Button>;
     constructor(gameWidth: number, gameHeight: number);
-    menuConstruction(): Button[];
+    menuConstructor(): Button[];
+    matchMakingConstructor(): Button[];
 }
-export {};
 //# sourceMappingURL=ui.d.ts.map

@@ -26,7 +26,6 @@ export class Game {
         this.controls = new Controls(this.gameWidth, this.gameHeight, this.gameState, this.ui);
         this.displayDriver = new DisplayDriver(this.ui, this.gameState, this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
-        console.log("Game built");
         this.eventHandler = new EventHandler(this.canvas, this.gameState, this.controls, this.displayDriver, this.ui);
         this.eventHandler.eventHandling();
     }
@@ -38,18 +37,12 @@ export class Game {
     }
     run() {
         this.debug_print();
-        this.eventHandler.startConnection();
         this.draw(0);
     }
     draw(t) {
         //console.log(this.canvas);
         //console.log("DRAWING")
-        this.gameState.players.forEach((player) => {
-            if (t % 1000 == 0) {
-                console.log(player);
-            }
-            this.displayDriver.draw();
-        });
+        this.displayDriver.draw();
         window.requestAnimationFrame((t) => {
             this.draw(t);
         });
