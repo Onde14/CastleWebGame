@@ -10,15 +10,18 @@ export declare class EventHandler {
     displayDriver: DisplayDriver;
     messageHandler?: MessageHandler;
     ui: UserInterface;
+    socketOpen: boolean;
     constructor(canvas: HTMLCanvasElement, gameState: Gamestate, controls: Controls, displayDriver: DisplayDriver, ui: UserInterface);
     mouseDown(e: MouseEvent): void;
     mouseMove(e: MouseEvent): void;
     startConnection(): void;
+    closeConnection(): void;
     eventHandling(): void;
     buildGameStateEvent(players: any): void;
     responseAttackOrder(soldiers: any): void;
     updateGameStateEvent(updates: any, tick: number): void;
     setCurrentPlayerId(clientId: string): void;
     gameEnd(winner: string): void;
+    sendTick(): void;
 }
 //# sourceMappingURL=events.d.ts.map

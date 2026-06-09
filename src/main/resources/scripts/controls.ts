@@ -99,21 +99,21 @@ export class Controls {
     this.isTargetingEnemyCastle = targeting;
   }
 
-  public mouseDown(target: Vector, castles: Array<Castle> = Array<Castle>(), playerId: string = "") {
-    if (this.ui.state == UIStates.Menu) {
-      let button: any = null
-      this.ui.menu.forEach(b => {
-        //console.log("b.pos:",b.pos,"target:",target)
-        if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
-          button = b
-          return;
-        } else {
-          console.log("NO BUTTON")
-        }
-      });
-      return button
-    }
+  public mouseDownButton(target: Vector, buttons: Array<Button>) {
+    let button: any = null
+    buttons.forEach(b => {
+      //console.log("b.pos:",b.pos,"target:",target)
+      if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
+        button = b
+        return;
+      } else {
+        console.log("NO BUTTON")
+      }
+    });
+    return button
+  }
 
+  public mouseDownGame(target: Vector, castles: Array<Castle> = Array<Castle>(), playerId: string = "") {
     if (this.ui.state != UIStates.Game &&
       this.gameState.currentPlayer?.state != PlayerState.Playing &&
       this.gameState.state == GameStatus.Ended) {

@@ -8,6 +8,7 @@ export class EventHandler {
     displayDriver;
     messageHandler;
     ui;
+    socketOpen = false;
     constructor(canvas, gameState, controls, displayDriver, ui) {
         this.canvas = canvas;
         this.gameState = gameState;
@@ -19,12 +20,25 @@ export class EventHandler {
         const target = new Vector(e.clientX, e.clientY);
         switch (this.ui.state) {
             case UIStates.Menu:
-                const res = this.controls.mouseDown(target);
-                if (res) {
-                    switch (res.event) {
+                let resMenu = this.controls.mouseDownButton(target, this.ui.menu);
+                if (resMenu) {
+                    switch (resMenu.event) {
                         case ButtonEvent.Matchmake:
                             this.ui.state = UIStates.Matchmaking;
                             this.startConnection();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                break;
+            case UIStates.Matchmaking:
+                let resMatchmake = this.controls.mouseDownButton(target, this.ui.matchMaking);
+                if (resMatchmake) {
+                    switch (resMatchmake.event) {
+                        case ButtonEvent.Menu:
+                            this.closeConnection();
+                            this.ui.state = UIStates.Menu;
                             break;
                         default:
                             break;
@@ -42,7 +56,7 @@ export class EventHandler {
                     castles = castles.concat(player.castles);
                 });
                 //console.log("CASTLES: ", castles);
-                const orders = this.controls.mouseDown(target, castles, currPlayer);
+                const orders = this.controls.mouseDownGame(target, castles, currPlayer);
                 if (orders === undefined) {
                     console.log("NO ORDERS.");
                 }
@@ -74,7 +88,18 @@ export class EventHandler {
         }
     }
     startConnection() {
-        this.messageHandler = new MessageHandler(this);
+        if (this.messageHandler === undefined) {
+            this.messageHandler = new MessageHandler(this);
+        }
+        else {
+            this.messageHandler.webSocketDriver.openConnection();
+        }
+    }
+    closeConnection() {
+        if (this.messageHandler !== undefined) {
+            console.log("(this.messageHandler !== undefined");
+            this.messageHandler.webSocketDriver.closeConnection();
+        }
     }
     eventHandling() {
         this.canvas.addEventListener("mousedown", (e) => this.mouseDown(e));
@@ -95,6 +120,12 @@ export class EventHandler {
     }
     gameEnd(winner) {
         this.gameState.gameEnd(winner);
+    }
+    sendTick() {
+        const tick = {
+            msgType: "ClientTick",
+        };
+        this.messageHandler?.send(tick);
     }
 }
 //# sourceMappingURL=events.js.map

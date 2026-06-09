@@ -6,6 +6,7 @@ export declare class MessageHandler {
     myClientId: string;
     myLobbyId: string;
     constructor(eventHandler: EventHandler);
+    open(): void;
     private handleResponse;
     incoming(msg: string): void;
     send(object: any): void;

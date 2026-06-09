@@ -78,16 +78,16 @@ object MainApp extends ZIOAppDefault {
 
             case Read(WebSocketFrame.Text(text)) =>
               for {
-                _ <- ZIO.succeed(println(s"GOT MESSAGE: $text"))
+               // _ <- ZIO.succeed(println(s"GOT MESSAGE: $text"))
                 lobbies <- lobbiesRef.get
                 messageEither <- ZIO.succeed(text.fromJson[Message])
-                _ <- ZIO.debug(s"MESSAGEEITHER: $messageEither")
+               // _ <- ZIO.debug(s"MESSAGEEITHER: $messageEither")
                 message <- messageEither match
                             case Right(value) =>
                               ZIO.succeed(value)
                             case Left(value) =>
                               ZIO.succeed(null)
-                _ <- ZIO.debug(s"MESSAGEHANDLED: $message")
+              //  _ <- ZIO.debug(s"MESSAGEHANDLED: $message")
                 _ <- ZIO.when(message != null) { message match
                               case attackOrder: RequestAttackOrderMessage =>
                                   for {
@@ -112,6 +112,11 @@ object MainApp extends ZIOAppDefault {
 
 
                                   } yield ()
+                              case clientOrder: ClientTick =>
+                                for {
+                                  _ <- ZIO.debug(s"Got a Tick from ${clientOrder.clientId}")
+                                  _ <- ZIO.unit
+                                } yield ()
                               case null =>
                                 ZIO.succeed(null)
                 }

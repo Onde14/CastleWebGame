@@ -11,6 +11,7 @@ export enum UIStates {
 
 export enum ButtonEvent {
   Matchmake,
+  Menu,
 }
 
 export class Button {
@@ -59,7 +60,7 @@ export class UserInterface {
       this.gameWidth * 0.4,
       this.gameHeight * 0.1,
       new Vector(this.gameWidth * 0.1,this.gameHeight / 2 *1.1),
-      ButtonEvent.Matchmake,
+      ButtonEvent.Menu,
       "CANCEL")
     matchmaking.push(matchmakingButton)
     return matchmaking;

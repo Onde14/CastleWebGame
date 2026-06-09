@@ -11,6 +11,7 @@ export var UIStates;
 export var ButtonEvent;
 (function (ButtonEvent) {
     ButtonEvent[ButtonEvent["Matchmake"] = 0] = "Matchmake";
+    ButtonEvent[ButtonEvent["Menu"] = 1] = "Menu";
 })(ButtonEvent || (ButtonEvent = {}));
 export class Button {
     width;
@@ -46,7 +47,7 @@ export class UserInterface {
     }
     matchMakingConstructor() {
         let matchmaking = new Array();
-        const matchmakingButton = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.1, this.gameHeight / 2 * 1.1), ButtonEvent.Matchmake, "CANCEL");
+        const matchmakingButton = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.1, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "CANCEL");
         matchmaking.push(matchmakingButton);
         return matchmaking;
     }

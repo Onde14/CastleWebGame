@@ -61,7 +61,7 @@ class Lobby(h: Hub[String],g: GameState):
       println("START GAME!")
         for {
           gameStatus <- ZIO.succeed(gameState.isGameWon())
-          _ <- ZIO.debug(gameStatus)
+          //_ <- ZIO.debug(gameStatus)
           _ <- ZIO.when(gameStatus){
             for {
               _ <- ZIO.debug(s"GAME: IS DONE:")

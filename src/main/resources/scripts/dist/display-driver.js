@@ -149,7 +149,7 @@ export class DisplayDriver {
         for (i = 1; i < this.matchmakingDots; i++) {
             matchmakingText += ".";
         }
-        console.log("this.matchmakingDots", this.matchmakingDots);
+        //console.log("this.matchmakingDots",this.matchmakingDots)
         if (Math.trunc(this.iterator / 90) > this.matchmakingDots) {
             this.matchmakingDots++;
         }
@@ -158,7 +158,7 @@ export class DisplayDriver {
             this.matchmakingDots = 1;
         }
         this.iterator++;
-        console.log("MATCHMAKING DRAWING");
+        //console.log("MATCHMAKING DRAWING")
         this.ctx.fillStyle = "#407231";
         this.ctx.fillRect(0, 0, this.gameWidth * this.renderWidthPositionRatio, this.gameHeight * this.renderHeightPositionRatio);
         this.ctx.save();

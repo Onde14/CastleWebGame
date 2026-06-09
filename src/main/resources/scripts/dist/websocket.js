@@ -1,5 +1,5 @@
 export class WebSocketDriver {
-    open = false;
+    isOpen = false;
     wsUri;
     webSocket;
     messageHandler;
@@ -7,28 +7,44 @@ export class WebSocketDriver {
         this.wsUri = "ws://localhost:8080/ws";
         this.webSocket = new WebSocket(this.wsUri);
         this.messageHandler = messageHandler;
-        this.webSocket.onopen = (event) => {
-            console.log("Connected to ZIO server!", event);
-            this.sendMessage(JSON.stringify({ msgType: "HelloMessage" }));
-        };
-        this.webSocket.onmessage = (event) => {
+        this.createListeners();
+    }
+    createListeners() {
+        // Connection opened
+        this.webSocket?.addEventListener("open", (event) => {
+            this.webSocket?.send("Hello Server!");
+        });
+        // Listen for messages
+        this.webSocket?.addEventListener("message", (event) => {
+            console.log("Message from server:", event.data);
             this.messageHandler.incoming(event.data);
-        };
-        this.webSocket.onclose = (event) => {
-            console.log("Connection closed", event.reason);
-        };
-        this.webSocket.onerror = (error) => {
-            console.error("WebSocket Error:", error);
-        };
+        });
+        // Handle errors
+        this.webSocket?.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
+        });
+        // Handle disconnection
+        this.webSocket?.addEventListener("close", (event) => {
+            if (event.wasClean) {
+                console.log(`Closed cleanly, code=${event.code}, reason=${event.reason}`);
+            }
+            else {
+                console.log("Connection died");
+            }
+        });
     }
     sendMessage(message) {
-        if (this.webSocket.readyState === WebSocket.OPEN) {
-            this.webSocket.send(message);
-            // console.log("Message sent to server!")
-        }
-        else {
-            console.error("Socket is not open.");
-        }
+        this.webSocket?.send(message);
+        // console.log("Message sent to server!")
+    }
+    closeConnection() {
+        this.webSocket?.close();
+        //this.webSocket = null;
+        console.log("Closed connection");
+    }
+    openConnection() {
+        this.webSocket = new WebSocket(this.wsUri);
+        console.log("Opened connection");
     }
 }
 //# sourceMappingURL=websocket.js.map

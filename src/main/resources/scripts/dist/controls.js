@@ -87,21 +87,21 @@ export class Controls {
         });
         this.isTargetingEnemyCastle = targeting;
     }
-    mouseDown(target, castles = Array(), playerId = "") {
-        if (this.ui.state == UIStates.Menu) {
-            let button = null;
-            this.ui.menu.forEach(b => {
-                //console.log("b.pos:",b.pos,"target:",target)
-                if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
-                    button = b;
-                    return;
-                }
-                else {
-                    console.log("NO BUTTON");
-                }
-            });
-            return button;
-        }
+    mouseDownButton(target, buttons) {
+        let button = null;
+        buttons.forEach(b => {
+            //console.log("b.pos:",b.pos,"target:",target)
+            if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
+                button = b;
+                return;
+            }
+            else {
+                console.log("NO BUTTON");
+            }
+        });
+        return button;
+    }
+    mouseDownGame(target, castles = Array(), playerId = "") {
         if (this.ui.state != UIStates.Game &&
             this.gameState.currentPlayer?.state != PlayerState.Playing &&
             this.gameState.state == GameStatus.Ended) {

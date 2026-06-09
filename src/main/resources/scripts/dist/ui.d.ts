@@ -8,7 +8,8 @@ export declare enum UIStates {
     Matchmaking = 5
 }
 export declare enum ButtonEvent {
-    Matchmake = 0
+    Matchmake = 0,
+    Menu = 1
 }
 export declare class Button {
     width: number;

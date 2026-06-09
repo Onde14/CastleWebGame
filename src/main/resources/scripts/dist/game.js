@@ -43,6 +43,11 @@ export class Game {
         //console.log(this.canvas);
         //console.log("DRAWING")
         this.displayDriver.draw();
+        //console.log((Math.trunc(t % 5000)))
+        if (Math.trunc(t % 5000) > 4993) {
+            console.log((Math.trunc(t % 5000) < 4993));
+            this.eventHandler.sendTick();
+        }
         window.requestAnimationFrame((t) => {
             this.draw(t);
         });

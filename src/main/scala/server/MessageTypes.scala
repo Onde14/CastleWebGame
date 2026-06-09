@@ -57,6 +57,17 @@ object RequestAttackOrderMessage {
     DeriveJsonDecoder.gen[RequestAttackOrderMessage]
 }
 
+final case class ClientTick (
+  msgType: String,
+  clientId: UUID,
+  lobbyId: UUID
+) extends Message
+
+object ClientTick {
+  implicit val decoder: JsonDecoder[ClientTick] =
+    DeriveJsonDecoder.gen[ClientTick]
+}
+
 final case class ResponseAttackOrderMessage (
   msgType: String,
   soldiers: List[Soldier],
