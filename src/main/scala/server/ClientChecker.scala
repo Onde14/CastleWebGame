@@ -11,7 +11,7 @@ object ClientChecker {
     for {
       _ <- (
         for {
-          _ <- ZIO.debug(s"isClientAlive: Checking on $clientId")
+          //_ <- ZIO.debug(s"isClientAlive: Checking on $clientId")
           clientStatus <- clientStatusRef.get
           status = clientStatus.get(clientId).getOrElse(false)
           _ <- ZIO.when(!status){

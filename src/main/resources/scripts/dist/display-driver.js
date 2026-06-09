@@ -1,5 +1,5 @@
 import { Soldier, Castle, Village } from "./objects.js";
-import { SoldierConfig, CastleConfig, VillageConfig } from "./config.js";
+import { SoldierConfig, CastleConfig, VillageConfig, ClockSize } from "./config.js";
 import { GameStatus, PlayerState } from "./gamestate.js";
 import { UIStates } from "./ui.js";
 export class DisplayDriver {
@@ -29,33 +29,39 @@ export class DisplayDriver {
         this.renderWidthPositionRatio = this.canvas.width / this.gameWidth;
         this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
     }
+    drawPointer() {
+        const sin = Math.sin(Math.PI / 6);
+        const cos = Math.cos(Math.PI / 6);
+        this.ctx.translate(this.gameWidth * 0.05 * this.renderWidthPositionRatio, this.gameHeight * 0.1 * this.renderHeightPositionRatio);
+        let c = 0;
+        for (let i = 0; i <= 255; i++) {
+            c = Math.floor((255 / 255) * i);
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect(0, 0, 100, 10);
+            this.ctx.transform(cos, sin, -sin, cos, 0, 0);
+        }
+        this.ctx.setTransform(-1, 0, 0, 1, 100, 100);
+        this.ctx.fillStyle = "black";
+    }
+    drawGameClock() {
+        this.ctx.beginPath();
+        this.ctx.arc((this.gameWidth * .05 * this.renderWidthPositionRatio), (this.gameHeight * .1 * this.renderHeightPositionRatio), ClockSize.OuterRadius, 0, Math.PI * 2);
+        this.ctx.closePath();
+        this.ctx.fillStyle = "black";
+        this.ctx.fill();
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.arc((this.gameWidth * .05 * this.renderWidthPositionRatio), (this.gameWidth * .1 * this.renderHeightPositionRatio), ClockSize.InnerRadius, 0, Math.PI * 2);
+        this.ctx.closePath();
+        this.ctx.fillStyle = "white";
+        this.ctx.fill();
+        this.ctx.save();
+        this.drawPointer();
+        this.ctx.restore();
+    }
     drawGame() {
         this.ctx.fillStyle = "#407231";
         this.ctx.fillRect(0, 0, this.gameWidth * this.renderWidthPositionRatio, this.gameHeight * this.renderHeightPositionRatio);
-        if (this.gameState.state == GameStatus.Ended) {
-            this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
-            this.ctx.fillStyle = "white";
-            const winnerColor = this.gameState.winner?.color + "";
-            const text = winnerColor.toUpperCase();
-            this.ctx.fillText(text + " PLAYER WON!", this.canvas.width * 0.05, this.canvas.height / 2);
-        }
-        //console.log("HEIGHT WINDOW RATIO: ", this.renderWidthPositionRatio);
-        //console.log("WIDTH WINDOW RATIO: ", this.renderHeightPositionRatio);
-        /*this.ctx.fillStyle = "brown";
-        this.ctx.fillRect(this.gameWidth / 2 - 5, 75, 10, this.gameHeight - 175);
-        this.ctx.save();
-        this.ctx.restore();*/
-        //console.log("this.gameState.currentPlayer?.state: ",this.gameState.currentPlayer?.state)
-        if (this.gameState.currentPlayer?.state == PlayerState.Playing) {
-            this.ctx.font = "48px serif";
-            this.ctx.fillStyle = this.gameState.currentPlayer?.color;
-            this.ctx.fillText(this.gameState.currentPlayer?.color, 50, 50);
-        }
-        else {
-            this.ctx.font = "60px serif";
-            this.ctx.fillStyle = "White";
-            this.ctx.fillText("Defeated", 50, 50);
-        }
         let castles = Array();
         let soldiers = Array();
         let villages = Array();
@@ -113,6 +119,36 @@ export class DisplayDriver {
             this.ctx.save();
             this.ctx.restore();
         });
+        if (this.gameState.state == GameStatus.Ended) {
+            this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
+            this.ctx.fillStyle = "white";
+            const winnerColor = this.gameState.winner?.color + "";
+            const text = winnerColor.toUpperCase();
+            this.ctx.fillText(text + " PLAYER WON!", this.canvas.width * 0.05, this.canvas.height / 2, this.canvas.width * 0.8);
+        }
+        //console.log("HEIGHT WINDOW RATIO: ", this.renderWidthPositionRatio);
+        //console.log("WIDTH WINDOW RATIO: ", this.renderHeightPositionRatio);
+        /*this.ctx.fillStyle = "brown";
+        this.ctx.fillRect(this.gameWidth / 2 - 5, 75, 10, this.gameHeight - 175);
+        this.ctx.save();
+        this.ctx.restore();*/
+        //console.log("this.gameState.currentPlayer?.state: ",this.gameState.currentPlayer?.state)
+        if (this.gameState.currentPlayer?.state == PlayerState.Playing) {
+            this.ctx.font = "48px serif";
+            this.ctx.fillStyle = this.gameState.currentPlayer?.color;
+            this.ctx.fillText(this.gameState.currentPlayer?.color, 50, 50);
+        }
+        else {
+            this.ctx.font = "60px serif";
+            this.ctx.fillStyle = "White";
+            this.ctx.fillText("Defeated", 50, 50);
+        }
+        this.ctx.font = "60px serif";
+        this.ctx.fillStyle = "White";
+        let text = "Money: ";
+        text += this.gameState.currentPlayer?.money;
+        this.ctx.fillText(text, this.gameWidth * 0.25 * this.renderWidthPositionRatio, this.gameHeight * 0.1 * this.renderHeightPositionRatio);
+        this.drawGameClock();
     }
     drawMenu() {
         this.ctx.fillStyle = "#407231";
@@ -215,30 +251,6 @@ export class DisplayDriver {
     drawEndGame() {
         this.ctx.fillStyle = "#407231";
         this.ctx.fillRect(0, 0, this.gameWidth * this.renderWidthPositionRatio, this.gameHeight * this.renderHeightPositionRatio);
-        if (this.gameState.state == GameStatus.Ended) {
-            this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
-            this.ctx.fillStyle = "white";
-            const winnerColor = this.gameState.winner?.color + "";
-            const text = winnerColor.toUpperCase();
-            this.ctx.fillText(text + " PLAYER WON!", this.canvas.width * 0.05, this.canvas.height / 2);
-        }
-        //console.log("HEIGHT WINDOW RATIO: ", this.renderWidthPositionRatio);
-        //console.log("WIDTH WINDOW RATIO: ", this.renderHeightPositionRatio);
-        /*this.ctx.fillStyle = "brown";
-        this.ctx.fillRect(this.gameWidth / 2 - 5, 75, 10, this.gameHeight - 175);
-        this.ctx.save();
-        this.ctx.restore();*/
-        //console.log("this.gameState.currentPlayer?.state: ",this.gameState.currentPlayer?.state)
-        if (this.gameState.currentPlayer?.state == PlayerState.Playing) {
-            this.ctx.font = "48px serif";
-            this.ctx.fillStyle = this.gameState.currentPlayer?.color;
-            this.ctx.fillText(this.gameState.currentPlayer?.color, 50, 50);
-        }
-        else {
-            this.ctx.font = "60px serif";
-            this.ctx.fillStyle = "White";
-            this.ctx.fillText("Defeated", 50, 50);
-        }
         let castles = Array();
         let soldiers = Array();
         let villages = Array();
@@ -319,6 +331,30 @@ export class DisplayDriver {
             this.ctx.save();
             this.ctx.restore();
         });
+        if (this.gameState.state == GameStatus.Ended) {
+            this.ctx.font = this.renderWidthPositionRatio * 100 + "px serif";
+            this.ctx.fillStyle = "white";
+            const winnerColor = this.gameState.winner?.color + "";
+            const text = winnerColor.toUpperCase();
+            this.ctx.fillText(text + " PLAYER WON!", this.canvas.width * 0.05, this.canvas.height / 2, this.canvas.width * 0.9);
+        }
+        //console.log("HEIGHT WINDOW RATIO: ", this.renderWidthPositionRatio);
+        //console.log("WIDTH WINDOW RATIO: ", this.renderHeightPositionRatio);
+        /*this.ctx.fillStyle = "brown";
+        this.ctx.fillRect(this.gameWidth / 2 - 5, 75, 10, this.gameHeight - 175);
+        this.ctx.save();
+        this.ctx.restore();*/
+        //console.log("this.gameState.currentPlayer?.state: ",this.gameState.currentPlayer?.state)
+        if (this.gameState.currentPlayer?.state == PlayerState.Playing) {
+            this.ctx.font = "48px serif";
+            this.ctx.fillStyle = this.gameState.currentPlayer?.color;
+            this.ctx.fillText(this.gameState.currentPlayer?.color, 50, 50);
+        }
+        else {
+            this.ctx.font = "60px serif";
+            this.ctx.fillStyle = "White";
+            this.ctx.fillText("Defeated", 50, 50);
+        }
     }
     draw() {
         //console.log(this.ui.state)

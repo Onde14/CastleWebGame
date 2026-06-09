@@ -37,3 +37,9 @@ export enum VillageSize {
   width = GameConfig.villageSize,
   height = GameConfig.villageSize
 }
+
+export enum ClockSize {
+  OuterRadius = 20,
+  InnerRadius = 18,
+  Pointer = 18,
+}

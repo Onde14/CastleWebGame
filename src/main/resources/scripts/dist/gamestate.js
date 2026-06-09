@@ -19,6 +19,7 @@ export class Player {
     villages;
     color;
     state = PlayerState.Playing;
+    money = 0;
     constructor(ai, id, units, castles, villages, color) {
         this.id = id;
         this.ai = ai;
@@ -101,6 +102,11 @@ export class Gamestate {
     update(updates, tick) {
         this.clock = Math.trunc(tick / 100);
         updates.forEach((u) => {
+            if (u.money) {
+                const player = this.players.find(p => p.id == u.id);
+                player.money += u.money;
+                return;
+            }
             const object = this.gameObjects.get(u.id);
             //console.log(2, u, u, u.id, u.pos);
             if (u.state == 2) {
@@ -109,7 +115,7 @@ export class Gamestate {
                 //console.log(4);
                 object.pos = new Vector(u.updatedPos.x, u.updatedPos.y);
             }
-            else if (u.state == 0) {
+            if (u.state == 0) {
                 let object = this.gameObjects.get(u.id);
                 if (object instanceof Soldier) {
                     const player = this.players.find((p) => p.id == u.playerId);
@@ -122,7 +128,7 @@ export class Gamestate {
                     }
                     console.log("IS SOLDIER", object);
                 }
-                if (object instanceof Village) {
+                else if (object instanceof Village) {
                     console.log("IS VILLAGE", object);
                     const player = this.players.find((p) => p.id == u.playerId);
                     const castle = player.castles.find((c) => c.owner == u.playerId);

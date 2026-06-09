@@ -68,6 +68,8 @@ export class UserInterface {
     matchmaking.push(cancelButton)
     return matchmaking;
   }
+
+
   endGameConstructor() {
     let endGame = new Array<Button>();
     const menu = new Button(

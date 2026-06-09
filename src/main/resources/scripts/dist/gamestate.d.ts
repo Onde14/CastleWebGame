@@ -16,6 +16,7 @@ export declare class Player {
     villages: Array<Village>;
     color: string;
     state: PlayerState;
+    money: number;
     constructor(ai: boolean, id: string, units: Array<Soldier>, castles: Array<Castle>, villages: Array<Village>, color: string);
 }
 export declare class Gamestate {

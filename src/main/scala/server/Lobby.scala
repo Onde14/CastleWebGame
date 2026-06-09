@@ -76,9 +76,12 @@ class Lobby(h: Hub[String],g: GameState):
             } yield ()
           }
           updates <- ZIO.succeed(gameState.update())
+          _ <- ZIO.succeed(if tick % 401 == 0 && tick != 0 then
+            gameState.calcMoney(updates)
+            tick = 0
+          )
           response <- ZIO.succeed(UpdatedGameDataMessage("UpdatedGameState",updates,tick).toJson)
-          _ <- ZIO.succeed(if tick % 401 == 0 && tick != 0 then tick = 0 else tick += 1)
-
+          _ <- ZIO.succeed(tick += 1)
 
           _ <- ZIO.when(response != null) (hub.publish(response))
         // _ <- ZIO.succeed(gameState.changes.clear())

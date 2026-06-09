@@ -38,7 +38,7 @@ object MainApp extends ZIOAppDefault {
 
   def joinLobby(lobbies: Set[Lobby]) =
     //val lobby = lobbies.find((l,_) => {l != null && !l.isFull}).map(_._1)
-    val lobby = lobbies.find((l) => {l != null && !l.isFull})
+    val lobby = lobbies.find((l) => {l != null && !l.isFull && !l.running})
     lobby
 
   val webSocketHandle =

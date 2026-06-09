@@ -65,7 +65,8 @@ final case class Player (
   id: UUID,
   color: String,
   castles: ArrayBuffer[Castle],
-  units: ArrayBuffer[Soldier]
+  units: ArrayBuffer[Soldier],
+  var money: Int = 0,
 )
 
 object Player {

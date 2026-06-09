@@ -35,4 +35,10 @@ export var VillageSize;
     VillageSize[VillageSize["width"] = GameConfig.villageSize] = "width";
     VillageSize[VillageSize["height"] = GameConfig.villageSize] = "height";
 })(VillageSize || (VillageSize = {}));
+export var ClockSize;
+(function (ClockSize) {
+    ClockSize[ClockSize["OuterRadius"] = 20] = "OuterRadius";
+    ClockSize[ClockSize["InnerRadius"] = 18] = "InnerRadius";
+    ClockSize[ClockSize["Pointer"] = 18] = "Pointer";
+})(ClockSize || (ClockSize = {}));
 //# sourceMappingURL=config.js.map

@@ -108,7 +108,7 @@ final case class UpdateData (
   updatedPos: Option[Pos],
   state: Option[Int], // 5 = playerDefeated
   health: Option[Int],
-
+  money: Option[Int]
 )
 
 object UpdateData {

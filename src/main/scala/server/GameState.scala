@@ -142,10 +142,10 @@ class GameState:
       if damagedVillage.health <= 0 then
         damagedVillage.state = 0
 
-        return new UpdateData(damagedVillage.id,Option(castle.owner),Option(null),Option(null),Option(damagedVillage.state),Option(null))
+        return new UpdateData(damagedVillage.id,Option(castle.owner),Option(null),Option(null),Option(damagedVillage.state),Option(null),Option(null))
       else
 
-        return new UpdateData(damagedVillage.id,Option(castle.owner),Option(null),Option(null),Option(null),Option(damagedVillage.health))
+        return new UpdateData(damagedVillage.id,Option(castle.owner),Option(null),Option(null),Option(null),Option(damagedVillage.health),Option(null))
     else
       castle.health = castle.health - GameConfig.SoldierDamage
       if castle.health <= 0 then
@@ -154,13 +154,13 @@ class GameState:
         val newOwner = mapData.find(p => p.id == soldier.owner).get
         newOwner.castles += castle
         castle.health = GameConfig.CastleHealth
-        val update = new UpdateData(castle.id,Option(castle.owner),Option(soldier.owner),Option(null),Option(3), Option(castle.health))
+        val update = new UpdateData(castle.id,Option(castle.owner),Option(soldier.owner),Option(null),Option(3), Option(castle.health),Option(null))
         castle.owner = soldier.owner
         castle.ownerColor = soldier.ownerColor
         castle.villages.foreach(v => v.owner = soldier.owner)
         return update
       else
-        return new UpdateData(castle.id,Option(castle.owner),Option(null),Option(null),Option(null),Option(castle.health))
+        return new UpdateData(castle.id,Option(castle.owner),Option(null),Option(null),Option(null),Option(castle.health),Option(null))
 
 
   def createSoldier(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]):  ResponseAttackOrderMessage =
@@ -236,24 +236,36 @@ class GameState:
         if touchingSoldiers.nonEmpty then
           touchingSoldiers.foreach(ts =>
             ts.state = 0
-            updates += new UpdateData(ts.id,Option(ts.owner),Option(null),Option(ts.pos),Option(ts.state),Option(null))
+            updates += new UpdateData(ts.id,Option(ts.owner),Option(null),Option(ts.pos),Option(ts.state),Option(null),Option(null))
           )
           s.state = 0
-          updates += new UpdateData(s.id,Option(s.owner),Option(null),Option(s.pos),Option(s.state),Option(null))
+          updates += new UpdateData(s.id,Option(s.owner),Option(null),Option(s.pos),Option(s.state),Option(null),Option(null))
       if s.state == 2 then
-        updates += new UpdateData(s.id,Option(null),Option(null),Option(s.pos),Option(s.state),Option(null))
+        updates += new UpdateData(s.id,Option(null),Option(null),Option(s.pos),Option(s.state),Option(null),Option(null))
     )
 
     return updates
 
+
   def removeSoldiers(): Unit =
     val newArray = soldiers.filter(s => s.state != 0)
     soldiers = newArray
+
+  def calcMoney(updates: ArrayBuffer[UpdateData]) =
+    mapData.foreach(p => {
+      var countMoney = 0
+      p.castles.foreach(c => {
+        countMoney += c.villages.filter(v => v.state == 1).length
+        if (c.state == 1) countMoney += 1
+      })
+      updates += new UpdateData(p.id,Option(null),Option(null),Option(null),Option(null),Option(null),Option(countMoney))
+      p.money += countMoney
+      println(s"p.money ${p.money}, countMoney ${countMoney}")
+    })
 
 
   def update(): ArrayBuffer[UpdateData] =
     val updates = moveSoldiers()
     //println(s"update: updates = $updates")
     removeSoldiers()
-
     return updates
