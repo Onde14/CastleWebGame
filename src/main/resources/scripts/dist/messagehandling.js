@@ -25,8 +25,8 @@ export class MessageHandler {
             case "Message":
                 break;
             case "ResponseAttackOrderMessage":
-                if (msg.soldiers !== undefined) {
-                    this.eventHandler.responseAttackOrder(msg.soldiers);
+                if (msg.soldiers !== undefined && msg.money !== undefined) {
+                    this.eventHandler.responseAttackOrder(msg.soldiers, msg.money);
                     break;
                 }
                 else {
@@ -64,7 +64,7 @@ export class MessageHandler {
         }
     }
     incoming(msg) {
-        //.log("MESSAGE:::", msg)
+        console.log("MESSAGE:::", msg);
         try {
             const parsedJson = JSON.parse(msg);
             console.log(parsedJson);
@@ -77,7 +77,7 @@ export class MessageHandler {
     send(object) {
         object.clientId = this.myClientId;
         object.lobbyId = this.myLobbyId;
-        console.log("Sending object:", object);
+        //console.log("Sending object:", object)
         this.webSocketDriver.sendMessage(JSON.stringify(object));
     }
 }

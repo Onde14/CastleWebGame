@@ -40,6 +40,8 @@ class Lobby(h: Hub[String],g: GameState):
   def checkSize() =
     println(s"checkSize: currSize = $currSize, maxSize = $maxSize")
     if currSize == maxSize then isFull = true else isFull = false
+
+
   def addClient(id: UUID) =
     if currSize < maxSize then
       clients += id
@@ -69,12 +71,32 @@ class Lobby(h: Hub[String],g: GameState):
           //_ <- ZIO.debug(gameStatus)
           _ <- ZIO.when(gameStatus){
             for {
-              _ <- ZIO.debug(s"GAME $id IS DONE:")
+              _ <- ZIO.debug(s"GAME $id IS DONE1:")
               _ <- hub.publish(GameEndMessage("GameEndMessage",gameState.winner).toJson)
               _ <- lobbiesRef.update(_ - this)
               _ <- ZIO.interrupt
             } yield ()
           }
+          gameStatus <- ZIO.succeed(clients.size < 2)
+          _ <- ZIO.when(gameStatus){
+            for {
+              _ <- ZIO.debug(s"GAME $id IS DONE2:")
+              response <- ZIO.when(clients.size == 1) {
+                for {
+                  _ <- ZIO.debug(s"clients(0): ${clients(0)}")
+                  response = GameEndMessage("GameEndMessage",clients(0)).toJson
+                  _ <- ZIO.debug(s"response: ${response}")
+                } yield response
+              }
+              res <- ZIO.succeed(response.get)
+              _ <- ZIO.debug("res:",res)
+
+              _ <- hub.publish(res)
+              _ <- lobbiesRef.update(_ - this)
+              _ <- ZIO.interrupt
+            } yield ()
+          }
+
           updates <- ZIO.succeed(gameState.update())
           _ <- ZIO.succeed(if tick % 401 == 0 && tick != 0 then
             gameState.calcMoney(updates)

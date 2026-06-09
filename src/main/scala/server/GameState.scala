@@ -114,20 +114,25 @@ class GameState:
     currentPlayersIds -= clientId
     println("PLAYER REMOVED")
 
+  def resetGameState() =
+    gameStarted = false
+    mapData = ArrayBuffer[Player]()
+    castles = ArrayBuffer[Castle]()
+    soldiers = ArrayBuffer[Soldier]()
+    removedSoldiers = ArrayBuffer[Soldier]()
+    currentPlayersIds = ArrayBuffer[UUID]()
+    currentPlayerIterator = 0
+
+
   def isGameWon(): Boolean =
     val owner = castles(0).owner
     val oneOwnerCastle = castles.find(c1 => c1.owner != owner).getOrElse(null)
     //println(s"oneOwnerCastle: $oneOwnerCastle")
-    val res = oneOwnerCastle == null
+    var res = oneOwnerCastle == null
     if res then
       winner = owner
-      gameStarted = false
-      mapData = ArrayBuffer[Player]()
-      castles = ArrayBuffer[Castle]()
-      soldiers = ArrayBuffer[Soldier]()
-      removedSoldiers = ArrayBuffer[Soldier]()
-      currentPlayersIds = ArrayBuffer[UUID]()
-      currentPlayerIterator = 0
+      resetGameState()
+
     return res
 
   def damageStructures(soldier: Soldier): UpdateData =
@@ -163,10 +168,12 @@ class GameState:
         return new UpdateData(castle.id,Option(castle.owner),Option(null),Option(null),Option(null),Option(castle.health),Option(null))
 
 
-  def createSoldier(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]):  ResponseAttackOrderMessage =
-
+  def createSoldiers(playerId: UUID, target_castle_id: UUID, selected_castles_ids: List[UUID]):  ResponseAttackOrderMessage =
 
     val player: Player = mapData.find(_.id == playerId).get
+    if (player.money < selected_castles_ids.length) then
+      println(s"player.money < selected_castles_ids.length: ${player.money},${selected_castles_ids}")
+      return null;
 
     val new_soldiers = new ArrayBuffer[Soldier]()
 
@@ -180,10 +187,11 @@ class GameState:
       soldiers += soldier
       new_soldiers += soldier
       player.units += soldier
+      player.money -= 1
     }
 
     println(s"createSoldier: soldiers = $soldiers")
-    val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("ResponseAttackOrderMessage",new_soldiers.toList)
+    val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("ResponseAttackOrderMessage",new_soldiers.toList,player.money)
     println(s"createSoldier: CREATED SOLDIER AND RESPONSE: $response")
 
     return response

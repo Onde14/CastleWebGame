@@ -18,6 +18,7 @@ type ResponseMessage = {
   clientId?: string;
   tick?: number;
   winner?: string;
+  money?: number;
 };
 
 export class MessageHandler {
@@ -47,8 +48,8 @@ export class MessageHandler {
       case "Message":
         break;
       case "ResponseAttackOrderMessage":
-        if (msg.soldiers !== undefined) {
-          this.eventHandler.responseAttackOrder(msg.soldiers);
+        if (msg.soldiers !== undefined && msg.money !== undefined) {
+          this.eventHandler.responseAttackOrder(msg.soldiers, msg.money);
           break;
         } else {
           throw new Error("Unknown types in the message");
@@ -88,7 +89,7 @@ export class MessageHandler {
   }
 
   public incoming(msg: string) {
-    //.log("MESSAGE:::", msg)
+    console.log("MESSAGE:::", msg)
     try {
       const parsedJson: ResponseMessage = JSON.parse(msg);
       console.log(parsedJson);
@@ -101,7 +102,7 @@ export class MessageHandler {
   public send(object: any) {
     object.clientId = this.myClientId;
     object.lobbyId = this.myLobbyId;
-    console.log("Sending object:", object)
+    //console.log("Sending object:", object)
     this.webSocketDriver.sendMessage(JSON.stringify(object));
   }
 

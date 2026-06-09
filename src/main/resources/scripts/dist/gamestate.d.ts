@@ -31,7 +31,7 @@ export declare class Gamestate {
     constructor(ui: UserInterface);
     setCurrentPlayerId(clientId: string): void;
     buildGameState(players: any): void;
-    createSoldiers(soldiers: any): void;
+    createSoldiers(soldiers: any, money: number): void;
     update(updates: Array<any>, tick: number): void;
     private move_commands;
     gameEnd(winner: string): void;

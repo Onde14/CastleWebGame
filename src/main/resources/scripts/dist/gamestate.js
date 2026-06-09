@@ -83,8 +83,15 @@ export class Gamestate {
         this.players = playerArray;
         console.log("PLAYERS2: ", this.players);
     }
-    createSoldiers(soldiers) {
+    createSoldiers(soldiers, money) {
+        let moneySet = false;
         soldiers.forEach((soldier) => {
+            if (moneySet == false) {
+                const player = this.players.find(p => p.id == soldier.owner);
+                console.log("player", player, "money", money, "soldiers", soldiers);
+                player.money = money;
+                moneySet = true;
+            }
             //console.log("createSoldiers: 1")
             let new_soldier = new Soldier(new Vector(soldier.pos.x, soldier.pos.y), soldier.id, soldier.owner, soldier.ownerColor, soldier.health);
             //console.log("createSoldiers: 2")
@@ -176,6 +183,7 @@ export class Gamestate {
         });
     }
     gameEnd(winner) {
+        console.log("winner:", winner);
         const player = this.players.find(p => p.id == winner);
         this.winner = player;
         this.state = GameStatus.Ended;

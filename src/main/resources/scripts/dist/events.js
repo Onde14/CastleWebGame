@@ -121,8 +121,8 @@ export class EventHandler {
         this.gameState.buildGameState(players);
         this.ui.state = UIStates.Game;
     }
-    responseAttackOrder(soldiers) {
-        this.gameState.createSoldiers(soldiers);
+    responseAttackOrder(soldiers, money) {
+        this.gameState.createSoldiers(soldiers, money);
     }
     updateGameStateEvent(updates, tick) {
         this.gameState.update(updates, tick);

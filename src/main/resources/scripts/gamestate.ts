@@ -126,8 +126,15 @@ export class Gamestate {
     console.log("PLAYERS2: ", this.players);
   }
 
-  public createSoldiers(soldiers: any) {
+  public createSoldiers(soldiers: any, money: number) {
+    let moneySet = false
     soldiers.forEach((soldier: any) => {
+      if (moneySet == false) {
+        const player = this.players.find(p => p.id == soldier.owner)
+        console.log("player",player,"money",money,"soldiers",soldiers)
+        player!.money = money
+        moneySet = true;
+      }
       //console.log("createSoldiers: 1")
       let new_soldier = new Soldier(
         new Vector(soldier.pos.x, soldier.pos.y),
@@ -231,6 +238,7 @@ export class Gamestate {
   }
 
   public gameEnd(winner: string) {
+    console.log("winner:",winner)
     const player = this.players.find(p => p.id == winner)!
     this.winner = player;
     this.state = GameStatus.Ended;

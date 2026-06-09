@@ -82,6 +82,7 @@ object CloseConnection {
 final case class ResponseAttackOrderMessage (
   msgType: String,
   soldiers: List[Soldier],
+  money: Int,
 )
 
 object ResponseAttackOrderMessage {
