@@ -41,6 +41,6 @@ object ClientChecker {
           //_ <- ZIO.debug(s"isClientAlive: newclientStatus $newclientStatus")
           _ <- clientStatusRef.update(_ + (clientId -> false))
         } yield ()
-      ).repeat(Schedule.fixed(800.milliseconds))
+      ).repeat(Schedule.fixed(2.seconds))
     } yield ()
 }

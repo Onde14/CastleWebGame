@@ -18,7 +18,9 @@ final case class Castle (
   pos: Pos,
   var state: Int = 1, // 0 = dead, 1 = live, 3 = captured
   var health: Int = GameConfig.CastleHealth,
-  var villages: List[Village]
+  var villages: List[Village],
+  var connections: List[UUID],
+  mapFileId: Int,
 ) extends GameObject
 
 object Castle {

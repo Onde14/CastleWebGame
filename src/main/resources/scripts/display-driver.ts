@@ -1,7 +1,8 @@
 import { Soldier, Castle, Village, GameObject } from "./objects.js";
-import { SoldierConfig, CastleConfig, VillageConfig, ClockSize } from "./config.js";
+import { SoldierConfig, CastleConfig, VillageConfig, ClockSize, RoadConfig } from "./config.js";
 import { Gamestate, GameStatus, Player, PlayerState } from "./gamestate.js";
 import type { Game } from "./game.js";
+import type { Vector } from "./vector.js";
 import { type UserInterface, UIStates } from "./ui.js";
 
 export class DisplayDriver {
@@ -15,6 +16,8 @@ export class DisplayDriver {
   ui: UserInterface;
   matchmakingDots: number = 1;
   iterator: number = 0;
+  connections = new Map<Castle, Castle>()
+  connectionsCreated = false;
   constructor(
     ui: UserInterface,
     gameState: Gamestate,
@@ -40,6 +43,44 @@ export class DisplayDriver {
     this.renderWidthPositionRatio = this.canvas.width / this.gameWidth;
     this.renderHeightPositionRatio = this.canvas.height / this.gameHeight;
   }
+
+  createConnections() {
+    if (this.connectionsCreated == true) return;
+    let castles = new Array<Castle>()
+    this.gameState.gameObjects.forEach((o, k) => {
+      if (o instanceof Castle) {
+        castles.push(o);
+      }
+    });
+    castles?.forEach(c => {
+      c.connections.forEach(conn => {
+        const c2 = castles.find(i => i.id == conn);
+        if (c2 == null) return;
+        if (this.connections.get(c) == null && this.connections.get(c2) == null) {
+          this.connections.set(c, c2);
+        }
+      })
+    })
+    this.connectionsCreated = true;
+  }
+
+  roadBuild(start: Vector, end: Vector){
+    let road_height = Math.hypot((end.x-start.x),(end.y-start.y));
+    let road_rotation = Math.atan2((end.y-start.y),(end.x-start.x));
+    this.ctx.fillStyle = "#403C2E";
+    this.ctx.fillRect((start.x-RoadConfig.width/2)*this.renderWidthPositionRatio, start.y*this.renderHeightPositionRatio, RoadConfig.width*this.renderWidthPositionRatio, road_height*this.renderHeightPositionRatio);
+    //this.ctx.rotate(road_rotation)
+    this.ctx.save();
+    this.ctx.restore();
+
+  }
+
+  drawRoads() {
+    this.connections.forEach((c1, c2) => {
+      this.roadBuild(c2.pos,c1.pos)
+    })
+  }
+
 
   drawPointer() {
     const sin = Math.sin(Math.PI / 6);
@@ -97,6 +138,8 @@ export class DisplayDriver {
       this.gameWidth * this.renderWidthPositionRatio,
       this.gameHeight * this.renderHeightPositionRatio,
     );
+    this.createConnections();
+    this.drawRoads();
 
 
 
@@ -406,7 +449,7 @@ export class DisplayDriver {
       this.gameWidth * this.renderWidthPositionRatio,
       this.gameHeight * this.renderHeightPositionRatio,
     );
-
+    this.drawRoads();
 
     let castles = Array<Castle>();
     let soldiers = Array<Soldier>();

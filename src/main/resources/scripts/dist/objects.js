@@ -50,11 +50,13 @@ export class Castle extends Structure {
     ownerColor;
     highlighted = false;
     villages;
-    constructor(pos, id, owner, ownerColor, health, villages) {
+    connections;
+    constructor(pos, id, owner, ownerColor, health, villages, connections) {
         super(true, "castle", pos, CastleConfig.width, CastleConfig.height, id, health);
         this.owner = owner;
         this.ownerColor = ownerColor;
         this.villages = villages;
+        this.connections = connections;
     }
 }
 /* export class Road extends Structure {

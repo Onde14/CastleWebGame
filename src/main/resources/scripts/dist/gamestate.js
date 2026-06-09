@@ -58,7 +58,7 @@ export class Gamestate {
                     villages.push(newVillage);
                     this.gameObjects.set(newVillage.id, newVillage);
                 });
-                const newCastle = new Castle(new Vector(castle.pos.x, castle.pos.y), castle.id, castle.owner, castle.ownerColor, castle.health, castle.villages = villages);
+                const newCastle = new Castle(new Vector(castle.pos.x, castle.pos.y), castle.id, castle.owner, castle.ownerColor, castle.health, castle.villages = villages, castle.connections);
                 castle.villages.forEach((village) => {
                     const newVillage = new Village(new Vector(village.pos.x, village.pos.y), village.id, village.id, village.health);
                     newCastle.villages.push(newVillage);

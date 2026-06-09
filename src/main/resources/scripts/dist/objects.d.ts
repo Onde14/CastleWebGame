@@ -30,7 +30,8 @@ export declare class Castle extends Structure {
     ownerColor: string;
     highlighted: boolean;
     villages: Array<Village>;
-    constructor(pos: Vector, id: string, owner: string, ownerColor: string, health: number, villages: Array<Village>);
+    connections: Array<String>;
+    constructor(pos: Vector, id: string, owner: string, ownerColor: string, health: number, villages: Array<Village>, connections: Array<String>);
 }
 export declare class Village extends Structure {
     owner: string;

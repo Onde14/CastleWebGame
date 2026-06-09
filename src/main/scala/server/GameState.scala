@@ -40,7 +40,6 @@ class GameState:
     return width
 
   def getMap(): MapDataFile =
-    println("Hello")
 
     val path = os.pwd/"src"/"main"/"scala"/"server"/"maps"/"demo.json"
 
@@ -68,7 +67,7 @@ class GameState:
     var i = 0
     for line <- mapFile.MapDataFile do
       val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
-      val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1, GameConfig.CastleHealth, null)
+      val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1, GameConfig.CastleHealth, null, null, line.id)
       var villagesArray = new ArrayBuffer[Village]
       for j <- 1 until 4 do
         println("I: " +  i)
@@ -89,6 +88,23 @@ class GameState:
       castles += castle
       mapData += player
       i += 1
+    for line <- mapFile.MapDataFile do
+
+      val castle = castles.find(c => c.mapFileId == line.id).get
+      if castle != null then
+        println("castle: " + castle)
+        var connections = new ArrayBuffer[UUID]();
+        for conn <- line.connections do
+
+          val c = castles.find(c => c.mapFileId == conn).getOrElse(null)
+
+          if c != null then
+
+            connections += c.id
+
+        castle.connections = connections.toList
+
+
     println(s"mapData: $mapData")
 
 
@@ -173,7 +189,8 @@ class GameState:
     val player: Player = mapData.find(_.id == playerId).get
     if (player.money < selected_castles_ids.length) then
       println(s"player.money < selected_castles_ids.length: ${player.money},${selected_castles_ids}")
-      return null;
+      val res: ResponseAttackOrderMessage = null
+      return res;
 
     val new_soldiers = new ArrayBuffer[Soldier]()
 

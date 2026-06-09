@@ -64,7 +64,7 @@ export class Game {
     //console.log("DRAWING")
     this.displayDriver.draw();
     //console.log((Math.trunc(t % 5000)))
-    if (Math.trunc(t % 100) > 93) {
+    if (Math.trunc(t % 50) > 43) {
       //console.log("TICKING:",(Math.trunc(t % 100)))
       this.eventHandler.sendTick();
     }

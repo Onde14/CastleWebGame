@@ -60,8 +60,10 @@ def RequestAttackOrderMessageHandling(target_castle_id: UUID,
   lobby: Lobby,
   channel: Channel[ChannelEvent[WebSocketFrame],ChannelEvent[WebSocketFrame]]) =
   for {
-    response <- ZIO.succeed(lobby.gameState.createSoldiers(clientId,target_castle_id,selected_castles_ids).toJson)
-    _ <- lobby.hub.publish(response)
+    response <- ZIO.succeed(lobby.gameState.createSoldiers(clientId,target_castle_id,selected_castles_ids))
+    _ <- ZIO.debug("RequestAttackOrderMessageHandling: " + response)
+    _ <- ZIO.when(response != null)(lobby.hub.publish(response.toJson))
+    _ <- ZIO.unit
   } yield ()
     /*newLobbyout = ZStream
       .fromQueue(lobbyQueue)

@@ -78,6 +78,7 @@ object Player {
 final case class MapData (
   id: Int,
   pos: Pos,
+  connections: List[Int],
 )
 
 object MapData {

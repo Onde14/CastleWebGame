@@ -87,7 +87,8 @@ export class Gamestate {
           castle.owner,
           castle.ownerColor,
           castle.health,
-          castle.villages = villages
+          castle.villages = villages,
+          castle.connections,
         );
         castle.villages.forEach((village: any) => {
           const newVillage = new Village(
