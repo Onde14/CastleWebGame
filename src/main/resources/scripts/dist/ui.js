@@ -41,14 +41,14 @@ export class UserInterface {
     }
     menuConstructor() {
         let menu = new Array();
-        const matchmakingButton = new Button(this.gameWidth * 0.8, this.gameHeight * 0.2, new Vector(this.gameWidth * 0.1, this.gameHeight / 2), ButtonEvent.Matchmake, "MATCHMAKE");
+        const matchmakingButton = new Button(this.gameWidth * 0.6, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.18, this.gameHeight / 4), ButtonEvent.Matchmake, "MATCHMAKE");
         menu.push(matchmakingButton);
         return menu;
     }
     matchMakingConstructor() {
         let matchmaking = new Array();
-        const matchmakingButton = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.1, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "CANCEL");
-        matchmaking.push(matchmakingButton);
+        const cancelButton = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.1, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "CANCEL");
+        matchmaking.push(cancelButton);
         return matchmaking;
     }
 }
