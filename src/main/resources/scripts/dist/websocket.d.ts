@@ -5,9 +5,8 @@ export declare class WebSocketDriver {
     webSocket: WebSocket | null;
     messageHandler: MessageHandler;
     constructor(messageHandler: MessageHandler);
-    createListeners(): void;
-    sendMessage(message: string): void;
     closeConnection(): void;
     openConnection(): void;
+    sendMessage(message: string): void;
 }
 //# sourceMappingURL=websocket.d.ts.map

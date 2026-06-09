@@ -15,6 +15,7 @@ export class EventHandler {
         this.controls = controls;
         this.displayDriver = displayDriver;
         this.ui = ui;
+        this.messageHandler = new MessageHandler(this);
     }
     mouseDown(e) {
         const target = new Vector(e.clientX, e.clientY);
@@ -88,18 +89,10 @@ export class EventHandler {
         }
     }
     startConnection() {
-        if (this.messageHandler === undefined) {
-            this.messageHandler = new MessageHandler(this);
-        }
-        else {
-            this.messageHandler.webSocketDriver.openConnection();
-        }
+        this.messageHandler.webSocketDriver.openConnection();
     }
     closeConnection() {
-        if (this.messageHandler !== undefined) {
-            console.log("(this.messageHandler !== undefined");
-            this.messageHandler.webSocketDriver.closeConnection();
-        }
+        this.messageHandler.webSocketDriver.closeConnection();
     }
     eventHandling() {
         this.canvas.addEventListener("mousedown", (e) => this.mouseDown(e));

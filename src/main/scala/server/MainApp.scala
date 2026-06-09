@@ -19,6 +19,9 @@ object MainApp extends ZIOAppDefault {
   val lobbiesRef = Ref.make(Set.empty[Lobby])
   val lobbiesLayer = ZLayer.fromZIO(lobbiesRef)
 
+  val clientStatusRef = Ref.make(Map.empty[UUID,Boolean])
+  val clientStatusLayer = ZLayer.fromZIO(clientStatusRef)
+
   val clientsInLobbiesRef = Ref.make(Map.empty[UUID,Lobby])
   val clientsInLobbiesLayer = ZLayer.fromZIO(clientsInLobbiesRef)
 
@@ -66,6 +69,7 @@ object MainApp extends ZIOAppDefault {
 
           lobbiesRef <- ZIO.service[Ref[Set[Lobby]]]
           clientsInLobbiesRef <- ZIO.service[Ref[Map[UUID, Lobby]]]
+          clientStatusRef <- ZIO.service[Ref[Map[UUID, Boolean]]]
 
 
          // hub   <- ZIO.service[Hub[String]]
@@ -114,7 +118,9 @@ object MainApp extends ZIOAppDefault {
                                   } yield ()
                               case clientOrder: ClientTick =>
                                 for {
+                                  clientId = clientOrder.clientId
                                   _ <- ZIO.debug(s"Got a Tick from ${clientOrder.clientId}")
+                                  _ <- clientStatusRef.update(_ + (clientId -> true))
                                   _ <- ZIO.unit
                                 } yield ()
                               case null =>
@@ -158,7 +164,8 @@ object MainApp extends ZIOAppDefault {
 
 
                 _ <- ZIO.succeed(lobby.addClient(clientId))
-                clients <- clientsInLobbiesRef.get
+                _ <- clientStatusRef.update(_ + (clientId -> true))
+                _ <- ClientChecker.isClientAlive(clientId, clientStatusRef).forkDaemon
                 welcome = ClientInfoMessage("ClientInfoMessage", clientId, lobby.id).toJson
                 _ <- ZIO.succeed(lobby.gameState.addPlayer(clientId))
                 response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)
@@ -280,6 +287,7 @@ object MainApp extends ZIOAppDefault {
                 _ <- ZIO.debug("Closing channel with status: " + status + " and reason: " + reason)
 
               } yield ()*/
+              println(s"case Read(WebSocketFrame.Close($status, $reason))")
               Console.readLine("Closing channel with status: " + status + " and reason: " + reason)
 
             case ChannelEvent.Unregistered =>
@@ -316,10 +324,12 @@ object MainApp extends ZIOAppDefault {
                 _ <- ZIO.debug("Client disconnected")
 
               } yield () */
+              println("case ChannelEvent.Unregistered")
               Console.readLine("CHANNEL: "+ channel + ", " + ChannelEvent.Unregistered)
 
 
             case _ =>
+              println("NONE INCOMING CASE")
               ZIO.unit
           }
           _ <- ZIO.debug(s"webSocketHandle: incoming: ${incoming}")
@@ -399,5 +409,5 @@ object MainApp extends ZIOAppDefault {
 
   override def run =
     Server.serve(routes)
-    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer)
+    .provide(Server.default, lobbiesLayer, clientsInLobbiesLayer, clientStatusLayer)
 }

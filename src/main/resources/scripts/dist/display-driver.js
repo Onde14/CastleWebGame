@@ -197,7 +197,7 @@ export class DisplayDriver {
               (b.height * 1.04),
             );*/
             this.ctx.fillStyle = "black";
-            console.log(b.pos.y * 0.98 * this.renderWidthPositionRatio);
+            //console.log(b.pos.y * 0.98 * this.renderWidthPositionRatio)
             this.ctx.fillRect((b.pos.x * this.renderWidthPositionRatio - 4 * this.renderWidthPositionRatio), (b.pos.y * this.renderHeightPositionRatio - 4 * this.renderWidthPositionRatio), (b.width * this.renderWidthPositionRatio + 8 * this.renderWidthPositionRatio), (b.height * this.renderWidthPositionRatio + 8 * this.renderWidthPositionRatio));
             this.ctx.save();
             this.ctx.restore();

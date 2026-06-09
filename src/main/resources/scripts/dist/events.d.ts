@@ -8,7 +8,7 @@ export declare class EventHandler {
     gameState: Gamestate;
     controls: Controls;
     displayDriver: DisplayDriver;
-    messageHandler?: MessageHandler;
+    messageHandler: MessageHandler;
     ui: UserInterface;
     socketOpen: boolean;
     constructor(canvas: HTMLCanvasElement, gameState: Gamestate, controls: Controls, displayDriver: DisplayDriver, ui: UserInterface);

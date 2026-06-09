@@ -2,61 +2,45 @@ import type { MessageHandler } from "./messagehandling";
 
 export class WebSocketDriver {
   isOpen = false;
-  wsUri: string;
-  webSocket: WebSocket | null;
+  wsUri = "ws://localhost:8080/ws";;
+  webSocket: WebSocket | null = null;
   messageHandler: MessageHandler;
 
   constructor(messageHandler: MessageHandler) {
-    this.wsUri = "ws://localhost:8080/ws";
-    this.webSocket = new WebSocket(this.wsUri);
     this.messageHandler = messageHandler;
-    this.createListeners()
-
-
-
-
-  }
-  createListeners() {
-    // Connection opened
-    this.webSocket?.addEventListener("open", (event) => {
-      this.webSocket?.send("Hello Server!");
-    });
-
-    // Listen for messages
-    this.webSocket?.addEventListener("message", (event) => {
-      console.log("Message from server:", event.data);
-      this.messageHandler.incoming(event.data)
-    });
-
-    // Handle errors
-    this.webSocket?.addEventListener("error", (event) => {
-      console.error("WebSocket error:", event);
-    });
-
-    // Handle disconnection
-    this.webSocket?.addEventListener("close", (event) => {
-      if (event.wasClean) {
-        console.log(`Closed cleanly, code=${event.code}, reason=${event.reason}`);
-      } else {
-        console.log("Connection died");
-      }
-    });
   }
 
-  public sendMessage(message: string): void {
-      this.webSocket?.send(message);
-     // console.log("Message sent to server!")
-  }
 
   public closeConnection() {
-
-    this.webSocket?.close();
-    //this.webSocket = null;
-    console.log("Closed connection")
+    if (this.webSocket) {
+      this.webSocket.close(1000, "Client disconnected.");
+      this.webSocket = null;
+    }
   }
 
   public openConnection() {
+    this.closeConnection()
     this.webSocket = new WebSocket(this.wsUri)
-    console.log("Opened connection")
+    this.webSocket.onopen = () => {
+      console.log("Opened new connection!")
+    }
+
+    this.webSocket.onclose = (event) => {
+      console.log(`Disconnected: ${event.reason}`);
+      this.webSocket = null;
+    }
+
+    this.webSocket.onerror = (event) => {
+      console.error("Error:", event)
+    }
+
+    this.webSocket.onmessage = (event) => {
+      this.messageHandler.incoming(event.data)
+    }
+  }
+
+  public sendMessage(message: string): void {
+    this.webSocket?.send(message);
+    // console.log("Message sent to server!")
   }
 }

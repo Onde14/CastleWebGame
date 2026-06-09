@@ -11,7 +11,7 @@ export class EventHandler {
   gameState: Gamestate;
   controls: Controls;
   displayDriver: DisplayDriver;
-  messageHandler?: MessageHandler;
+  messageHandler: MessageHandler;
   ui: UserInterface;
   socketOpen = false;
   constructor(
@@ -26,6 +26,7 @@ export class EventHandler {
     this.controls = controls;
     this.displayDriver = displayDriver;
     this.ui = ui;
+    this.messageHandler = new MessageHandler(this);
   }
 
 
@@ -103,19 +104,11 @@ export class EventHandler {
   }
 
   public startConnection() {
-    if (this.messageHandler === undefined) {
-
-      this.messageHandler = new MessageHandler(this);
-    } else {
-      this.messageHandler.webSocketDriver.openConnection()
-    }
+    this.messageHandler.webSocketDriver.openConnection()
   }
 
   public closeConnection() {
-    if (this.messageHandler !== undefined) {
-      console.log("(this.messageHandler !== undefined")
-      this.messageHandler.webSocketDriver.closeConnection()
-    }
+    this.messageHandler.webSocketDriver.closeConnection()
   }
 
   public eventHandling() {
