@@ -22,7 +22,7 @@ export class Game {
         this.gameWidth = this.canvas.width;
         this.gameHeight = this.canvas.height;
         this.ui = new UserInterface(this.gameWidth, this.gameHeight);
-        this.gameState = new Gamestate();
+        this.gameState = new Gamestate(this.ui);
         this.controls = new Controls(this.gameWidth, this.gameHeight, this.gameState, this.ui);
         this.displayDriver = new DisplayDriver(this.ui, this.gameState, this.canvas, this.ctx, this.gameWidth, this.gameHeight);
         this.displayDriver.resize();
@@ -44,8 +44,8 @@ export class Game {
         //console.log("DRAWING")
         this.displayDriver.draw();
         //console.log((Math.trunc(t % 5000)))
-        if (Math.trunc(t % 5000) > 4993) {
-            console.log("TICKING:", (Math.trunc(t % 5000) < 4993));
+        if (Math.trunc(t % 100) > 93) {
+            console.log("TICKING:", (Math.trunc(t % 100)));
             this.eventHandler.sendTick();
         }
         window.requestAnimationFrame((t) => {

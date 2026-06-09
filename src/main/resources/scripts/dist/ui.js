@@ -5,8 +5,9 @@ export var UIStates;
     UIStates[UIStates["SessionOptions"] = 1] = "SessionOptions";
     UIStates[UIStates["Session"] = 2] = "Session";
     UIStates[UIStates["Game"] = 3] = "Game";
-    UIStates[UIStates["Leaderboard"] = 4] = "Leaderboard";
-    UIStates[UIStates["Matchmaking"] = 5] = "Matchmaking";
+    UIStates[UIStates["EndGame"] = 4] = "EndGame";
+    UIStates[UIStates["Leaderboard"] = 5] = "Leaderboard";
+    UIStates[UIStates["Matchmaking"] = 6] = "Matchmaking";
 })(UIStates || (UIStates = {}));
 export var ButtonEvent;
 (function (ButtonEvent) {
@@ -33,11 +34,13 @@ export class UserInterface {
     state = UIStates.Menu;
     menu;
     matchMaking;
+    endGame;
     constructor(gameWidth, gameHeight) {
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
         this.menu = this.menuConstructor();
         this.matchMaking = this.matchMakingConstructor();
+        this.endGame = this.endGameConstructor();
     }
     menuConstructor() {
         let menu = new Array();
@@ -50,6 +53,12 @@ export class UserInterface {
         const cancelButton = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.1, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "CANCEL");
         matchmaking.push(cancelButton);
         return matchmaking;
+    }
+    endGameConstructor() {
+        let endGame = new Array();
+        const menu = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.33, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "Menu");
+        endGame.push(menu);
+        return endGame;
     }
 }
 //# sourceMappingURL=ui.js.map

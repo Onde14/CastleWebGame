@@ -26,7 +26,7 @@ export class Game {
     this.gameHeight = this.canvas.height;
     this.ui = new UserInterface(this.gameWidth,this.gameHeight)
 
-    this.gameState = new Gamestate();
+    this.gameState = new Gamestate(this.ui);
     this.controls = new Controls(this.gameWidth, this.gameHeight,this.gameState,this.ui);
     this.displayDriver = new DisplayDriver(
       this.ui,
@@ -64,8 +64,8 @@ export class Game {
     //console.log("DRAWING")
     this.displayDriver.draw();
     //console.log((Math.trunc(t % 5000)))
-    if (Math.trunc(t % 5000) > 4993) {
-      console.log("TICKING:",(Math.trunc(t % 5000) < 4993))
+    if (Math.trunc(t % 100) > 93) {
+      console.log("TICKING:",(Math.trunc(t % 100)))
       this.eventHandler.sendTick();
     }
     window.requestAnimationFrame((t) => {

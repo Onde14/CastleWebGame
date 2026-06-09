@@ -12,7 +12,7 @@ export class MessageHandler {
         this.webSocketDriver.openConnection();
     }
     handleResponse(msg) {
-        console.log("TYPE IS ", msg.msgType);
+        //console.log("TYPE IS ", msg.msgType);
         switch (msg.msgType) {
             case "BuildGameDataMessage":
                 if (msg.players !== undefined) {
@@ -64,7 +64,7 @@ export class MessageHandler {
         }
     }
     incoming(msg) {
-        console.log("MESSAGE:::", msg);
+        //.log("MESSAGE:::", msg)
         try {
             const parsedJson = JSON.parse(msg);
             console.log(parsedJson);

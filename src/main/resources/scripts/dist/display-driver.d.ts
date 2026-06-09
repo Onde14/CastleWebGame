@@ -16,6 +16,7 @@ export declare class DisplayDriver {
     drawGame(): void;
     drawMenu(): void;
     drawMatchmaking(): void;
+    drawEndGame(): void;
     draw(): void;
 }
 //# sourceMappingURL=display-driver.d.ts.map

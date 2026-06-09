@@ -52,6 +52,10 @@ export class EventHandler {
         if (resMatchmake) {
           switch (resMatchmake.event) {
             case ButtonEvent.Menu:
+              const close = {
+                msgType: "CloseConnection"
+              }
+              this.messageHandler.send(close)
               this.closeConnection();
               this.ui.state = UIStates.Menu;
               break;
@@ -84,6 +88,20 @@ export class EventHandler {
               selected_castles_ids: orders.selected_castles_ids,
             };
             this.messageHandler.send(requestJson);
+          }
+        }
+        break;
+      case UIStates.EndGame:
+        let resEndGame = this.controls.mouseDownButton(target,this.ui.endGame)
+        if (resEndGame) {
+          switch (resEndGame.event) {
+            case ButtonEvent.Menu:
+              this.closeConnection();
+              this.ui.state = UIStates.Menu;
+              this.gameState.resetGameState();
+              break;
+            default:
+              break;
           }
         }
         break;
@@ -120,6 +138,7 @@ export class EventHandler {
   }
   public buildGameStateEvent(players: any,) {
     this.gameState.buildGameState(players);
+    this.ui.state = UIStates.Game
   }
 
   public responseAttackOrder(soldiers: any) {
@@ -142,6 +161,6 @@ export class EventHandler {
     const tick = {
       msgType: "ClientTick",
     }
-    this.messageHandler?.send(tick)
+    this.messageHandler.send(tick)
   }
 }

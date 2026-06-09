@@ -5,6 +5,7 @@ export enum UIStates {
   SessionOptions,
   Session,
   Game,
+  EndGame,
   Leaderboard,
   Matchmaking,
 }
@@ -35,11 +36,13 @@ export class UserInterface {
   state = UIStates.Menu;
   menu: Array<Button>;
   matchMaking: Array<Button>;
+  endGame: Array<Button>;
   constructor(gameWidth: number, gameHeight: number) {
     this.gameWidth = gameWidth
     this.gameHeight = gameHeight
     this.menu = this.menuConstructor();
     this.matchMaking = this.matchMakingConstructor();
+    this.endGame = this.endGameConstructor();
   }
 
   menuConstructor() {
@@ -47,7 +50,7 @@ export class UserInterface {
     const matchmakingButton = new Button(
       this.gameWidth * 0.6,
       this.gameHeight * 0.1,
-      new Vector(this.gameWidth * 0.18,this.gameHeight / 4),
+      new Vector(this.gameWidth * 0.18, this.gameHeight / 4),
       ButtonEvent.Matchmake,
       "MATCHMAKE")
     menu.push(matchmakingButton)
@@ -59,11 +62,22 @@ export class UserInterface {
     const cancelButton = new Button(
       this.gameWidth * 0.4,
       this.gameHeight * 0.1,
-      new Vector(this.gameWidth * 0.1,this.gameHeight / 2 *1.1),
+      new Vector(this.gameWidth * 0.1, this.gameHeight / 2 * 1.1),
       ButtonEvent.Menu,
       "CANCEL")
     matchmaking.push(cancelButton)
     return matchmaking;
+  }
+  endGameConstructor() {
+    let endGame = new Array<Button>();
+    const menu = new Button(
+      this.gameWidth * 0.4,
+      this.gameHeight * 0.1,
+      new Vector(this.gameWidth * 0.33, this.gameHeight / 2 * 1.1),
+      ButtonEvent.Menu,
+      "Menu")
+    endGame.push(menu)
+    return endGame;
   }
 
 }

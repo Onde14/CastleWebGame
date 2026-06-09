@@ -1,4 +1,5 @@
 import { Soldier, Castle, Village, GameObject } from "./objects.js";
+import { UserInterface } from "./ui.js";
 export declare enum PlayerState {
     Playing = 0,
     Defeated = 1
@@ -25,12 +26,14 @@ export declare class Gamestate {
     clock: number;
     winner: Player | null;
     state: GameStatus;
-    constructor();
+    ui: UserInterface;
+    constructor(ui: UserInterface);
     setCurrentPlayerId(clientId: string): void;
     buildGameState(players: any): void;
     createSoldiers(soldiers: any): void;
     update(updates: Array<any>, tick: number): void;
     private move_commands;
     gameEnd(winner: string): void;
+    resetGameState(): void;
 }
 //# sourceMappingURL=gamestate.d.ts.map

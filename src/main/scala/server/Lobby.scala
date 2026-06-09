@@ -14,6 +14,7 @@ import zio.json.*
 
 
 
+
 class Lobby(h: Hub[String],g: GameState):
   val id = UUID.randomUUID()
   val hub = h
@@ -29,8 +30,12 @@ class Lobby(h: Hub[String],g: GameState):
   var tick = 0;
 
   def setStatus() =
-    if currSize < 2 then
-      ended = true
+    if running then
+      if currSize < 2 then
+        ended = true
+    else
+      if clients.isEmpty then
+        ended = true
 
   def checkSize() =
     println(s"checkSize: currSize = $currSize, maxSize = $maxSize")
@@ -46,10 +51,10 @@ class Lobby(h: Hub[String],g: GameState):
     checkSize()
     setStatus()
 
-  def startGame() =
+  def startGame(lobbiesRef: Ref[Set[Lobby]]) =
     for {
       running = true
-      runGameFiber <- runGame().forever
+      runGameFiber <- runGame(lobbiesRef).forever
     } yield runGameFiber
 
   def buildGame() =
@@ -57,15 +62,16 @@ class Lobby(h: Hub[String],g: GameState):
     //return gameState.availablePlayerSlots
 
 
-  def runGame() =
+  def runGame(lobbiesRef: Ref[Set[Lobby]]) =
       println("START GAME!")
         for {
           gameStatus <- ZIO.succeed(gameState.isGameWon())
           //_ <- ZIO.debug(gameStatus)
           _ <- ZIO.when(gameStatus){
             for {
-              _ <- ZIO.debug(s"GAME: IS DONE:")
+              _ <- ZIO.debug(s"GAME $id IS DONE:")
               _ <- hub.publish(GameEndMessage("GameEndMessage",gameState.winner).toJson)
+              _ <- lobbiesRef.update(_ - this)
               _ <- ZIO.interrupt
             } yield ()
           }

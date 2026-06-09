@@ -35,7 +35,7 @@ export class MessageHandler {
   }
 
   private handleResponse(msg: ResponseMessage) {
-    console.log("TYPE IS ", msg.msgType);
+    //console.log("TYPE IS ", msg.msgType);
     switch (msg.msgType) {
       case "BuildGameDataMessage":
         if (msg.players !== undefined) {
@@ -88,7 +88,7 @@ export class MessageHandler {
   }
 
   public incoming(msg: string) {
-    console.log("MESSAGE:::", msg)
+    //.log("MESSAGE:::", msg)
     try {
       const parsedJson: ResponseMessage = JSON.parse(msg);
       console.log(parsedJson);

@@ -116,10 +116,31 @@ object MainApp extends ZIOAppDefault {
 
 
                                   } yield ()
-                              case clientOrder: ClientTick =>
+                              case clientTick: ClientTick =>
                                 for {
-                                  clientId = clientOrder.clientId
-                                  _ <- ZIO.debug(s"Got a Tick from ${clientOrder.clientId}")
+                                  clientId = clientTick.clientId
+                                  //_ <- ZIO.debug(s"Got a Tick from ${clientOrder.clientId}")
+                                  _ <- clientStatusRef.update(_ + (clientId -> true))
+                                  _ <- ZIO.unit
+                                } yield ()
+                              case closeConnection: CloseConnection =>
+                                for {
+                                  clientId = closeConnection.clientId
+                                  lobbyId = closeConnection.lobbyId
+                                  clientsInLobbies <- clientsInLobbiesRef.get
+                                  lobby: Lobby = clientsInLobbies.get(clientId).getOrElse(null)
+                                  _ <- ZIO.when(lobby != null){
+                                    lobby.removeClient(clientId)
+                                    if lobby.ended then
+                                      println(s"lobbiesRef: $lobbiesRef")
+                                      ZIO.succeed(lobbiesRef.update(_ - lobby))
+                                      for {
+                                        l <- lobbiesRef.get
+                                        _ <- ZIO.debug(s"lobbiesRef: $l")
+                                      } yield ()
+                                    clientsInLobbiesRef.update(_ - clientId)
+                                  }
+                                  //_ <- ZIO.debug(s"Got a Tick from ${clientOrder.clientId}")
                                   _ <- clientStatusRef.update(_ + (clientId -> true))
                                   _ <- ZIO.unit
                                 } yield ()
@@ -165,7 +186,7 @@ object MainApp extends ZIOAppDefault {
 
                 _ <- ZIO.succeed(lobby.addClient(clientId))
                 _ <- clientStatusRef.update(_ + (clientId -> true))
-                _ <- ClientChecker.isClientAlive(clientId, clientStatusRef).forkDaemon
+                _ <- ClientChecker.isClientAlive(clientId, clientStatusRef, clientsInLobbiesRef, lobbiesRef).forkDaemon
                 welcome = ClientInfoMessage("ClientInfoMessage", clientId, lobby.id).toJson
                 _ <- ZIO.succeed(lobby.gameState.addPlayer(clientId))
                 response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)
@@ -186,7 +207,7 @@ object MainApp extends ZIOAppDefault {
                       _ <- ZIO.succeed(lobby.buildGame())
                       response <- ZIO.succeed(BuildGameDataMessage("BuildGameDataMessage",lobby.gameState.mapData).toJson)
                       _ <- lobby.hub.publish(response)
-                      runFiber <- lobby.startGame().forkDaemon
+                      runFiber <- lobby.startGame(lobbiesRef).forkDaemon
                       _ <- ZIO.debug(s"UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): runFiber = $runFiber")
 
 

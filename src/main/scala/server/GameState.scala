@@ -29,18 +29,11 @@ class GameState:
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
   val colors = List("blue","red")
-  private var testOrdersGiven = 0
   private val soldierSpeed = GameConfig.SoldierSpeed
   var winner: UUID = null
 
   def isGameStarted: Boolean = this.gameStarted
   def changeGameStarted(): Unit = gameStarted = true
-  def testOrdersAdd(): Unit =
-    testOrdersGiven += 1
-  def testGetOrders(): Int =
-    testOrdersGiven
-  def testOrdersReset(): Unit =
-    testOrdersGiven = 0
   def getGameHeight(): Int =
     return height
   def getGameWidth(): Int =
@@ -126,7 +119,15 @@ class GameState:
     val oneOwnerCastle = castles.find(c1 => c1.owner != owner).getOrElse(null)
     //println(s"oneOwnerCastle: $oneOwnerCastle")
     val res = oneOwnerCastle == null
-    if res then winner = owner
+    if res then
+      winner = owner
+      gameStarted = false
+      mapData = ArrayBuffer[Player]()
+      castles = ArrayBuffer[Castle]()
+      soldiers = ArrayBuffer[Soldier]()
+      removedSoldiers = ArrayBuffer[Soldier]()
+      currentPlayersIds = ArrayBuffer[UUID]()
+      currentPlayerIterator = 0
     return res
 
   def damageStructures(soldier: Soldier): UpdateData =

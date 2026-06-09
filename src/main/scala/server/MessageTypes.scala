@@ -68,6 +68,17 @@ object ClientTick {
     DeriveJsonDecoder.gen[ClientTick]
 }
 
+final case class CloseConnection (
+  msgType: String,
+  clientId: UUID,
+  lobbyId: UUID
+) extends Message
+
+object CloseConnection {
+  implicit val decoder: JsonDecoder[CloseConnection] =
+    DeriveJsonDecoder.gen[CloseConnection]
+}
+
 final case class ResponseAttackOrderMessage (
   msgType: String,
   soldiers: List[Soldier],

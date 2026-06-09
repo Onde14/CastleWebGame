@@ -1,4 +1,5 @@
 import { Soldier, Castle, Village, GameObject } from "./objects.js";
+import { UIStates, UserInterface } from "./ui.js";
 import { Vector } from "./vector.js";
 
 export enum PlayerState {
@@ -45,7 +46,9 @@ export class Gamestate {
   clock = 0;
   winner: Player | null = null
   state: GameStatus = GameStatus.Ended;
-  constructor() {
+  ui: UserInterface;
+  constructor(ui: UserInterface) {
+    this.ui = ui;
   }
 
   public setCurrentPlayerId(clientId: string) {
@@ -225,5 +228,17 @@ export class Gamestate {
     const player = this.players.find(p => p.id == winner)!
     this.winner = player;
     this.state = GameStatus.Ended;
+    this.ui.state = UIStates.EndGame;
   }
+
+  public resetGameState() {
+    this.players = Array<Player>();
+    this.gameObjects = new Map<string, GameObject>();
+    this.currentPlayerId = "";
+    this.currentPlayer= undefined;
+    this.clock = 0;
+    this.winner= null
+    this.state = GameStatus.Ended;
+  }
+
 }

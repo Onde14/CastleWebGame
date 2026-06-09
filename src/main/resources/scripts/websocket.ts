@@ -40,7 +40,9 @@ export class WebSocketDriver {
   }
 
   public sendMessage(message: string): void {
-    this.webSocket?.send(message);
+    if (this.webSocket?.readyState == WebSocket.OPEN) {
+      this.webSocket?.send(message);
+    }
     // console.log("Message sent to server!")
   }
 }
