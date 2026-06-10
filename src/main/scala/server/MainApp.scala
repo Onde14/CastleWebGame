@@ -16,6 +16,8 @@ import scala.collection.mutable.ArrayBuffer
 import zio.Clock.ClockLive
 
 object MainApp extends ZIOAppDefault {
+
+
   val lobbiesRef = Ref.make(Set.empty[Lobby])
   val lobbiesLayer = ZLayer.fromZIO(lobbiesRef)
 
@@ -44,42 +46,15 @@ object MainApp extends ZIOAppDefault {
   val webSocketHandle =
     Handler.webSocket { channel =>
       ZIO.scoped {
-
         for {
           lobbyPromise <- Promise.make[Nothing, Lobby]
           queueRef <- Ref.make[Dequeue[String]](null)
-          /*_ <- ZIO.debug(s"lobbyRef: $lobbyRef")
-          _ <- channel.receiveAll {
-            case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
-              for {
-                hub <- Hub.unbounded[String]
-                lobby = createLobby(hub)
-                _ <- ZIO.debug(s"UserEventTriggered LOBBY: $lobby")
-                _ <- lobbyRef.set(Option(lobby))
-              } yield ()
-            case _ =>
-              for {
-                hub <- Hub.unbounded[String]
-                lobby: Lobby = createLobby(hub)
-                _ <- ZIO.debug(s"_ LOBBY: $lobby")
-                _ <- lobbyRef.set(Option(lobby))
-              } yield ()
-              ZIO.unit
-          }.fork*/
-
           lobbiesRef <- ZIO.service[Ref[Set[Lobby]]]
           clientsInLobbiesRef <- ZIO.service[Ref[Map[UUID, Lobby]]]
           clientStatusRef <- ZIO.service[Ref[Map[UUID, Boolean]]]
 
 
-         // hub   <- ZIO.service[Hub[String]]
-
-          //lobbyoutRef <- Ref.make(ZIO.unit: ZIO[Any, Throwable, Unit])
-
-
-
           incoming = channel.receiveAll {
-
             case Read(WebSocketFrame.Text(text)) =>
               for {
                // _ <- ZIO.succeed(println(s"GOT MESSAGE: $text"))
@@ -95,6 +70,7 @@ object MainApp extends ZIOAppDefault {
                 _ <- ZIO.when(message != null) { message match
                               case attackOrder: RequestAttackOrderMessage =>
                                   for {
+
                                     clientId = attackOrder.clientId
                                     _ <- ZIO.debug(s"1: $clientId")
                                     lobbyId = attackOrder.lobbyId
@@ -112,14 +88,16 @@ object MainApp extends ZIOAppDefault {
 
                                     target_castle_id = attackOrder.target_castle_id
                                     _ <- ZIO.debug(s"5: $target_castle_id")
-                                    _ <- RequestAttackOrderMessageHandling(target_castle_id, selected_castles_ids,clientId, lobby, channel)// ZIO.succeed(lobby.sendAttack(clientId,selected_castles_ids,target_castle_id))
-
+                                    response <- ZIO.succeed(lobby.gameState.createSoldiers(clientId,target_castle_id,selected_castles_ids))
+                                    _ <- ZIO.debug("RequestAttackOrderMessageHandling: " + response)
+                                    _ <- ZIO.when(response != null)(lobby.hub.publish(response.toJson))
+                                    _ <- ZIO.unit
 
                                   } yield ()
                               case clientTick: ClientTick =>
                                 for {
                                   clientId = clientTick.clientId
-                                  //_ <- ZIO.debug(s"Got a Tick from ${clientOrder.clientId}")
+                                  //_ <- ZIO.debug(s"Got a Tick from ${clientTick.clientId}")
                                   _ <- clientStatusRef.update(_ + (clientId -> true))
                                   _ <- ZIO.unit
                                 } yield ()
@@ -140,7 +118,6 @@ object MainApp extends ZIOAppDefault {
                                       } yield ()
                                     clientsInLobbiesRef.update(_ - clientId)
                                   }
-                                  //_ <- ZIO.debug(s"Got a Tick from ${clientOrder.clientId}")
                                   _ <- clientStatusRef.update(_ + (clientId -> true))
                                   _ <- ZIO.unit
                                 } yield ()
@@ -149,20 +126,8 @@ object MainApp extends ZIOAppDefault {
                 }
                 _ <- ZIO.when(message == null) {
                   channel.send(Read(WebSocketFrame.text("""{"msgType": "InvalidMessage"}""")))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
-
                 }
-
                 _ <- lobbyPromise.succeed(null)
-
-
-
-
-
-
-
-
-
-
               } yield ()
 
             case UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete) =>
@@ -192,7 +157,7 @@ object MainApp extends ZIOAppDefault {
                 response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)
                 now <- zio.Clock.ClockLive.instant
                 _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): response = $response")
-                _ <- channel.send(Read(WebSocketFrame.text(response)))//s"WELCOME ${clientId.toString()}! You are in lobby ${lobby.id.toString()} and isFull = ${lobby.isFull} and started = ${lobby.started}")))
+                _ <- channel.send(Read(WebSocketFrame.text(response)))
                 now <- zio.Clock.ClockLive.instant
                 _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): Lobby is full = ${lobby.isFull}")
                 lobbyQueue <- lobby.hub.subscribe
@@ -219,132 +184,20 @@ object MainApp extends ZIOAppDefault {
                 _ <- lobbiesRef.update(_ + lobby)
                 _ <- queueRef.set(lobbyQueue)
                 _ <- lobbyPromise.succeed(lobby)
-
-               /* newLobbyout = ZStream
-                  .fromQueue(lobbyQueue)
-                  .map(WebSocketFrame.text)
-                  .runForeach(frame => {
-                  //println(s"FRAME: $frame")
-                  channel.send(Read(frame))
-                  }).forkDaemon
-                _ <- ZIO.debug("lobbyout: " + newLobbyout)
-                newLobbyoutFiber <- newLobbyout
-                _ <- ZIO.debug("lobbyout: " + newLobbyout)
-                lobbiesMap <- lobbiesRef.get
-                _ <- ZIO.debug(s"LOBBIESMAP: $lobbiesMap")
-
-                _ <- ZIO.when(lobbiesMap.nonEmpty) {
-                  for {
-                    lobbiesMap <- lobbiesRef.get
-                    runnablesOption = lobbiesMap.get(lobby)
-                    runnables <- ZIO.succeed(if runnablesOption.isDefined then {
-                      val hubSet = runnablesOption.get.lobbyOutGoings incl newLobbyoutFiber
-                      new LobbyRunnables(hubSet,runnablesOption.get.lobbyGameRun)
-                    } else {
-                      val newRunnables = new LobbyRunnables(Set(newLobbyoutFiber),runFiber.getOrElse(null))
-                      newRunnables
-                    })
-                    newLobbiesMap = lobbiesMap.updated(lobby,runnables)
-                    _ <- ZIO.debug(s"lobbiesMap: $lobbiesMap, newLobbiesMap: $newLobbiesMap")
-                    _ <- lobbiesRef.set(newLobbiesMap)
-                  } yield ()
-                }
-
-                _ <- ZIO.when(lobbiesMap.isEmpty) {
-                  for {
-                    _ <- ZIO.debug("Creating lobbiesMap")
-                    newRunnables = new LobbyRunnables(Set(newLobbyoutFiber),runFiber.getOrElse(null))
-
-                    _ <- lobbiesRef.set(Map(lobby -> newRunnables))
-                  } yield ()
-                }*/
-
                 lobbiesMap <- lobbiesRef.get
                 now <- zio.Clock.ClockLive.instant
 
                 _ <- ZIO.debug(s"${now} UserEventTriggered(ChannelEvent.UserEvent.HandshakeComplete): LOBBIESMAP: $lobbiesMap")
-
-
-
-               // _ <- lobbyoutRef.set(newLobbyout)
-                 // _ <- lobbyout
-                 // _ <- ZIO.debug(8)
               } yield ()
 
 
 
 
             case Read(WebSocketFrame.Close(status, reason)) =>
-             /* for {
-
-                clientsInLobbies <- clientsInLobbiesRef.get
-                lobby <- ZIO.succeed(clientsInLobbies.get(clientId).getOrElse(null))
-                _ <- ZIO.when(lobby != null) {
-                    for {
-                      _ <- ZIO.debug(s"FOUND LOBBY: $lobby")
-                      _ <- ZIO.debug(s"DELETING CLIENT: $clientId")
-                      _ <- ZIO.succeed(lobby.removeClient(clientId))
-                      _ <- clientsInLobbiesRef.update(_ - clientId)
-                    } yield ()
-                }
-                _ <- ZIO.when(lobby.ended){
-                      for {
-                        _ <- ZIO.debug(s"DESTROYING LOBBY: $lobby")
-                        _ <- lobbiesRef.update(_ - lobby)
-                        _ <- ZIO.foreach(lobby.clients) { clientId =>
-                              ZIO.succeed(println(s"DELETING CLIENT: $clientId"))
-                              clientsInLobbiesRef.update(_ - clientId)
-                            }
-                      } yield()
-                }
-
-
-
-                clients <- clientsInLobbiesRef.get
-                lobbies <- lobbiesRef.get
-                _ <- ZIO.debug(s"CLIENTS: $clients")
-                _ <- ZIO.debug(s"LOBBIES: $lobbies")
-
-                _ <- ZIO.debug("Closing channel with status: " + status + " and reason: " + reason)
-
-              } yield ()*/
               println(s"case Read(WebSocketFrame.Close($status, $reason))")
               Console.readLine("Closing channel with status: " + status + " and reason: " + reason)
 
             case ChannelEvent.Unregistered =>
-              /*for {
-
-                clientsInLobbies <- clientsInLobbiesRef.get
-                lobby <- ZIO.succeed(clientsInLobbies.get(clientId).getOrElse(null))
-                _ <- ZIO.when(lobby != null) {
-                    for {
-                      _ <- ZIO.debug(s"FOUND LOBBY: $lobby")
-                      _ <- ZIO.debug(s"DELETING CLIENT: $clientId")
-                      _ <- ZIO.succeed(lobby.removeClient(clientId))
-                      _ <- clientsInLobbiesRef.update(_ - clientId)
-                    } yield ()
-                }
-                _ <- ZIO.when(lobby.ended){
-                      for {
-                        _ <- ZIO.debug(s"DESTROYING LOBBY: $lobby")
-                        _ <- lobbiesRef.update(_ - lobby)
-                        _ <- ZIO.foreach(lobby.clients) { clientId =>
-                               ZIO.succeed(println(s"DELETING CLIENT: $clientId"))
-                               clientsInLobbiesRef.update(_ - clientId)
-                             }
-                      } yield()
-                }
-
-
-
-                clients <- clientsInLobbiesRef.get
-                lobbies <- lobbiesRef.get
-                _ <- ZIO.debug(s"CLIENTS: $clients")
-                _ <- ZIO.debug(s"LOBBIES: $lobbies")
-
-                _ <- ZIO.debug("Client disconnected")
-
-              } yield () */
               println("case ChannelEvent.Unregistered")
               Console.readLine("CHANNEL: "+ channel + ", " + ChannelEvent.Unregistered)
 
@@ -356,10 +209,10 @@ object MainApp extends ZIOAppDefault {
           _ <- ZIO.debug(s"webSocketHandle: incoming: ${incoming}")
           _ <- incoming.fork
           lobby <- lobbyPromise.await
-          _ <- ZIO.debug(s"GG lobby: $lobby")
+         // _ <- ZIO.debug(s"lobby: $lobby")
           queue <- queueRef.get
-          _ <- ZIO.debug(s"GG queue: $queue")
-          _ <- ZIO.debug(s"GG hub size: " + lobby.hub)
+        //  _ <- ZIO.debug(s"queue: $queue")
+         // _ <- ZIO.debug(s"hub size: " + lobby.hub)
 
           _ <- ZIO.when(queue != null){
             for {
@@ -401,6 +254,9 @@ object MainApp extends ZIOAppDefault {
     )
 
 
+
+
+
   val helloRoute =
     Method.GET / "hello" ->
       handler(Response.text("Hello, World!"))
@@ -415,11 +271,94 @@ object MainApp extends ZIOAppDefault {
     Method.GET / "health" ->
       handler(Response.text("OK"))
 
+
+  val responseRef = Ref.make[String]
+
+  /*val loginRoute =
+    Method.POST / "login" ->
+      handler { (req: Request) => {
+      ZIO.scoped{
+        for {
+          //_ <- ZIO.debug("HOWIAH")
+          r = req.body.toString()
+          o = r.fromJson[AuthenticationMessage]
+          j = o match
+                  case Right(v) =>
+                    v
+                  case Left(v) =>
+                    null
+          _ <- ZIO.debug(j)
+          u = j.username
+          p = j.password
+          q <- ZIO.scoped{
+            for {
+              _ <- ZIO.debug(u+p)
+              q <- Queries.getAccount(u,p)
+              q <- ZIO.when(q == null)(Queries.getUserName(u))
+              _ <- ZIO.when(q == null)(Queries.addUser(UserInfo(u,p,0,0)))
+            } yield q
+          }
+
+
+         // u <- ZIO.fromOption(Option(j.username))
+          //p <- ZIO.fromOption(Option(j.password))
+          //_ <- Response.text("THAWD")
+        } yield {
+          val que = q
+          println(que)
+          if que != null then
+            Response.text(que.toString())
+          else
+            Response.text("ERROR")
+        }
+      }
+        //var query: Option[List[UserInfo]] = null
+        //val r = ZIO.success(req.body.asString)
+        //val j = ZIO.fromEither(r.fromJson[AuthenticationMessage]).orElseFail(new IllegalArgumentException("Invalid JSON"))
+        //val u = j.username
+        //val p = j.password
+
+          //q <- Queries.getAccount(u,p)
+          //q <- ZIO.when(q == null)(Queries.getUserName(u))
+          //_ <- ZIO.when(q == null)(Queries.addUser(UserInfo(u,p,0,0)))
+        //println("HEELLOOO")
+        //Response.text("MOI")
+      }
+    }*/
+      /*handler { (req: Request) =>
+        for {
+          // 1.  Read the raw request body
+          rawBody   <- req.body.asString
+          // 2.  Convert the JSON string into LoginRequest
+          loginReq  <- ZIO.fromEither(rawBody.fromJson[AuthenticationMessage])
+                      .orElseFail(new IllegalArgumentException("Invalid JSON"))
+          // 3.  (Optional) Hash the password – here we just use the raw
+          //     value because we store it as hash in the DB.
+          passwordHash = loginReq.password   // <-- change to real hash in prod
+          // 4.  Look up the user
+          userOpt   <- Queries.getUser(loginReq.username, passwordHash)
+          // 5.  Build the JSON response
+          respJson  = userOpt match {
+            case Some(u: UserInfo) =>
+              Map(
+                "user" -> u.username,
+              ).toJsonPretty
+            case _ =>
+              Map("user" -> "Invalid").toJsonPretty
+          }
+          // 6.  Return a 200 OK with the JSON
+          resp = Response.json(respJson)
+        } yield resp
+      }*/
+
+
+
   val routes =
     Routes(
       wsRoute,
       healthRoute,
-      htmlRoute
+      htmlRoute,
+      //loginRoute,
     ) @@
     Middleware.serveResources(path = Path.empty / "scripts" / "dist", resourcePrefix = "scripts/dist") @@
     Middleware.serveResources(path = Path.empty / "scripts" , resourcePrefix = "scripts") @@

@@ -19,8 +19,13 @@ def settingsApp = Seq(
     zioTest,
     zioTestSBT,
     zioTestMagnolia,
-    osLib
+    osLib,
+   //
+    ziojson,
+    quill,
+    postqresql,
   ),
+  dependencyOverrides += "dev.zio" %% "zio-json" % "0.9.0"
 )
 
 def settingsDocker = Seq(

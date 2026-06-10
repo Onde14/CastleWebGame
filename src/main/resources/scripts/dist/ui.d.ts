@@ -10,26 +10,41 @@ export declare enum UIStates {
 }
 export declare enum ButtonEvent {
     Matchmake = 0,
-    Menu = 1
+    Menu = 1,
+    loginButton = 2,
+    registerButton = 3
 }
-export declare class Button {
+export declare enum TextFieldEvent {
+    Login = 0,
+    Password = 1
+}
+export declare class UIElement {
     width: number;
     height: number;
     pos: Vector;
+    constructor(width: number, height: number, pos: Vector);
+}
+export declare class Button extends UIElement {
     event: ButtonEvent;
     text: string;
     constructor(width: number, height: number, pos: Vector, event: ButtonEvent, text: string);
+}
+export declare class TextField extends UIElement {
+    event: TextFieldEvent;
+    text: string;
+    active: boolean;
+    constructor(width: number, height: number, pos: Vector, event: TextFieldEvent);
 }
 export declare class UserInterface {
     gameWidth: number;
     gameHeight: number;
     state: UIStates;
-    menu: Array<Button>;
-    matchMaking: Array<Button>;
+    menu: Array<UIElement>;
+    matchMaking: Array<UIElement>;
     endGame: Array<Button>;
     constructor(gameWidth: number, gameHeight: number);
-    menuConstructor(): Button[];
-    matchMakingConstructor(): Button[];
+    menuConstructor(): UIElement[];
+    matchMakingConstructor(): UIElement[];
     endGameConstructor(): Button[];
 }
 //# sourceMappingURL=ui.d.ts.map

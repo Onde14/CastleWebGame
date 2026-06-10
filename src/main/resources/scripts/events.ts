@@ -121,6 +121,19 @@ export class EventHandler {
     }
   }
 
+  keyDown(e: KeyboardEvent) {
+    if (!UIStates.Menu) {
+      return;
+    }
+    var username = "";
+    var password = "";
+    if (e.key.length === 1) { // Basic character input
+      username += e.key;
+    } else if (e.key === 'Backspace') {
+      var username = username.slice(0, -1);
+    }
+  }
+
   public startConnection() {
     this.messageHandler.webSocketDriver.openConnection()
   }
@@ -135,6 +148,8 @@ export class EventHandler {
     this.canvas.addEventListener("mousemove", (e) => this.mouseMove(e));
 
     window.addEventListener("resize", () => this.displayDriver.resize());
+
+    window.addEventListener('keydown', (e) => this.keyDown(e));
   }
   public buildGameStateEvent(players: any,) {
     this.gameState.buildGameState(players);

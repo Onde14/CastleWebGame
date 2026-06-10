@@ -89,10 +89,10 @@ export class MessageHandler {
   }
 
   public incoming(msg: string) {
-    console.log("MESSAGE:::", msg)
+   // console.log("MESSAGE:::", msg)
     try {
       const parsedJson: ResponseMessage = JSON.parse(msg);
-      console.log(parsedJson);
+     // console.log(parsedJson);
       this.handleResponse(parsedJson);
     } catch (error) {
       console.log("Couldn't parse incoming message: ", error);

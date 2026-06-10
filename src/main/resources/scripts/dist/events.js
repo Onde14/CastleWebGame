@@ -106,6 +106,19 @@ export class EventHandler {
             this.controls.mouseMove(target, castles, this.gameState.currentPlayerId);
         }
     }
+    keyDown(e) {
+        if (!UIStates.Menu) {
+            return;
+        }
+        var username = "";
+        var password = "";
+        if (e.key.length === 1) { // Basic character input
+            username += e.key;
+        }
+        else if (e.key === 'Backspace') {
+            var username = username.slice(0, -1);
+        }
+    }
     startConnection() {
         this.messageHandler.webSocketDriver.openConnection();
     }
@@ -116,6 +129,7 @@ export class EventHandler {
         this.canvas.addEventListener("mousedown", (e) => this.mouseDown(e));
         this.canvas.addEventListener("mousemove", (e) => this.mouseMove(e));
         window.addEventListener("resize", () => this.displayDriver.resize());
+        window.addEventListener('keydown', (e) => this.keyDown(e));
     }
     buildGameStateEvent(players) {
         this.gameState.buildGameState(players);

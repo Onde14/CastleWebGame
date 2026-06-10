@@ -11,7 +11,7 @@ object ClientChecker {
     for {
       _ <- (
         for {
-          //_ <- ZIO.debug(s"isClientAlive: Checking on $clientId")
+          _ <- ZIO.debug(s"isClientAlive: Checking on $clientId")
           clientStatus <- clientStatusRef.get
           status = clientStatus.get(clientId).getOrElse(false)
           _ <- ZIO.when(!status){
@@ -41,6 +41,6 @@ object ClientChecker {
           //_ <- ZIO.debug(s"isClientAlive: newclientStatus $newclientStatus")
           _ <- clientStatusRef.update(_ + (clientId -> false))
         } yield ()
-      ).repeat(Schedule.fixed(2.seconds))
+      ).repeat(Schedule.fixed(5.seconds))
     } yield ()
 }

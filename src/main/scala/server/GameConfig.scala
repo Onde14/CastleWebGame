@@ -67,6 +67,7 @@ final case class Player (
   castles: ArrayBuffer[Castle],
   units: ArrayBuffer[Soldier],
   var money: Int = 0,
+  ai: Boolean,
 )
 
 object Player {

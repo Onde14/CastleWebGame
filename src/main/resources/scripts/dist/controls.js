@@ -1,7 +1,7 @@
 import { Vector } from "./vector.js";
 import { CastleConfig } from "./config.js";
 import { GameStatus, PlayerState } from "./gamestate.js";
-import { UIStates } from "./ui.js";
+import { UIStates, Button } from "./ui.js";
 export class Controls {
     selected = new Map();
     isSelecting = false;
@@ -90,13 +90,15 @@ export class Controls {
     mouseDownButton(target, buttons) {
         let button = null;
         buttons.forEach(b => {
-            //console.log("b.pos:",b.pos,"target:",target)
-            if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
-                button = b;
-                return;
-            }
-            else {
-                console.log("NO BUTTON");
+            if (b instanceof Button) {
+                //console.log("b.pos:",b.pos,"target:",target)
+                if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
+                    button = b;
+                    return;
+                }
+                else {
+                    console.log("NO BUTTON");
+                }
             }
         });
         return button;

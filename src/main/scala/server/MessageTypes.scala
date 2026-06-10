@@ -138,3 +138,16 @@ object GameEndMessage {
 implicit val encoder: JsonEncoder[GameEndMessage] =
   DeriveJsonEncoder.gen[GameEndMessage]
 }
+
+
+final case class AuthenticationMessage (
+  username: String,
+  password: String,
+)
+
+object AuthenticationMessage {
+  implicit val encoder: JsonEncoder[AuthenticationMessage] =
+    DeriveJsonEncoder.gen[AuthenticationMessage]
+  implicit val decoder: JsonDecoder[AuthenticationMessage] =
+    DeriveJsonDecoder.gen[AuthenticationMessage]
+}

@@ -2,7 +2,7 @@ import { Vector } from "./vector.js";
 import { Soldier, Castle } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
 import { Gamestate, GameStatus, PlayerState } from "./gamestate.js";
-import { UIStates, UserInterface, Button } from "./ui.js";
+import { UIStates, UserInterface, Button, UIElement } from "./ui.js";
 
 export class Controls {
   selected = new Map<string, Castle>();
@@ -99,15 +99,17 @@ export class Controls {
     this.isTargetingEnemyCastle = targeting;
   }
 
-  public mouseDownButton(target: Vector, buttons: Array<Button>) {
+  public mouseDownButton(target: Vector, buttons: Array<UIElement>) {
     let button: any = null
     buttons.forEach(b => {
-      //console.log("b.pos:",b.pos,"target:",target)
-      if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
-        button = b
-        return;
-      } else {
-        console.log("NO BUTTON")
+      if (b instanceof Button) {
+        //console.log("b.pos:",b.pos,"target:",target)
+        if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
+          button = b
+          return;
+        } else {
+          console.log("NO BUTTON")
+        }
       }
     });
     return button

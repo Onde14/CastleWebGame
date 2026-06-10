@@ -44,8 +44,8 @@ export class Game {
         //console.log("DRAWING")
         this.displayDriver.draw();
         //console.log((Math.trunc(t % 5000)))
-        if (Math.trunc(t % 50) > 43) {
-            //console.log("TICKING:",(Math.trunc(t % 100)))
+        if (Math.trunc(t % 400) > 343) {
+            //console.log("TICKING:",(Math.trunc(t % 400)))
             this.eventHandler.sendTick();
         }
         window.requestAnimationFrame((t) => {

@@ -14,6 +14,7 @@ export declare class EventHandler {
     constructor(canvas: HTMLCanvasElement, gameState: Gamestate, controls: Controls, displayDriver: DisplayDriver, ui: UserInterface);
     mouseDown(e: MouseEvent): void;
     mouseMove(e: MouseEvent): void;
+    keyDown(e: KeyboardEvent): void;
     startConnection(): void;
     closeConnection(): void;
     eventHandling(): void;

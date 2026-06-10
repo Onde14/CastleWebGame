@@ -31,6 +31,7 @@ export declare enum VillageSize {
 export declare enum ClockSize {
     OuterRadius = 20,
     InnerRadius = 18,
-    Pointer = 18
+    PointerWidth = 3,
+    PointerHeight = 19
 }
 //# sourceMappingURL=config.d.ts.map

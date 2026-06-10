@@ -39,6 +39,7 @@ export var ClockSize;
 (function (ClockSize) {
     ClockSize[ClockSize["OuterRadius"] = 20] = "OuterRadius";
     ClockSize[ClockSize["InnerRadius"] = 18] = "InnerRadius";
-    ClockSize[ClockSize["Pointer"] = 18] = "Pointer";
+    ClockSize[ClockSize["PointerWidth"] = 3] = "PointerWidth";
+    ClockSize[ClockSize["PointerHeight"] = 19] = "PointerHeight";
 })(ClockSize || (ClockSize = {}));
 //# sourceMappingURL=config.js.map

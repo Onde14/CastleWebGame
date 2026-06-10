@@ -41,5 +41,6 @@ export enum VillageSize {
 export enum ClockSize {
   OuterRadius = 20,
   InnerRadius = 18,
-  Pointer = 18,
+  PointerWidth = 3,
+  PointerHeight = 19,
 }

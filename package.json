@@ -1,5 +1,10 @@
 {
   "dependencies": {
+    "jsonwebtoken": "^9.0.3",
     "websocket-ts": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "typescript": "^6.0.3"
   }
 }

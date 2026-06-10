@@ -3,7 +3,7 @@ import { SoldierConfig, CastleConfig, VillageConfig, ClockSize, RoadConfig } fro
 import { Gamestate, GameStatus, Player, PlayerState } from "./gamestate.js";
 import type { Game } from "./game.js";
 import type { Vector } from "./vector.js";
-import { type UserInterface, UIStates } from "./ui.js";
+import { type UserInterface, Button, UIStates } from "./ui.js";
 
 export class DisplayDriver {
   canvas: HTMLCanvasElement;
@@ -64,9 +64,21 @@ export class DisplayDriver {
     this.connectionsCreated = true;
   }
 
-  roadBuild(start: Vector, end: Vector){
+  drawTitle() {
+    this.ctx.font = this.renderWidthPositionRatio*50 + "px serif";
+    this.ctx.fillStyle = "black";
+    this.ctx.fillText("CASTLEGAME", this.gameWidth*.015*this.renderWidthPositionRatio+3*this.renderWidthPositionRatio, this.gameHeight*.15*this.renderHeightPositionRatio+3*this.renderWidthPositionRatio);
+    this.ctx.font = this.renderWidthPositionRatio*50 + "px serif";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText("CASTLEGAME", this.gameWidth*.015*this.renderWidthPositionRatio, this.gameHeight*.15*this.renderHeightPositionRatio);
+    this.ctx.save();
+    this.ctx.restore();
+  }
+
+    roadBuild(start: Vector, end: Vector){
     let road_height = Math.hypot((end.x-start.x),(end.y-start.y));
-    let road_rotation = Math.atan2((end.y-start.y),(end.x-start.x));
+    let road_rotation = Math.atan2((end.y - start.y), (end.x - start.x));
+    //console.log("road_rotation: ", road_rotation)
     this.ctx.fillStyle = "#403C2E";
     this.ctx.fillRect((start.x-RoadConfig.width/2)*this.renderWidthPositionRatio, start.y*this.renderHeightPositionRatio, RoadConfig.width*this.renderWidthPositionRatio, road_height*this.renderHeightPositionRatio);
     //this.ctx.rotate(road_rotation)
@@ -83,19 +95,24 @@ export class DisplayDriver {
 
 
   drawPointer() {
-    const sin = Math.sin(Math.PI / 6);
-    const cos = Math.cos(Math.PI / 6);
-    this.ctx.translate(this.gameWidth*0.05*this.renderWidthPositionRatio, this.gameHeight*0.1*this.renderHeightPositionRatio);
-    let c = 0;
-    for (let i = 0; i <= 255; i++) {
-      c = Math.floor((255 / 255) * i);
-      this.ctx.fillStyle = "black";
-      this.ctx.fillRect(0, 0, 100, 10);
-      this.ctx.transform(cos, sin, -sin, cos, 0, 0);
-    }
 
-    this.ctx.setTransform(-1, 0, 0, 1, 100, 100);
-    this.ctx.fillStyle = "black";
+   //console.log((Math.PI / 180) * this.gameState.clock)
+    this.ctx.translate(((this.gameWidth)* .05) * this.renderWidthPositionRatio, (this.gameHeight * .1)* this.renderHeightPositionRatio);
+    this.ctx.rotate((90 * this.gameState.clock * Math.PI) / 180)
+    this.ctx.fillStyle = "black"
+    this.ctx.fillRect(-RoadConfig.width*.05* this.renderWidthPositionRatio,
+      0,
+      ClockSize.PointerWidth,
+      -ClockSize.PointerHeight)
+    this.ctx.restore();
+    this.ctx.save();
+
+
+
+
+
+
+
   }
 
   drawGameClock() {
@@ -112,6 +129,7 @@ export class DisplayDriver {
     this.ctx.fill();
     this.ctx.save();
 
+
     this.ctx.beginPath();
     this.ctx.arc(
       (this.gameWidth *.05 * this.renderWidthPositionRatio),
@@ -124,9 +142,10 @@ export class DisplayDriver {
     this.ctx.fillStyle = "white";
     this.ctx.fill();
     this.ctx.save();
+    this.ctx.restore();
+
 
     this.drawPointer();
-    this.ctx.restore();
   }
 
 
@@ -276,9 +295,36 @@ export class DisplayDriver {
     this.ctx.fillStyle = "White";
     let text = "Money: "
     text += this.gameState.currentPlayer?.money
-    this.ctx.fillText(text, this.gameWidth*0.25*this.renderWidthPositionRatio, this.gameHeight*0.1*this.renderHeightPositionRatio);
+    this.ctx.fillText(text, this.gameWidth*0.005*this.renderWidthPositionRatio, this.gameHeight*0.2*this.renderHeightPositionRatio);
 
     this.drawGameClock();
+  }
+
+  drawMatchmakingText() {
+    let matchmakingText = "MATCHMAKING"
+    var i: number;
+
+    for (i = 0; i < this.matchmakingDots; i++) {
+      matchmakingText += "."
+    }
+    //console.log("this.matchmakingDots",this.matchmakingDots)
+    if (Math.trunc(this.iterator / 90) > this.matchmakingDots) {
+
+      this.matchmakingDots++;
+    }
+    if (Math.trunc(this.iterator / 360) == 1) {
+      this.iterator = 0;
+      this.matchmakingDots = 1;
+    }
+    this.iterator++;
+    this.ctx.font = this.renderWidthPositionRatio * 70 + "px serif";
+    this.ctx.fillStyle = "black";
+    this.ctx.fillText(matchmakingText, this.gameWidth * .2 * this.renderWidthPositionRatio + 3 * this.renderWidthPositionRatio, this.gameHeight * .4 * this.renderHeightPositionRatio + 3 * this.renderWidthPositionRatio);
+    this.ctx.font = this.renderWidthPositionRatio * 70 + "px serif";
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText(matchmakingText, this.canvas.width * 0.2, this.canvas.height * 0.4);
+    this.ctx.save();
+    this.ctx.restore();
   }
 
   drawMenu() {
@@ -294,52 +340,48 @@ export class DisplayDriver {
     this.ctx.restore();
 
 
-    this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
-    this.ctx.fillStyle = "black";
-    this.ctx.fillText("CASTLEGAME", this.gameWidth*.25*this.renderWidthPositionRatio+3*this.renderWidthPositionRatio, this.gameHeight*.15*this.renderHeightPositionRatio+3*this.renderWidthPositionRatio);
-    this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("CASTLEGAME", this.gameWidth*.25*this.renderWidthPositionRatio, this.gameHeight*.15*this.renderHeightPositionRatio);
-    this.ctx.save();
-    this.ctx.restore();
 
     this.ui.menu.forEach(b => {
-      /*this.ctx.fillStyle = "black";
-      this.ctx.fillRect(
-        (b.pos.x * 0.98 * this.renderWidthPositionRatio),
-        (b.pos.y * 0.98 * this.renderHeightPositionRatio),
-        (b.width * 1.02 * this.renderWidthPositionRatio),
-        (b.height * 1.04),
-      );*/
+      if (b instanceof Button) {
+        /*this.ctx.fillStyle = "black";
+        this.ctx.fillRect(
+          (b.pos.x * 0.98 * this.renderWidthPositionRatio),
+          (b.pos.y * 0.98 * this.renderHeightPositionRatio),
+          (b.width * 1.02 * this.renderWidthPositionRatio),
+          (b.height * 1.04),
+        );*/
 
-      this.ctx.fillStyle = "black";
-      // console.log(b.height * 1/this.renderHeightPositionRatio)
-      this.ctx.fillRect(
-        (b.pos.x * this.renderWidthPositionRatio-4*this.renderWidthPositionRatio),
-        (b.pos.y * this.renderHeightPositionRatio-4*this.renderWidthPositionRatio),
-        (b.width * this.renderWidthPositionRatio+8*this.renderWidthPositionRatio),
-        (b.height * this.renderWidthPositionRatio+8*this.renderWidthPositionRatio),
-      );
-      this.ctx.save();
-      this.ctx.restore();
+        this.ctx.fillStyle = "black";
+        // console.log(b.height * 1/this.renderHeightPositionRatio)
+        this.ctx.fillRect(
+          (b.pos.x * this.renderWidthPositionRatio - 4 * this.renderWidthPositionRatio),
+          (b.pos.y * this.renderHeightPositionRatio - 4 * this.renderWidthPositionRatio),
+          (b.width * this.renderWidthPositionRatio + 8 * this.renderWidthPositionRatio),
+          (b.height * this.renderWidthPositionRatio + 8 * this.renderWidthPositionRatio),
+        );
+        this.ctx.save();
+        this.ctx.restore();
 
-      this.ctx.fillStyle = "white";
-      this.ctx.fillRect(
-        (b.pos.x * this.renderWidthPositionRatio),
-        (b.pos.y * this.renderHeightPositionRatio),
-        (b.width * this.renderWidthPositionRatio),
-        (b.height * this.renderWidthPositionRatio),
-      );
-      this.ctx.save();
-      this.ctx.restore();
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(
+          (b.pos.x * this.renderWidthPositionRatio),
+          (b.pos.y * this.renderHeightPositionRatio),
+          (b.width * this.renderWidthPositionRatio),
+          (b.height * this.renderWidthPositionRatio),
+        );
+        this.ctx.save();
+        this.ctx.restore();
 
-      console.log(b.height,b.pos.y)
-      this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
-      this.ctx.fillStyle = "black";
-      this.ctx.fillText(b.text, (b.pos.x+b.width *0.12)* this.renderWidthPositionRatio, b.pos.y+b.height*.7* this.renderWidthPositionRatio);
-      this.ctx.save();
-      this.ctx.restore();
+        //console.log(b.height, b.pos.y)
+        this.ctx.font = this.renderWidthPositionRatio * b.width *.13 + "px serif";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(b.text, (b.pos.x + b.width * 0.075) * this.renderWidthPositionRatio, b.pos.y + b.height * .7 * this.renderWidthPositionRatio,b.width* this.renderWidthPositionRatio);
+        this.ctx.save();
+        this.ctx.restore();
+      }
     });
+
+    this.drawTitle()
 
 
 
@@ -359,18 +401,6 @@ export class DisplayDriver {
     this.ctx.save();
     this.ctx.restore();
 
-
-    this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
-    this.ctx.fillStyle = "black";
-    this.ctx.fillText("CASTLEGAME", this.gameWidth*.25*this.renderWidthPositionRatio+3*this.renderWidthPositionRatio, this.gameHeight*.15*this.renderHeightPositionRatio+3*this.renderWidthPositionRatio);
-    this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText("CASTLEGAME", this.gameWidth*.25*this.renderWidthPositionRatio, this.gameHeight*.15*this.renderHeightPositionRatio);
-    this.ctx.save();
-    this.ctx.restore();
-
-
-
     let matchmakingText = "MATCHMAKING"
     var i: number;
 
@@ -388,56 +418,48 @@ export class DisplayDriver {
     }
     this.iterator++;
 
-
-    this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
-    this.ctx.fillStyle = "black";
-    this.ctx.fillText(matchmakingText, this.gameWidth*.2*this.renderWidthPositionRatio+3*this.renderWidthPositionRatio, this.gameHeight*.4*this.renderHeightPositionRatio+3*this.renderWidthPositionRatio);
-    this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
-    this.ctx.fillStyle = "white";
-    this.ctx.fillText(matchmakingText, this.canvas.width*0.2, this.canvas.height*0.4);
-    this.ctx.save();
-    this.ctx.restore();
-
-
-
-
     this.ui.matchMaking.forEach(b => {
-      /*this.ctx.fillStyle = "black";
-      this.ctx.fillRect(
-        (b.pos.x * 0.98 * this.renderWidthPositionRatio),
-        (b.pos.y * 0.98 * this.renderHeightPositionRatio),
-        (b.width * 1.02 * this.renderWidthPositionRatio),
-        (b.height * 1.04),
-      );*/
+      if (b instanceof Button) {
+        /*this.ctx.fillStyle = "black";
+        this.ctx.fillRect(
+          (b.pos.x * 0.98 * this.renderWidthPositionRatio),
+          (b.pos.y * 0.98 * this.renderHeightPositionRatio),
+          (b.width * 1.02 * this.renderWidthPositionRatio),
+          (b.height * 1.04),
+        );*/
 
-      this.ctx.fillStyle = "black";
-      //console.log(b.pos.y * 0.98 * this.renderWidthPositionRatio)
-      this.ctx.fillRect(
-        (b.pos.x * this.renderWidthPositionRatio-4*this.renderWidthPositionRatio),
-        (b.pos.y * this.renderHeightPositionRatio-4*this.renderWidthPositionRatio),
-        (b.width * this.renderWidthPositionRatio+8*this.renderWidthPositionRatio),
-        (b.height * this.renderWidthPositionRatio+8*this.renderWidthPositionRatio),
-      );
-      this.ctx.save();
-      this.ctx.restore();
+        this.ctx.fillStyle = "black";
+        //console.log(b.pos.y * 0.98 * this.renderWidthPositionRatio)
+        this.ctx.fillRect(
+          (b.pos.x * this.renderWidthPositionRatio - 4 * this.renderWidthPositionRatio),
+          (b.pos.y * this.renderHeightPositionRatio - 4 * this.renderWidthPositionRatio),
+          (b.width * this.renderWidthPositionRatio + 8 * this.renderWidthPositionRatio),
+          (b.height * this.renderWidthPositionRatio + 8 * this.renderWidthPositionRatio),
+        );
+        this.ctx.save();
+        this.ctx.restore();
 
-      this.ctx.fillStyle = "white";
-      this.ctx.fillRect(
-        (b.pos.x * this.renderWidthPositionRatio),
-        (b.pos.y * this.renderHeightPositionRatio),
-        (b.width * this.renderWidthPositionRatio),
-        (b.height * this.renderWidthPositionRatio),
-      );
-      this.ctx.save();
-      this.ctx.restore();
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(
+          (b.pos.x * this.renderWidthPositionRatio),
+          (b.pos.y * this.renderHeightPositionRatio),
+          (b.width * this.renderWidthPositionRatio),
+          (b.height * this.renderWidthPositionRatio),
+        );
+        this.ctx.save();
+        this.ctx.restore();
 
 
-      this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
-      this.ctx.fillStyle = "black";
-      this.ctx.fillText(b.text, ((b.pos.x+b.width*.15)* this.renderWidthPositionRatio), ((b.pos.y+b.height*.7*this.renderWidthPositionRatio)));
-      this.ctx.save();
-      this.ctx.restore();
+        this.ctx.font = this.renderWidthPositionRatio * 70 + "px serif";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(b.text, ((b.pos.x + b.width * .15) * this.renderWidthPositionRatio), ((b.pos.y + b.height * .7 * this.renderWidthPositionRatio)));
+        this.ctx.save();
+        this.ctx.restore();
+      }
     });
+
+    this.drawMatchmakingText()
+    this.drawTitle()
 
   }
 
@@ -592,7 +614,7 @@ export class DisplayDriver {
     });
     if (this.gameState.state == GameStatus.Ended) {
       this.ctx.font = this.renderWidthPositionRatio*100 + "px serif";
-      this.ctx.fillStyle = "white";
+      this.ctx.fillStyle = "black";
       const winnerColor = this.gameState.winner?.color! + ""
       const text = winnerColor.toUpperCase()
       this.ctx.fillText(text + " PLAYER WON!", this.canvas.width*0.05, this.canvas.height/2, this.canvas.width*0.9);

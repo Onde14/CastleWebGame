@@ -1,7 +1,7 @@
 import { Vector } from "./vector.js";
 import { Castle } from "./objects.js";
 import { Gamestate } from "./gamestate.js";
-import { UserInterface, Button } from "./ui.js";
+import { UserInterface, Button, UIElement } from "./ui.js";
 export declare class Controls {
     selected: Map<string, Castle>;
     isSelecting: boolean;
@@ -16,7 +16,7 @@ export declare class Controls {
     isMouseTargetingButton(target: Vector, mouse_pos: Vector, button: Button): boolean;
     isMouseTargetingCastle(target: Vector, mouse_pos: Vector): boolean;
     mouseMove(mouse_pos: Vector, castles: Array<Castle>, playerId: string): void;
-    mouseDownButton(target: Vector, buttons: Array<Button>): any;
+    mouseDownButton(target: Vector, buttons: Array<UIElement>): any;
     mouseDownGame(target: Vector, castles?: Array<Castle>, playerId?: string): {
         target_castle_id: string;
         selected_castles_ids: string[];

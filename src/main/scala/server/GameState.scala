@@ -28,9 +28,10 @@ class GameState:
   var currentPlayersIds = ArrayBuffer[UUID]()
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
-  val colors = List("blue","red")
+  val colors = List("blue","red","green","purple","yellow")
   private val soldierSpeed = GameConfig.SoldierSpeed
   var winner: UUID = null
+  var CPUs = new ArrayBuffer[Player]()
 
   def isGameStarted: Boolean = this.gameStarted
   def changeGameStarted(): Unit = gameStarted = true
@@ -41,7 +42,7 @@ class GameState:
 
   def getMap(): MapDataFile =
 
-    val path = os.pwd/"src"/"main"/"scala"/"server"/"maps"/"demo.json"
+    val path = os.pwd/"src"/"main"/"scala"/"server"/"data"/"demo.json"
 
     val mapContent = os.read(path).fromJson[MapDataFile]
 
@@ -60,33 +61,69 @@ class GameState:
   def calcDistance(pos1: Pos, pos2: Pos): Double =
     return (pos1.x - pos2.x).abs + (pos1.y - pos2.y).abs
 
+  def buildCPU(line: MapData, i: Int,clients: ArrayBuffer[UUID]) =
+    val cpuId = UUID.randomUUID()
+    val player = new Player(cpuId, colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier],0,true)
+    CPUs += player
+    val castle = new Castle(UUID.randomUUID(), cpuId, player.color,line.pos, 1, GameConfig.CastleHealth, null, null, line.id)
+    var villagesArray = new ArrayBuffer[Village]
+    for j <- 1 until 4 do
+      println("I: " +  i)
+      println(s"CASTLE POS: ${castle.pos}")
+
+      val r = GameConfig.VillageSize*3
+      val x = castle.pos.x + r * math.cos(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
+      val y = castle.pos.y - r * math.sin(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
+      val villagePos = new Pos(x,y)
+
+
+      val village = new Village(UUID.randomUUID(), cpuId, villagePos)
+      villagesArray += village
+      println(s"buildGameState: castle.villages = ${castle.villages}")
+    castle.villages = villagesArray.toList
+
+    player.castles += castle
+    castles += castle
+    mapData += player
+
+  def buildPlayer(line: MapData, i: Int,clients: ArrayBuffer[UUID]) =
+    val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier],0,false)
+
+    val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1, GameConfig.CastleHealth, null, null, line.id)
+    var villagesArray = new ArrayBuffer[Village]
+    for j <- 1 until 4 do
+      println("I: " +  i)
+      println(s"CASTLE POS: ${castle.pos}")
+
+      val r = GameConfig.VillageSize*3
+      val x = castle.pos.x + r * math.cos(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
+      val y = castle.pos.y - r * math.sin(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
+      val villagePos = new Pos(x,y)
+
+
+      val village = new Village(UUID.randomUUID(), clients(i), villagePos)
+      villagesArray += village
+      println(s"buildGameState: castle.villages = ${castle.villages}")
+    castle.villages = villagesArray.toList
+
+    player.castles += castle
+    castles += castle
+    mapData += player
+
+
+
   def buildGameState(clients: ArrayBuffer[UUID]): Unit =
     val mapFile = getMap()
     //val map = mapPositions(content.fromJson)
     println(s"MAP:  $mapFile")
     var i = 0
     for line <- mapFile.MapDataFile do
-      val player = new Player(clients(i), colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier])
-      val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1, GameConfig.CastleHealth, null, null, line.id)
-      var villagesArray = new ArrayBuffer[Village]
-      for j <- 1 until 4 do
-        println("I: " +  i)
-        println(s"CASTLE POS: ${castle.pos}")
-
-        val r = GameConfig.VillageSize*3
-        val x = castle.pos.x + r * math.cos(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
-        val y = castle.pos.y - r * math.sin(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
-        val villagePos = new Pos(x,y)
-
-
-        val village = new Village(UUID.randomUUID(), clients(i), villagePos)
-        villagesArray += village
-        println(s"buildGameState: castle.villages = ${castle.villages}")
-      castle.villages = villagesArray.toList
-
-      player.castles += castle
-      castles += castle
-      mapData += player
+      if clients.size > i then
+        println("HELLO")
+        buildPlayer(line, i, clients)
+      else
+        println("HELLO")
+        buildCPU(line, i,clients)
       i += 1
     for line <- mapFile.MapDataFile do
 

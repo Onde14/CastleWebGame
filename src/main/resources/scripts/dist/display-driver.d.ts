@@ -18,11 +18,13 @@ export declare class DisplayDriver {
     constructor(ui: UserInterface, gameState: Gamestate, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, gameWidth: number, gameHeight: number);
     resize(): void;
     createConnections(): void;
+    drawTitle(): void;
     roadBuild(start: Vector, end: Vector): void;
     drawRoads(): void;
     drawPointer(): void;
     drawGameClock(): void;
     drawGame(): void;
+    drawMatchmakingText(): void;
     drawMenu(): void;
     drawMatchmaking(): void;
     drawEndGame(): void;

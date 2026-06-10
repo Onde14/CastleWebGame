@@ -62,6 +62,9 @@ class Lobby(h: Hub[String],g: GameState):
   def buildGame() =
     gameState.buildGameState(clients)
     //return gameState.availablePlayerSlots
+    //
+
+
 
 
   def runGame(lobbiesRef: Ref[Set[Lobby]]) =
