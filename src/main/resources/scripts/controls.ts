@@ -2,7 +2,7 @@ import { Vector } from "./vector.js";
 import { Soldier, Castle } from "./objects.js";
 import { SoldierConfig, CastleConfig } from "./config.js";
 import { Gamestate, GameStatus, PlayerState } from "./gamestate.js";
-import { UIStates, UserInterface, Button, UIElement } from "./ui.js";
+import { UIStates, UserInterface, Button, UIElement, TextField } from "./ui.js";
 
 export class Controls {
   selected = new Map<string, Castle>();
@@ -37,7 +37,7 @@ export class Controls {
   }
 
     */
-  isMouseTargetingButton(target: Vector, mouse_pos: Vector, button: Button) {
+  isMouseTargetingElement(target: Vector, mouse_pos: Vector, button: UIElement) {
     const visualLengths = this.visualVector(new Vector(button.width,button.height))
     //const centerToBorderWidth = button.width / 2;
     //const centerToBorderHeight = button.height / 2;
@@ -104,11 +104,21 @@ export class Controls {
     buttons.forEach(b => {
       if (b instanceof Button) {
         //console.log("b.pos:",b.pos,"target:",target)
-        if (this.isMouseTargetingButton(this.visualVector(b.pos), target, b)) {
+        if (this.isMouseTargetingElement(this.visualVector(b.pos), target, b)) {
           button = b
           return;
         } else {
           console.log("NO BUTTON")
+        }
+      }
+      else if (b instanceof TextField) {
+        if (this.isMouseTargetingElement(this.visualVector(b.pos), target, b)){
+          b.active = true;
+          b.text = ""
+          console.log("TEXTFIELD ACTIVE");
+          return;
+        } else {
+          b.active = false;
         }
       }
     });

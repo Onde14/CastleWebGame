@@ -4,7 +4,7 @@
     "soldierRadius": 10,
     "soldierHealth": 10,
     "soldierDamage": 10,
-    "soldierSpeed": 10,
+    "soldierSpeed": 5,
     "villageSize": 30,
     "villageHealth": 10,
     "castleSize": 60,

@@ -18,7 +18,7 @@ export enum ButtonEvent {
 }
 
 export enum TextFieldEvent {
-  Login,
+  Username,
   Password,
 }
 
@@ -36,10 +36,12 @@ export class UIElement {
 export class Button extends UIElement {
   event: ButtonEvent;
   text: string;
-  constructor(width: number, height: number, pos: Vector, event: ButtonEvent, text: string) {
+  textPixels: number;
+  constructor(width: number, height: number, pos: Vector, event: ButtonEvent, text: string,textPixels: number) {
     super(width, height, pos);
     this.event = event;
     this.text = text;
+    this.textPixels = textPixels;
   }
 }
 
@@ -47,9 +49,13 @@ export class TextField extends UIElement {
   event: TextFieldEvent;
   text: string = "";
   active = false;
-  constructor(width: number, height: number, pos: Vector, event: TextFieldEvent) {
+  label: string;
+  textPixels: number;
+  constructor(width: number, height: number, pos: Vector, event: TextFieldEvent, label: string = "", textPixels: number) {
     super(width, height, pos);
     this.event = event;
+    this.label = label;
+    this.textPixels = textPixels;
   }
 }
 
@@ -75,29 +81,38 @@ export class UserInterface {
       this.gameHeight * 0.1,
       new Vector(this.gameWidth * 0.18, this.gameHeight * 0.5),
       ButtonEvent.Matchmake,
-      "MATCHMAKE")
+      "MATCHMAKE",
+      80)
+
     menu.push(matchmakingButton)
 
     const usernameField = new TextField(
-      this.gameWidth * 0.6,
-      this.gameHeight * 0.1,
-      new Vector(this.gameWidth * 0.18, this.gameHeight * 0.9),
-      TextFieldEvent.Login)
+      this.gameWidth * 0.4,
+      this.gameHeight * 0.03,
+      new Vector(this.gameWidth * 0.4, this.gameHeight * 0.05),
+      TextFieldEvent.Username,
+      "username",
+      25)
+    usernameField.text = usernameField.label
     menu.push(usernameField)
 
     const passwordField = new TextField(
-      this.gameWidth * 0.6,
-      this.gameHeight * 0.1,
-      new Vector(this.gameWidth * 0.18, this.gameHeight / 4),
-      TextFieldEvent.Password)
+      this.gameWidth * 0.4,
+      this.gameHeight * 0.03,
+      new Vector(this.gameWidth * 0.4, this.gameHeight * 0.12),
+      TextFieldEvent.Password,
+      "password",
+      25)
+    passwordField.text = passwordField.label
     menu.push(passwordField)
 
     const loginButton = new Button(
       this.gameWidth * 0.15,
       this.gameHeight * 0.05,
-      new Vector(this.gameWidth * 0.8, this.gameHeight * 0.05),
+      new Vector(this.gameWidth * 0.84, this.gameHeight * 0.05),
       ButtonEvent.loginButton,
-      "LOGIN")
+      "LOGIN",
+      30)
     menu.push(loginButton)
 
 
@@ -106,8 +121,9 @@ export class UserInterface {
       this.gameHeight * 0.05,
       new Vector(this.gameWidth * 0.8, this.gameHeight * 0.1),
       ButtonEvent.registerButton,
-      "REGISTER")
-     menu.push(registerButton)
+      "REGISTER",
+      10)
+    //menu.push(registerButton)
 
     return menu;
   }
@@ -119,7 +135,8 @@ export class UserInterface {
       this.gameHeight * 0.1,
       new Vector(this.gameWidth * 0.1, this.gameHeight * 0.7),
       ButtonEvent.Menu,
-      "CANCEL")
+      "CANCEL",
+      70)
     matchmaking.push(cancelButton)
     return matchmaking;
   }
@@ -132,7 +149,8 @@ export class UserInterface {
       this.gameHeight * 0.1,
       new Vector(this.gameWidth * 0.33, this.gameHeight / 2 * 1.1),
       ButtonEvent.Menu,
-      "Menu")
+      "Menu",
+      80)
     endGame.push(menu)
     return endGame;
   }

@@ -3,7 +3,7 @@ import { SoldierConfig, CastleConfig, VillageConfig, ClockSize, RoadConfig } fro
 import { Gamestate, GameStatus, Player, PlayerState } from "./gamestate.js";
 import type { Game } from "./game.js";
 import type { Vector } from "./vector.js";
-import { type UserInterface, Button, UIStates } from "./ui.js";
+import { type UserInterface, Button, TextField, UIStates } from "./ui.js";
 
 export class DisplayDriver {
   canvas: HTMLCanvasElement;
@@ -45,7 +45,9 @@ export class DisplayDriver {
   }
 
   createConnections() {
+
     if (this.connectionsCreated == true) return;
+    console.log("this.connections",this.connections)
     let castles = new Array<Castle>()
     this.gameState.gameObjects.forEach((o, k) => {
       if (o instanceof Castle) {
@@ -67,23 +69,26 @@ export class DisplayDriver {
   drawTitle() {
     this.ctx.font = this.renderWidthPositionRatio*50 + "px serif";
     this.ctx.fillStyle = "black";
-    this.ctx.fillText("CASTLEGAME", this.gameWidth*.015*this.renderWidthPositionRatio+3*this.renderWidthPositionRatio, this.gameHeight*.15*this.renderHeightPositionRatio+3*this.renderWidthPositionRatio);
+    this.ctx.fillText("CASTLEGAME", this.gameWidth*.015*this.renderWidthPositionRatio+3*this.renderWidthPositionRatio, this.gameHeight*.1*this.renderHeightPositionRatio+3*this.renderWidthPositionRatio);
     this.ctx.font = this.renderWidthPositionRatio*50 + "px serif";
     this.ctx.fillStyle = "white";
-    this.ctx.fillText("CASTLEGAME", this.gameWidth*.015*this.renderWidthPositionRatio, this.gameHeight*.15*this.renderHeightPositionRatio);
+    this.ctx.fillText("CASTLEGAME", this.gameWidth*.015*this.renderWidthPositionRatio, this.gameHeight*.1*this.renderHeightPositionRatio);
     this.ctx.save();
     this.ctx.restore();
   }
 
-    roadBuild(start: Vector, end: Vector){
-    let road_height = Math.hypot((end.x-start.x),(end.y-start.y));
-    let road_rotation = Math.atan2((end.y - start.y), (end.x - start.x));
-    //console.log("road_rotation: ", road_rotation)
-    this.ctx.fillStyle = "#403C2E";
-    this.ctx.fillRect((start.x-RoadConfig.width/2)*this.renderWidthPositionRatio, start.y*this.renderHeightPositionRatio, RoadConfig.width*this.renderWidthPositionRatio, road_height*this.renderHeightPositionRatio);
-    //this.ctx.rotate(road_rotation)
+  roadBuild(start: Vector, end: Vector) {
     this.ctx.save();
+    let roadHeight = Math.hypot((end.x-start.x),(end.y-start.y));
+    let roadRotation = Math.atan2((end.y - start.y), (end.x - start.x));
+    this.ctx.rotate(roadRotation)
+   // console.log("road_rotation: ", roadRotation)
+    this.ctx.fillStyle = "#403C2E";
+    this.ctx.fillRect((start.x-RoadConfig.width/2)*this.renderWidthPositionRatio, start.y*this.renderHeightPositionRatio, RoadConfig.width*this.renderWidthPositionRatio, roadHeight*this.renderHeightPositionRatio);
+
     this.ctx.restore();
+    this.ctx.save();
+
 
   }
 
@@ -158,7 +163,7 @@ export class DisplayDriver {
       this.gameHeight * this.renderHeightPositionRatio,
     );
     this.createConnections();
-    this.drawRoads();
+    //this.drawRoads();
 
 
 
@@ -373,7 +378,36 @@ export class DisplayDriver {
         this.ctx.restore();
 
         //console.log(b.height, b.pos.y)
-        this.ctx.font = this.renderWidthPositionRatio * b.width *.13 + "px serif";
+        this.ctx.font = this.renderWidthPositionRatio * b.textPixels + "px serif";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(b.text, (b.pos.x + b.width * 0.075) * this.renderWidthPositionRatio, b.pos.y + b.height * .7 * this.renderWidthPositionRatio,b.width* this.renderWidthPositionRatio);
+        this.ctx.save();
+        this.ctx.restore();
+      }
+      if (b instanceof TextField) {
+        this.ctx.fillStyle = "black";
+        // console.log(b.height * 1/this.renderHeightPositionRatio)
+        this.ctx.fillRect(
+          (b.pos.x * this.renderWidthPositionRatio - 4 * this.renderWidthPositionRatio),
+          (b.pos.y * this.renderHeightPositionRatio - 4 * this.renderWidthPositionRatio),
+          (b.width * this.renderWidthPositionRatio + 8 * this.renderWidthPositionRatio),
+          (b.height * this.renderWidthPositionRatio + 8 * this.renderWidthPositionRatio),
+        );
+        this.ctx.save();
+        this.ctx.restore();
+
+        this.ctx.fillStyle = "#D0D0D0";
+        this.ctx.fillRect(
+          (b.pos.x * this.renderWidthPositionRatio),
+          (b.pos.y * this.renderHeightPositionRatio),
+          (b.width * this.renderWidthPositionRatio),
+          (b.height * this.renderWidthPositionRatio),
+        );
+        this.ctx.save();
+        this.ctx.restore();
+
+        //console.log(b.height, b.pos.y)
+        this.ctx.font = this.renderWidthPositionRatio * b.textPixels + "px serif";
         this.ctx.fillStyle = "black";
         this.ctx.fillText(b.text, (b.pos.x + b.width * 0.075) * this.renderWidthPositionRatio, b.pos.y + b.height * .7 * this.renderWidthPositionRatio,b.width* this.renderWidthPositionRatio);
         this.ctx.save();
@@ -450,7 +484,7 @@ export class DisplayDriver {
         this.ctx.restore();
 
 
-        this.ctx.font = this.renderWidthPositionRatio * 70 + "px serif";
+        this.ctx.font = this.renderWidthPositionRatio * b.textPixels + "px serif";
         this.ctx.fillStyle = "black";
         this.ctx.fillText(b.text, ((b.pos.x + b.width * .15) * this.renderWidthPositionRatio), ((b.pos.y + b.height * .7 * this.renderWidthPositionRatio)));
         this.ctx.save();
@@ -471,7 +505,7 @@ export class DisplayDriver {
       this.gameWidth * this.renderWidthPositionRatio,
       this.gameHeight * this.renderHeightPositionRatio,
     );
-    this.drawRoads();
+    //this.drawRoads();
 
     let castles = Array<Castle>();
     let soldiers = Array<Soldier>();
@@ -606,7 +640,7 @@ export class DisplayDriver {
       this.ctx.restore();
 
 
-      this.ctx.font = this.renderWidthPositionRatio*70 + "px serif";
+      this.ctx.font = this.renderWidthPositionRatio*b.textPixels + "px serif";
       this.ctx.fillStyle = "black";
       this.ctx.fillText(b.text, ((b.pos.x+b.width*.3)* this.renderWidthPositionRatio), ((b.pos.y+b.height*.7*this.renderWidthPositionRatio)));
       this.ctx.save();

@@ -62,7 +62,7 @@ export class Gamestate {
     players.forEach((player: any) => {
       const id: Int16Array = player.id;
       let newPlayer = new Player(
-        false,
+        player.ai,
         player.id,
         new Array<Soldier>(),
         new Array<Castle>(),
@@ -129,6 +129,7 @@ export class Gamestate {
 
   public createSoldiers(soldiers: any, money: number) {
     let moneySet = false
+    console.log("STARTING SOLDIER CREATION")
     soldiers.forEach((soldier: any) => {
       if (moneySet == false) {
         const player = this.players.find(p => p.id == soldier.owner)
@@ -162,8 +163,11 @@ export class Gamestate {
     });
   }
 
-  public update(updates: Array<any>, tick: number) {
+  public update(updates: any, tick: number) {
     this.clock = Math.trunc(tick / 100);
+    const cpuUnits = updates.filter((u: any) => u.state == 6)
+    console.log("cpuUnits:",cpuUnits)
+    cpuUnits.forEach((u: any) => this.createSoldiers(u.soldiers, u.money))
     updates.forEach((u: any) => {
       if (u.money!) {
         const player = this.players.find(p => p.id == u.id)!
@@ -176,7 +180,8 @@ export class Gamestate {
       if (u.state == 2) {
         // console.log(3, u.id, this.gameObjects);
         //console.log(object);
-        //console.log(4);
+        console.log(4, object);
+        if (object.pos === undefined) return;
         object.pos = new Vector(u.updatedPos.x, u.updatedPos.y);
       } if (u.state == 0) {
         let object: any = this.gameObjects.get(u.id);

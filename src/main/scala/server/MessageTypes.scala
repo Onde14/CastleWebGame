@@ -102,25 +102,41 @@ implicit val encoder: JsonEncoder[BuildGameDataMessage] =
   DeriveJsonEncoder.gen[BuildGameDataMessage]
 }
 
+final case class CPUUpdateData (
+  msgType: String,
+  state: Int, // 5 = playerDefeated // 6 = CPU-units
+  money: Int,
+  soldiers: List[Soldier],
+)
+object CPUUpdateData {
+  implicit val encoder: JsonEncoder[CPUUpdateData] =
+    DeriveJsonEncoder.gen[CPUUpdateData]
+  implicit val decoder: JsonDecoder[CPUUpdateData] =
+    DeriveJsonDecoder.gen[CPUUpdateData]
+}
+
+
 final case class UpdateData (
   id: UUID,
   playerId: Option[UUID],
   newOwner: Option[UUID],
   updatedPos: Option[Pos],
-  state: Option[Int], // 5 = playerDefeated
+  state: Option[Int], // 5 = playerDefeated // 6 = CPU-units
   health: Option[Int],
-  money: Option[Int]
+  money: Option[Int],
 )
 
 object UpdateData {
-implicit val encoder: JsonEncoder[UpdateData] =
-  DeriveJsonEncoder.gen[UpdateData]
+  implicit val encoder: JsonEncoder[UpdateData] =
+    DeriveJsonEncoder.gen[UpdateData]
+  implicit val decoder: JsonDecoder[UpdateData] =
+    DeriveJsonDecoder.gen[UpdateData]
 }
 
 
 final case class UpdatedGameDataMessage (
   msgType: String,
-  updates: ArrayBuffer[UpdateData],
+  updates: List[UpdateData],
   tick: Int,
 )
 

@@ -274,44 +274,25 @@ object MainApp extends ZIOAppDefault {
 
   val responseRef = Ref.make[String]
 
-  /*val loginRoute =
+ /* val loginRoute: Route[Any,Nothing] =
     Method.POST / "login" ->
       handler { (req: Request) => {
-      ZIO.scoped{
-        for {
-          //_ <- ZIO.debug("HOWIAH")
-          r = req.body.toString()
-          o = r.fromJson[AuthenticationMessage]
-          j = o match
-                  case Right(v) =>
-                    v
-                  case Left(v) =>
-                    null
-          _ <- ZIO.debug(j)
-          u = j.username
-          p = j.password
-          q <- ZIO.scoped{
-            for {
-              _ <- ZIO.debug(u+p)
-              q <- Queries.getAccount(u,p)
-              q <- ZIO.when(q == null)(Queries.getUserName(u))
-              _ <- ZIO.when(q == null)(Queries.addUser(UserInfo(u,p,0,0)))
-            } yield q
+          Response.text(DatabaseActions.addUser(req.toJson))
+          for {
+            r <- req.body.asString
+            o <- ZIO.fromEither(r.fromJson[AuthenticationMessage])
+            _ <- ZIO.when(o == null)(ZIO.interrupt())
+            _ <- ZIO.debug("o: " + o)
+            u <- ZIO.succeed(DatabaseActions.getUser(o.username))
+            uO <- ZIO.when(u.isBlank())(ZIO.succeed(DatabaseActions.addUser(o.username,o.password)))
+            newU = u.toString()
+
+          } yield {
+            val username = newU
+            Response.text("username")
           }
-
-
-         // u <- ZIO.fromOption(Option(j.username))
-          //p <- ZIO.fromOption(Option(j.password))
-          //_ <- Response.text("THAWD")
-        } yield {
-          val que = q
-          println(que)
-          if que != null then
-            Response.text(que.toString())
-          else
-            Response.text("ERROR")
         }
-      }
+      }*/
         //var query: Option[List[UserInfo]] = null
         //val r = ZIO.success(req.body.asString)
         //val j = ZIO.fromEither(r.fromJson[AuthenticationMessage]).orElseFail(new IllegalArgumentException("Invalid JSON"))
@@ -323,8 +304,6 @@ object MainApp extends ZIOAppDefault {
           //_ <- ZIO.when(q == null)(Queries.addUser(UserInfo(u,p,0,0)))
         //println("HEELLOOO")
         //Response.text("MOI")
-      }
-    }*/
       /*handler { (req: Request) =>
         for {
           // 1.  Read the raw request body

@@ -32,7 +32,7 @@ export declare class Gamestate {
     setCurrentPlayerId(clientId: string): void;
     buildGameState(players: any): void;
     createSoldiers(soldiers: any, money: number): void;
-    update(updates: Array<any>, tick: number): void;
+    update(updates: any, tick: number): void;
     private move_commands;
     gameEnd(winner: string): void;
     resetGameState(): void;

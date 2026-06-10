@@ -18,7 +18,7 @@ export var ButtonEvent;
 })(ButtonEvent || (ButtonEvent = {}));
 export var TextFieldEvent;
 (function (TextFieldEvent) {
-    TextFieldEvent[TextFieldEvent["Login"] = 0] = "Login";
+    TextFieldEvent[TextFieldEvent["Username"] = 0] = "Username";
     TextFieldEvent[TextFieldEvent["Password"] = 1] = "Password";
 })(TextFieldEvent || (TextFieldEvent = {}));
 export class UIElement {
@@ -34,19 +34,25 @@ export class UIElement {
 export class Button extends UIElement {
     event;
     text;
-    constructor(width, height, pos, event, text) {
+    textPixels;
+    constructor(width, height, pos, event, text, textPixels) {
         super(width, height, pos);
         this.event = event;
         this.text = text;
+        this.textPixels = textPixels;
     }
 }
 export class TextField extends UIElement {
     event;
     text = "";
     active = false;
-    constructor(width, height, pos, event) {
+    label;
+    textPixels;
+    constructor(width, height, pos, event, label = "", textPixels) {
         super(width, height, pos);
         this.event = event;
+        this.label = label;
+        this.textPixels = textPixels;
     }
 }
 export class UserInterface {
@@ -65,27 +71,29 @@ export class UserInterface {
     }
     menuConstructor() {
         let menu = new Array();
-        const matchmakingButton = new Button(this.gameWidth * 0.6, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.18, this.gameHeight * 0.5), ButtonEvent.Matchmake, "MATCHMAKE");
+        const matchmakingButton = new Button(this.gameWidth * 0.6, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.18, this.gameHeight * 0.5), ButtonEvent.Matchmake, "MATCHMAKE", 80);
         menu.push(matchmakingButton);
-        const usernameField = new TextField(this.gameWidth * 0.6, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.18, this.gameHeight * 0.9), TextFieldEvent.Login);
+        const usernameField = new TextField(this.gameWidth * 0.4, this.gameHeight * 0.03, new Vector(this.gameWidth * 0.4, this.gameHeight * 0.05), TextFieldEvent.Username, "username", 25);
+        usernameField.text = usernameField.label;
         menu.push(usernameField);
-        const passwordField = new TextField(this.gameWidth * 0.6, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.18, this.gameHeight / 4), TextFieldEvent.Password);
+        const passwordField = new TextField(this.gameWidth * 0.4, this.gameHeight * 0.03, new Vector(this.gameWidth * 0.4, this.gameHeight * 0.12), TextFieldEvent.Password, "password", 25);
+        passwordField.text = passwordField.label;
         menu.push(passwordField);
-        const loginButton = new Button(this.gameWidth * 0.15, this.gameHeight * 0.05, new Vector(this.gameWidth * 0.8, this.gameHeight * 0.05), ButtonEvent.loginButton, "LOGIN");
+        const loginButton = new Button(this.gameWidth * 0.15, this.gameHeight * 0.05, new Vector(this.gameWidth * 0.84, this.gameHeight * 0.05), ButtonEvent.loginButton, "LOGIN", 30);
         menu.push(loginButton);
-        const registerButton = new Button(this.gameWidth * 0.15, this.gameHeight * 0.05, new Vector(this.gameWidth * 0.8, this.gameHeight * 0.1), ButtonEvent.registerButton, "REGISTER");
-        menu.push(registerButton);
+        const registerButton = new Button(this.gameWidth * 0.15, this.gameHeight * 0.05, new Vector(this.gameWidth * 0.8, this.gameHeight * 0.1), ButtonEvent.registerButton, "REGISTER", 10);
+        //menu.push(registerButton)
         return menu;
     }
     matchMakingConstructor() {
         let matchmaking = new Array();
-        const cancelButton = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.1, this.gameHeight * 0.7), ButtonEvent.Menu, "CANCEL");
+        const cancelButton = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.1, this.gameHeight * 0.7), ButtonEvent.Menu, "CANCEL", 70);
         matchmaking.push(cancelButton);
         return matchmaking;
     }
     endGameConstructor() {
         let endGame = new Array();
-        const menu = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.33, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "Menu");
+        const menu = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.33, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "Menu", 80);
         endGame.push(menu);
         return endGame;
     }

@@ -15,7 +15,7 @@ export declare enum ButtonEvent {
     registerButton = 3
 }
 export declare enum TextFieldEvent {
-    Login = 0,
+    Username = 0,
     Password = 1
 }
 export declare class UIElement {
@@ -27,13 +27,16 @@ export declare class UIElement {
 export declare class Button extends UIElement {
     event: ButtonEvent;
     text: string;
-    constructor(width: number, height: number, pos: Vector, event: ButtonEvent, text: string);
+    textPixels: number;
+    constructor(width: number, height: number, pos: Vector, event: ButtonEvent, text: string, textPixels: number);
 }
 export declare class TextField extends UIElement {
     event: TextFieldEvent;
     text: string;
     active: boolean;
-    constructor(width: number, height: number, pos: Vector, event: TextFieldEvent);
+    label: string;
+    textPixels: number;
+    constructor(width: number, height: number, pos: Vector, event: TextFieldEvent, label: string | undefined, textPixels: number);
 }
 export declare class UserInterface {
     gameWidth: number;

@@ -14,7 +14,6 @@ import zio.json.*
 
 
 
-
 class Lobby(h: Hub[String],g: GameState):
   val id = UUID.randomUUID()
   val hub = h
@@ -31,14 +30,14 @@ class Lobby(h: Hub[String],g: GameState):
 
   def setStatus() =
     if running then
-      if currSize < 2 then
+      if currSize < 2  then
         ended = true
     else
       if clients.isEmpty then
         ended = true
 
   def checkSize() =
-    println(s"checkSize: currSize = $currSize, maxSize = $maxSize")
+    //println(s"checkSize: currSize = $currSize, maxSize = $maxSize")
     if currSize == maxSize then isFull = true else isFull = false
 
 
@@ -54,9 +53,9 @@ class Lobby(h: Hub[String],g: GameState):
     setStatus()
 
   def startGame(lobbiesRef: Ref[Set[Lobby]]) =
+    running = true
     for {
-      running = true
-      runGameFiber <- runGame(lobbiesRef).forever
+      runGameFiber <- runGame(lobbiesRef)
     } yield runGameFiber
 
   def buildGame() =
@@ -68,113 +67,61 @@ class Lobby(h: Hub[String],g: GameState):
 
 
   def runGame(lobbiesRef: Ref[Set[Lobby]]) =
-      println("START GAME!")
-        for {
-          gameStatus <- ZIO.succeed(gameState.isGameWon())
-          //_ <- ZIO.debug(gameStatus)
-          _ <- ZIO.when(gameStatus){
-            for {
-              _ <- ZIO.debug(s"GAME $id IS DONE1:")
-              _ <- hub.publish(GameEndMessage("GameEndMessage",gameState.winner).toJson)
-              _ <- lobbiesRef.update(_ - this)
-              _ <- ZIO.interrupt
-            } yield ()
-          }
-          gameStatus <- ZIO.succeed(clients.size < 2)
-          _ <- ZIO.when(gameStatus){
-            for {
-              _ <- ZIO.debug(s"GAME $id IS DONE2:")
-              response <- ZIO.when(clients.size == 1) {
-                for {
-                  _ <- ZIO.debug(s"clients(0): ${clients(0)}")
-                  response = GameEndMessage("GameEndMessage",clients(0)).toJson
-                  _ <- ZIO.debug(s"response: ${response}")
-                } yield response
-              }
-              res <- ZIO.succeed(response.get)
-              _ <- ZIO.debug("res:",res)
-
-              _ <- hub.publish(res)
-              _ <- lobbiesRef.update(_ - this)
-              _ <- ZIO.interrupt
-            } yield ()
-          }
-
-          updates <- ZIO.succeed(gameState.update())
-          _ <- ZIO.succeed(if tick % 401 == 0 && tick != 0 then
-            gameState.calcMoney(updates)
-            tick = 0
-          )
-          response <- ZIO.succeed(UpdatedGameDataMessage("UpdatedGameState",updates,tick).toJson)
-          _ <- ZIO.succeed(tick += 1)
-
-          _ <- ZIO.when(response != null) (hub.publish(response))
-        // _ <- ZIO.succeed(gameState.changes.clear())
-        // _ <- ZIO.debug(gameState.availablePlayerSlots)
-         // _ <- ZIO.debug(s"RUNNING: $running")
-          //_ <- ZIO.debug(s"$id: Tick")
-          _ <- ZIO.sleep(16.millis)
-       //  _ <- ZIO.debug(s"$id: Tick")
-        } yield ()
-  def publish() =
-    for {
-      hub <- ZIO.service[Hub[String]]
-    } yield ()
-
-
-  /*def publish(message: String, channel:  Channel[ChannelEvent[WebSocketFrame], ChannelEvent[WebSocketFrame]]) =
-    ZIO.scoped {
+    println("START GAME!")
       for {
-        hub <- ZIO.service[Hub[String]]
-        queue <- hub.subscribe
-        outgoing <- ZStream
-          .fromQueue(queue)
-          .map(WebSocketFrame.text)
-          .runForeach(frame => channel.send(Read(frame))
-        _ <- hub.publish
+        _ <- (
+          for {
+            gameStatus <- ZIO.succeed(gameState.isGameWon())
+            _ <- ZIO.when(gameStatus){
+              for {
+                _ <- ZIO.debug(s"GAME $id IS DONE1:")
+                _ <- hub.publish(GameEndMessage("GameEndMessage",gameState.winner).toJson)
+                _ <- lobbiesRef.update(_ - this)
+                _ <- ZIO.interrupt
+              } yield ()
+            }
+            gameStatus <- ZIO.succeed(clients.size < 2 && gameState.CPUs.size == 0)
+            _ <- ZIO.when(gameStatus){
+              for {
+                _ <- ZIO.debug(s"GAME $id IS DONE2:")
+                response <- ZIO.when(clients.size == 1) {
+                  for {
+                    _ <- ZIO.debug(s"clients(0): ${clients(0)}")
+                    response = GameEndMessage("GameEndMessage",clients(0)).toJson
+                    _ <- ZIO.debug(s"response: ${response}")
+                  } yield response
+                }
+                res <- ZIO.succeed(response.get)
+                _ <- ZIO.debug("res:",res)
+
+                _ <- hub.publish(res)
+                _ <- lobbiesRef.update(_ - this)
+                _ <- ZIO.interrupt
+              } yield ()
+            }
 
 
+
+
+
+
+            updates <- ZIO.succeed(gameState.update(tick))
+            _ <- ZIO.fromEither(Right(if tick % 401 == 0 && tick != 0 then
+              gameState.calcMoney(updates)
+              tick = 0
+            ))
+            response <- ZIO.succeed(UpdatedGameDataMessage("UpdatedGameState",updates.toList,tick).toJson)
+            _ <- ZIO.succeed(tick += 1)
+
+            _ <- ZIO.when(response != null) (hub.publish(response))
+          // _ <- ZIO.succeed(gameState.changes.clear())
+          // _ <- ZIO.debug(gameState.availablePlayerSlots)
+          // _ <- ZIO.debug(s"RUNNING: $running")
+            //_ <- ZIO.debug(s"$id: Tick")
+        //  _ <- ZIO.debug(s"$id: Tick")
+            cpuUpdate <- ZIO.when(tick % 50 == 0) (ZIO.attempt(gameState.cpuUpdate(tick)))
+            _ <- ZIO.debug("DEBUG: " + Some(cpuUpdate))
+            _ <- ZIO.when(cpuUpdate != Some(null))(hub.publish(cpuUpdate.toJson))
+          } yield ()
+        ).repeat(Schedule.fixed(16.millis))
       } yield ()
-    }
- */
-
-
-
-
-
-
-
-/*
-class Lobby (gameState: GameState, clients: ArrayBuffer[UUID]):
-  var id: UUID = null
-  var currSize = 0
-  val maxSize = 2
-  var started = false
-  var isFull = false
-  var clientsArray = clients
-  def checkSize() =
-    println("SIZES: " + currSize +  maxSize)
-    if currSize == maxSize then isFull = true else isFull = false
-  def addClient(id: UUID) =
-    clientsArray += id
-    currSize += 1
-    checkSize()
-  def removeClient(id: UUID) =
-    clientsArray -= id
-    currSize -= 1
-    checkSize()
-  def startGame() =
-    runGame().forkDaemon
-  def runGame() =
-      println("START GAME!")
-      ZIO.scoped{
-        for {
-          hub <- ZIO.service[Hub[String]]
-          updates <- ZIO.succeed(gameState.update())
-          //_ <- if updates.nonEmpty then hub.publish(outgoingMessageHandling("update",updates)) else ZIO.unit
-        // _ <- ZIO.succeed(gameState.changes.clear())
-        // _ <- ZIO.debug(gameState.availablePlayerSlots)
-          _ <- ZIO.sleep(16.millis)
-        } yield ()
-      }
-*/

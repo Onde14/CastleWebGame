@@ -8,6 +8,7 @@ type ResponseMessage = {
   time?: string;
   currentPlayerId?: number;
   currentPlayerColor?: string;
+  id?: string;
   color?: string;
   message?: string;
   players?: any;
@@ -19,6 +20,8 @@ type ResponseMessage = {
   tick?: number;
   winner?: string;
   money?: number;
+  ai?: boolean;
+  state?: number;
 };
 
 export class MessageHandler {
@@ -37,6 +40,7 @@ export class MessageHandler {
 
   private handleResponse(msg: ResponseMessage) {
     //console.log("TYPE IS ", msg.msgType);
+    if (msg.msgType === undefined) return;
     switch (msg.msgType) {
       case "BuildGameDataMessage":
         if (msg.players !== undefined) {
@@ -82,6 +86,10 @@ export class MessageHandler {
       case "InvalidMessage":
         console.log("Request was invalid!")
         break;
+      case "CPUUpdateDataMessage":
+        console.log("CPUUpdateDataMessage",msg.soldiers!)
+        this.eventHandler.CPUcreateUnit(msg.state!,msg.money!,msg.soldiers!)
+        break;
 
       default:
         throw new Error("Unknown message type!");
@@ -89,10 +97,10 @@ export class MessageHandler {
   }
 
   public incoming(msg: string) {
-   // console.log("MESSAGE:::", msg)
+    //console.log("MESSAGE:::", msg)
     try {
       const parsedJson: ResponseMessage = JSON.parse(msg);
-     // console.log(parsedJson);
+      //console.log(parsedJson);
       this.handleResponse(parsedJson);
     } catch (error) {
       console.log("Couldn't parse incoming message: ", error);

@@ -12,6 +12,7 @@ import scala.compiletime.ops.double
 import java.util.UUID
 import scala.util.Random
 import scala.util.Random
+import scala.util.Random
 
 
 
@@ -21,14 +22,13 @@ class GameState:
   private val width = GameConfig.Width
   private var gameStarted = false
   var mapData = ArrayBuffer[Player]()
- // var playersIds = ArrayBuffer[UUID]()
   var castles = ArrayBuffer[Castle]()
   var soldiers = ArrayBuffer[Soldier]()
   var removedSoldiers = ArrayBuffer[Soldier]()
   var currentPlayersIds = ArrayBuffer[UUID]()
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
-  val colors = List("blue","red","green","purple","yellow")
+  val colors = List("blue","red","green","purple","yellow","orange")
   private val soldierSpeed = GameConfig.SoldierSpeed
   var winner: UUID = null
   var CPUs = new ArrayBuffer[Player]()
@@ -46,16 +46,16 @@ class GameState:
 
     val mapContent = os.read(path).fromJson[MapDataFile]
 
-    println("PATH: " + path)
+    //println("PATH: " + path)
 
-    println("FILE: " + os.read(path))
+   // println("FILE: " + os.read(path))
 
     mapContent match
       case Right(value) =>
-        println("JSON: " + value)
+        //println("JSON: " + value)
         return value
       case Left(value) =>
-        println(s"Failed to decode map content $value")
+        //println(s"Failed to decode map content $value")
     return null
 
   def calcDistance(pos1: Pos, pos2: Pos): Double =
@@ -64,12 +64,11 @@ class GameState:
   def buildCPU(line: MapData, i: Int,clients: ArrayBuffer[UUID]) =
     val cpuId = UUID.randomUUID()
     val player = new Player(cpuId, colors(i), new ArrayBuffer[Castle], new ArrayBuffer[Soldier],0,true)
-    CPUs += player
     val castle = new Castle(UUID.randomUUID(), cpuId, player.color,line.pos, 1, GameConfig.CastleHealth, null, null, line.id)
     var villagesArray = new ArrayBuffer[Village]
     for j <- 1 until 4 do
-      println("I: " +  i)
-      println(s"CASTLE POS: ${castle.pos}")
+      //println("I: " +  i)
+      //println(s"CASTLE POS: ${castle.pos}")
 
       val r = GameConfig.VillageSize*3
       val x = castle.pos.x + r * math.cos(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
@@ -79,11 +78,12 @@ class GameState:
 
       val village = new Village(UUID.randomUUID(), cpuId, villagePos)
       villagesArray += village
-      println(s"buildGameState: castle.villages = ${castle.villages}")
+      //println(s"buildGameState: castle.villages = ${castle.villages}")
     castle.villages = villagesArray.toList
 
     player.castles += castle
     castles += castle
+    CPUs += player
     mapData += player
 
   def buildPlayer(line: MapData, i: Int,clients: ArrayBuffer[UUID]) =
@@ -92,8 +92,8 @@ class GameState:
     val castle = new Castle(UUID.randomUUID(), clients(i), player.color,line.pos, 1, GameConfig.CastleHealth, null, null, line.id)
     var villagesArray = new ArrayBuffer[Village]
     for j <- 1 until 4 do
-      println("I: " +  i)
-      println(s"CASTLE POS: ${castle.pos}")
+      //println("I: " +  i)
+      //println(s"CASTLE POS: ${castle.pos}")
 
       val r = GameConfig.VillageSize*3
       val x = castle.pos.x + r * math.cos(120*(j)*math.Pi/180.0) + Random().between(0,GameConfig.VillageSize)
@@ -103,7 +103,7 @@ class GameState:
 
       val village = new Village(UUID.randomUUID(), clients(i), villagePos)
       villagesArray += village
-      println(s"buildGameState: castle.villages = ${castle.villages}")
+      //println(s"buildGameState: castle.villages = ${castle.villages}")
     castle.villages = villagesArray.toList
 
     player.castles += castle
@@ -115,21 +115,21 @@ class GameState:
   def buildGameState(clients: ArrayBuffer[UUID]): Unit =
     val mapFile = getMap()
     //val map = mapPositions(content.fromJson)
-    println(s"MAP:  $mapFile")
+   // println(s"MAP:  $mapFile")
     var i = 0
     for line <- mapFile.MapDataFile do
       if clients.size > i then
-        println("HELLO")
+       // println("HELLO")
         buildPlayer(line, i, clients)
       else
-        println("HELLO")
+     //   println("HELLO")
         buildCPU(line, i,clients)
       i += 1
     for line <- mapFile.MapDataFile do
 
       val castle = castles.find(c => c.mapFileId == line.id).get
       if castle != null then
-        println("castle: " + castle)
+       // println("castle: " + castle)
         var connections = new ArrayBuffer[UUID]();
         for conn <- line.connections do
 
@@ -141,31 +141,13 @@ class GameState:
 
         castle.connections = connections.toList
 
-
-    println(s"mapData: $mapData")
-
-
-    /*
-    val player1 = new Player(Random.between(0, 100000), "blue", new ArrayBuffer[Castle](), new ArrayBuffer[Soldier]())
-    availablePlayerSlots += player1
-    val castle1 = new Castle(Random.between(0, 100000), player1.id, player1.color, new Pos(width/2,height-100),1)
-    castles += castle1
-    player1.castles += castle1
-    val player2 = new Player(Random.between(0, 100000), "red", new ArrayBuffer[Castle](), new ArrayBuffer[Soldier]())
-    availablePlayerSlots += player2
-    val castle2 = new Castle(Random.between(0, 100000), player2.id, player2.color, new Pos(width/2,100),1)
-    castles += castle2
-    player2.castles += castle2
-    */
-    //println(s"GAME BUILD: $availablePlayerSlots")
-
   def addPlayer(clientId: UUID) =
     if currentPlayersIds.size < playerLimit then
       currentPlayersIds += clientId
 
   def removePlayer(clientId: UUID): Unit =
     currentPlayersIds -= clientId
-    println("PLAYER REMOVED")
+    //println("PLAYER REMOVED")
 
   def resetGameState() =
     gameStarted = false
@@ -175,21 +157,23 @@ class GameState:
     removedSoldiers = ArrayBuffer[Soldier]()
     currentPlayersIds = ArrayBuffer[UUID]()
     currentPlayerIterator = 0
+    CPUs = new ArrayBuffer[Player]()
 
 
   def isGameWon(): Boolean =
     val owner = castles(0).owner
+    //println(s"owner: $owner")
     val oneOwnerCastle = castles.find(c1 => c1.owner != owner).getOrElse(null)
+
     //println(s"oneOwnerCastle: $oneOwnerCastle")
-    var res = oneOwnerCastle == null
-    if res then
+    if oneOwnerCastle == null then
       winner = owner
       resetGameState()
-
-    return res
+      return true
+    return false
 
   def damageStructures(soldier: Soldier): UpdateData =
-    val castle = castles.find(c => c.id == soldier.targetCastleId && c.owner != soldier.owner).get
+    val castle = castles.find(c => c.id == soldier.targetCastleId && c.owner != soldier.owner).getOrElse(return null)
     val villages = castle.villages.filter(v => v.state == 1)
     if (villages.nonEmpty) then
       val damagedVillage = villages(0)
@@ -225,7 +209,7 @@ class GameState:
 
     val player: Player = mapData.find(_.id == playerId).get
     if (player.money < selected_castles_ids.length) then
-      println(s"player.money < selected_castles_ids.length: ${player.money},${selected_castles_ids}")
+      //println(s"player.money < selected_castles_ids.length: ${player.money},${selected_castles_ids}")
       val res: ResponseAttackOrderMessage = null
       return res;
 
@@ -244,9 +228,9 @@ class GameState:
       player.money -= 1
     }
 
-    println(s"createSoldier: soldiers = $soldiers")
+    //println(s"createSoldier: soldiers = $soldiers")
     val response: ResponseAttackOrderMessage = new ResponseAttackOrderMessage("ResponseAttackOrderMessage",new_soldiers.toList,player.money)
-    println(s"createSoldier: CREATED SOLDIER AND RESPONSE: $response")
+    //println(s"createSoldier: CREATED SOLDIER AND RESPONSE: $response")
 
     return response
 
@@ -258,7 +242,7 @@ class GameState:
       return false
 
   def areEnemiesTouching(soldier: Soldier): List[Soldier]  =
-    val touchingSoldiers = soldiers.filter(s => (s.id != soldier.id && calcDistance(soldier.pos,s.pos) <= GameConfig.SoldierRadius && s.state != 0)).toList
+    val touchingSoldiers = soldiers.filter(s => (s.id != soldier.id && s.owner != soldier.owner && calcDistance(soldier.pos,s.pos) <= GameConfig.SoldierRadius && s.state != 0)).toList
     return touchingSoldiers
 
 
@@ -287,7 +271,8 @@ class GameState:
       if foundTarget then
         s.state = 0
         val damageUpdates = damageStructures(s)
-        updates += damageUpdates
+        if damageUpdates != null then
+          updates += damageUpdates
 
 
       else
@@ -312,6 +297,7 @@ class GameState:
   def removeSoldiers(): Unit =
     val newArray = soldiers.filter(s => s.state != 0)
     soldiers = newArray
+    //println(s"removeSoldiers(): SOLDIERS = $soldiers")
 
   def calcMoney(updates: ArrayBuffer[UpdateData]) =
     mapData.foreach(p => {
@@ -322,12 +308,38 @@ class GameState:
       })
       updates += new UpdateData(p.id,Option(null),Option(null),Option(null),Option(null),Option(null),Option(countMoney))
       p.money += countMoney
-      println(s"p.money ${p.money}, countMoney ${countMoney}")
+      //println(s"p.money ${p.money}, countMoney ${countMoney}")
     })
 
+  def CPUStrategy(): CPUUpdateData =
+    val cpu = Random.shuffle(CPUs).head
+    if (cpu.money <= 0) then return null
+    val castle = Random.shuffle(cpu.castles).head
+    val target = castles.find(enemyCas => enemyCas.owner != cpu.id).getOrElse(null)
+   // println("target: " + target)
+    if target != null then
+      var selected = new ArrayBuffer[UUID]()
+      cpu.castles.foreach(c => selected += c.id)
+      if (cpu.money >= selected.size) then
+        println(s"${cpu.id} + ${target.id} + ${selected.toList} + ${castle}")
+        val response: ResponseAttackOrderMessage = createSoldiers(cpu.id,target.id,selected.toList)
+        if response != null then
+          val cpuUpdate = new CPUUpdateData ("CPUUpdateDataMessage",6,cpu.money,response.soldiers.toList)
+         // println(response)
+          return cpuUpdate
+        else return null
+      else return null
+    else return null
 
-  def update(): ArrayBuffer[UpdateData] =
-    val updates = moveSoldiers()
+  def cpuUpdate(tick: Int): CPUUpdateData =
+      var res = CPUStrategy()
+      res
+
+  def update(tick: Int): ArrayBuffer[UpdateData] =
+
+    val updates: ArrayBuffer[UpdateData] = moveSoldiers()
     //println(s"update: updates = $updates")
     removeSoldiers()
+
+    //println("updates: " + updates)
     return updates

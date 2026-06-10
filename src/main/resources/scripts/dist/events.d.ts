@@ -11,7 +11,9 @@ export declare class EventHandler {
     messageHandler: MessageHandler;
     ui: UserInterface;
     socketOpen: boolean;
+    username: string;
     constructor(canvas: HTMLCanvasElement, gameState: Gamestate, controls: Controls, displayDriver: DisplayDriver, ui: UserInterface);
+    curlLogin(): Promise<void>;
     mouseDown(e: MouseEvent): void;
     mouseMove(e: MouseEvent): void;
     keyDown(e: KeyboardEvent): void;
@@ -24,5 +26,6 @@ export declare class EventHandler {
     setCurrentPlayerId(clientId: string): void;
     gameEnd(winner: string): void;
     sendTick(): void;
+    CPUcreateUnit(state: number, money: number, soldiers: any): void;
 }
 //# sourceMappingURL=events.d.ts.map

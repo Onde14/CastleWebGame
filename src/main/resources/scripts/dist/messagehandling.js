@@ -13,6 +13,8 @@ export class MessageHandler {
     }
     handleResponse(msg) {
         //console.log("TYPE IS ", msg.msgType);
+        if (msg.msgType === undefined)
+            return;
         switch (msg.msgType) {
             case "BuildGameDataMessage":
                 if (msg.players !== undefined) {
@@ -59,15 +61,19 @@ export class MessageHandler {
             case "InvalidMessage":
                 console.log("Request was invalid!");
                 break;
+            case "CPUUpdateDataMessage":
+                console.log("CPUUpdateDataMessage", msg.soldiers);
+                this.eventHandler.CPUcreateUnit(msg.state, msg.money, msg.soldiers);
+                break;
             default:
                 throw new Error("Unknown message type!");
         }
     }
     incoming(msg) {
-        // console.log("MESSAGE:::", msg)
+        //console.log("MESSAGE:::", msg)
         try {
             const parsedJson = JSON.parse(msg);
-            // console.log(parsedJson);
+            //console.log(parsedJson);
             this.handleResponse(parsedJson);
         }
         catch (error) {

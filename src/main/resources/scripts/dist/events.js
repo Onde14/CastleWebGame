@@ -1,6 +1,6 @@
 import { Vector } from "./vector.js";
 import { MessageHandler } from "./messagehandling.js";
-import { UIStates, ButtonEvent } from "./ui.js";
+import { UIStates, ButtonEvent, TextField, TextFieldEvent } from "./ui.js";
 export class EventHandler {
     canvas;
     gameState;
@@ -9,6 +9,7 @@ export class EventHandler {
     messageHandler;
     ui;
     socketOpen = false;
+    username = "";
     constructor(canvas, gameState, controls, displayDriver, ui) {
         this.canvas = canvas;
         this.gameState = gameState;
@@ -16,6 +17,29 @@ export class EventHandler {
         this.displayDriver = displayDriver;
         this.ui = ui;
         this.messageHandler = new MessageHandler(this);
+    }
+    async curlLogin() {
+        let username;
+        let password;
+        this.ui.menu.forEach(b => {
+            if (b instanceof TextField) {
+                if (b.event == TextFieldEvent.Username) {
+                    username = b.text;
+                }
+                if (b.event == TextFieldEvent.Password) {
+                    password = b.text;
+                }
+            }
+        });
+        const response = await fetch('http://localhost:8080/login', {
+            method: 'POST',
+            body: JSON.stringify({ "username": username, "password": password })
+        });
+        const data = await response.text();
+        console.log(data);
+        if (data == username) {
+            this.username = data;
+        }
     }
     mouseDown(e) {
         const target = new Vector(e.clientX, e.clientY);
@@ -28,6 +52,8 @@ export class EventHandler {
                             this.ui.state = UIStates.Matchmaking;
                             this.startConnection();
                             break;
+                        case ButtonEvent.loginButton:
+                            this.curlLogin();
                         default:
                             break;
                     }
@@ -107,17 +133,26 @@ export class EventHandler {
         }
     }
     keyDown(e) {
-        if (!UIStates.Menu) {
-            return;
+        if (this.ui.state != UIStates.Menu) {
+            this.ui.menu.forEach(b => {
+                console.log("HELLOOO");
+                if (b instanceof TextField) {
+                    b.text = b.label;
+                }
+            });
         }
-        var username = "";
-        var password = "";
-        if (e.key.length === 1) { // Basic character input
-            username += e.key;
-        }
-        else if (e.key === 'Backspace') {
-            var username = username.slice(0, -1);
-        }
+        this.ui.menu.forEach(b => {
+            if (b instanceof TextField) {
+                if (b.active) {
+                    if (e.key.length === 1) {
+                        b.text += e.key;
+                    }
+                    else if (e.key === 'Backspace') {
+                        b.text = b.text.slice(0, -1);
+                    }
+                }
+            }
+        });
     }
     startConnection() {
         this.messageHandler.webSocketDriver.openConnection();
@@ -129,7 +164,7 @@ export class EventHandler {
         this.canvas.addEventListener("mousedown", (e) => this.mouseDown(e));
         this.canvas.addEventListener("mousemove", (e) => this.mouseMove(e));
         window.addEventListener("resize", () => this.displayDriver.resize());
-        window.addEventListener('keydown', (e) => this.keyDown(e));
+        window.addEventListener("keydown", (e) => this.keyDown(e));
     }
     buildGameStateEvent(players) {
         this.gameState.buildGameState(players);
@@ -152,6 +187,9 @@ export class EventHandler {
             msgType: "ClientTick",
         };
         this.messageHandler.send(tick);
+    }
+    CPUcreateUnit(state, money, soldiers) {
+        this.gameState.createSoldiers(soldiers, money);
     }
 }
 //# sourceMappingURL=events.js.map

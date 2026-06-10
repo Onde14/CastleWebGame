@@ -4,7 +4,7 @@ import { Vector } from "./vector.js";
 import type { Controls } from "./controls.js";
 import type { DisplayDriver } from "./display-driver.js";
 import { MessageHandler } from "./messagehandling.js";
-import { UIStates, UserInterface, ButtonEvent, Button } from "./ui.js";
+import { UIStates, UserInterface, ButtonEvent, Button, TextField, TextFieldEvent } from "./ui.js";
 
 export class EventHandler {
   canvas: HTMLCanvasElement;
@@ -14,6 +14,7 @@ export class EventHandler {
   messageHandler: MessageHandler;
   ui: UserInterface;
   socketOpen = false;
+  username: string = "";
   constructor(
     canvas: HTMLCanvasElement,
     gameState: Gamestate,
@@ -29,26 +30,50 @@ export class EventHandler {
     this.messageHandler = new MessageHandler(this);
   }
 
-
+  async curlLogin() {
+    let username;
+    let password;
+    this.ui.menu.forEach(b => {
+      if (b instanceof TextField) {
+        if (b.event == TextFieldEvent.Username) {
+          username = b.text;
+        }
+        if (b.event == TextFieldEvent.Password) {
+          password = b.text;
+        }
+      }
+    });
+    const response = await fetch('http://localhost:8080/login', {
+      method: 'POST',
+      body: JSON.stringify({ "username": username, "password": password })
+    });
+    const data = await response.text();
+    console.log(data);
+    if (data == username) {
+      this.username = data;
+    }
+  }
 
   mouseDown(e: MouseEvent) {
     const target = new Vector(e.clientX, e.clientY);
     switch (this.ui.state) {
       case UIStates.Menu:
-        let resMenu = this.controls.mouseDownButton(target,this.ui.menu);
+        let resMenu = this.controls.mouseDownButton(target, this.ui.menu);
         if (resMenu) {
           switch (resMenu.event) {
             case ButtonEvent.Matchmake:
               this.ui.state = UIStates.Matchmaking;
               this.startConnection();
               break;
+            case ButtonEvent.loginButton:
+              this.curlLogin()
             default:
               break;
           }
         }
         break;
       case UIStates.Matchmaking:
-        let resMatchmake = this.controls.mouseDownButton(target,this.ui.matchMaking)
+        let resMatchmake = this.controls.mouseDownButton(target, this.ui.matchMaking)
         if (resMatchmake) {
           switch (resMatchmake.event) {
             case ButtonEvent.Menu:
@@ -92,7 +117,7 @@ export class EventHandler {
         }
         break;
       case UIStates.EndGame:
-        let resEndGame = this.controls.mouseDownButton(target,this.ui.endGame)
+        let resEndGame = this.controls.mouseDownButton(target, this.ui.endGame)
         if (resEndGame) {
           switch (resEndGame.event) {
             case ButtonEvent.Menu:
@@ -122,16 +147,28 @@ export class EventHandler {
   }
 
   keyDown(e: KeyboardEvent) {
-    if (!UIStates.Menu) {
-      return;
+
+
+    if (this.ui.state != UIStates.Menu) {
+      this.ui.menu.forEach(b => {
+        console.log("HELLOOO")
+        if (b instanceof TextField) {
+          b.text = b.label;
+        }
+      });
     }
-    var username = "";
-    var password = "";
-    if (e.key.length === 1) { // Basic character input
-      username += e.key;
-    } else if (e.key === 'Backspace') {
-      var username = username.slice(0, -1);
-    }
+    this.ui.menu.forEach(b => {
+      if (b instanceof TextField) {
+        if (b.active) {
+          if (e.key.length === 1) {
+            b.text += e.key;
+          } else if (e.key === 'Backspace') {
+            b.text = b.text.slice(0, -1);
+          }
+        }
+      }
+    });
+
   }
 
   public startConnection() {
@@ -149,7 +186,7 @@ export class EventHandler {
 
     window.addEventListener("resize", () => this.displayDriver.resize());
 
-    window.addEventListener('keydown', (e) => this.keyDown(e));
+    window.addEventListener("keydown", (e) => this.keyDown(e));
   }
   public buildGameStateEvent(players: any,) {
     this.gameState.buildGameState(players);
@@ -177,5 +214,9 @@ export class EventHandler {
       msgType: "ClientTick",
     }
     this.messageHandler.send(tick)
+  }
+
+  public CPUcreateUnit(state: number, money: number, soldiers: any) {
+    this.gameState.createSoldiers(soldiers, money)
   }
 }
