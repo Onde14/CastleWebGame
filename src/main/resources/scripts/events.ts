@@ -48,7 +48,7 @@ export class EventHandler {
       body: JSON.stringify({ "username": username, "password": password })
     });
     const data = await response.text();
-    console.log(data);
+    //console.log(data);
     if (data == username) {
       this.username = data;
     }
@@ -90,7 +90,7 @@ export class EventHandler {
         }
         break;
       case UIStates.Game:
-        console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);
+        //console.log("Coordinate x: " + target.x, "Coordinate y: " + target.y);
         let castles = new Array<Castle>();
         let currPlayer = "";
         this.gameState.players.forEach((player) => {
@@ -102,10 +102,10 @@ export class EventHandler {
         //console.log("CASTLES: ", castles);
         const orders: any = this.controls.mouseDownGame(target, castles, currPlayer);
         if (orders === undefined) {
-          console.log("NO ORDERS.");
+          //console.log("NO ORDERS.");
         } else {
-          console.log("GOT ORDERS!");
-          console.log("ORDERS: " + orders);
+          //console.log("GOT ORDERS!");
+          //console.log("ORDERS: " + orders);
           if (this.messageHandler) {
             let requestJson = {
               msgType: "RequestAttackOrderMessage",
@@ -151,7 +151,7 @@ export class EventHandler {
 
     if (this.ui.state != UIStates.Menu) {
       this.ui.menu.forEach(b => {
-        console.log("HELLOOO")
+        //console.log("HELLOOO")
         if (b instanceof TextField) {
           b.text = b.label;
         }

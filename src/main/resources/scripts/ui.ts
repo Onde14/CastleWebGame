@@ -8,6 +8,7 @@ export enum UIStates {
   EndGame,
   Leaderboard,
   Matchmaking,
+  Defeated,
 }
 
 export enum ButtonEvent {
@@ -66,12 +67,14 @@ export class UserInterface {
   menu: Array<UIElement>;
   matchMaking: Array<UIElement>;
   endGame: Array<Button>;
+  defeated: Array<UIElement>
   constructor(gameWidth: number, gameHeight: number) {
     this.gameWidth = gameWidth
     this.gameHeight = gameHeight
     this.menu = this.menuConstructor();
     this.matchMaking = this.matchMakingConstructor();
     this.endGame = this.endGameConstructor();
+    this.defeated = this.defeatedConstructor();
   }
 
   menuConstructor() {
@@ -82,7 +85,7 @@ export class UserInterface {
       new Vector(this.gameWidth * 0.18, this.gameHeight * 0.5),
       ButtonEvent.Matchmake,
       "MATCHMAKE",
-      80)
+      60)
 
     menu.push(matchmakingButton)
 
@@ -143,6 +146,19 @@ export class UserInterface {
 
 
   endGameConstructor() {
+    let endGame = new Array<Button>();
+    const menu = new Button(
+      this.gameWidth * 0.4,
+      this.gameHeight * 0.1,
+      new Vector(this.gameWidth * 0.33, this.gameHeight / 2 * 1.1),
+      ButtonEvent.Menu,
+      "Menu",
+      80)
+    endGame.push(menu)
+    return endGame;
+  }
+
+  defeatedConstructor() {
     let endGame = new Array<Button>();
     const menu = new Button(
       this.gameWidth * 0.4,

@@ -21,7 +21,7 @@ object MainApp extends ZIOAppDefault {
   val lobbiesRef = Ref.make(Set.empty[Lobby])
   val lobbiesLayer = ZLayer.fromZIO(lobbiesRef)
 
-  val clientStatusRef = Ref.make(Map.empty[UUID,Boolean])
+  val clientStatusRef = Ref.make(Map.empty[UUID,Int])
   val clientStatusLayer = ZLayer.fromZIO(clientStatusRef)
 
   val clientsInLobbiesRef = Ref.make(Map.empty[UUID,Lobby])
@@ -51,7 +51,7 @@ object MainApp extends ZIOAppDefault {
           queueRef <- Ref.make[Dequeue[String]](null)
           lobbiesRef <- ZIO.service[Ref[Set[Lobby]]]
           clientsInLobbiesRef <- ZIO.service[Ref[Map[UUID, Lobby]]]
-          clientStatusRef <- ZIO.service[Ref[Map[UUID, Boolean]]]
+          clientStatusRef <- ZIO.service[Ref[Map[UUID, Int]]]
 
 
           incoming = channel.receiveAll {
@@ -72,24 +72,24 @@ object MainApp extends ZIOAppDefault {
                                   for {
 
                                     clientId = attackOrder.clientId
-                                    _ <- ZIO.debug(s"1: $clientId")
+                                    //_ <- ZIO.debug(s"1: $clientId")
                                     lobbyId = attackOrder.lobbyId
-                                    _ <- ZIO.debug(s"2: $lobbyId")
+                                    //_ <- ZIO.debug(s"2: $lobbyId")
 
                                     //lobby = lobbies.find((l,_) => l.id == lobbyId).map(_._1).getOrElse(null)
                                     lobby = lobbies.find((l) => l.id == lobbyId).getOrElse(null)
                                     //lobbyQueue <- lobby.hub.subscribe
                                     //_ <- queueRef.set(lobbyQueue)
-                                    _ <- ZIO.debug(s"3: $lobby")
+                                    //_ <- ZIO.debug(s"3: $lobby")
 
 
                                     selected_castles_ids = attackOrder.selected_castles_ids
-                                    _ <- ZIO.debug(s"4: $selected_castles_ids")
+                                    //_ <- ZIO.debug(s"4: $selected_castles_ids")
 
                                     target_castle_id = attackOrder.target_castle_id
-                                    _ <- ZIO.debug(s"5: $target_castle_id")
+                                   // _ <- ZIO.debug(s"5: $target_castle_id")
                                     response <- ZIO.succeed(lobby.gameState.createSoldiers(clientId,target_castle_id,selected_castles_ids))
-                                    _ <- ZIO.debug("RequestAttackOrderMessageHandling: " + response)
+                                    //_ <- ZIO.debug("RequestAttackOrderMessageHandling: " + response)
                                     _ <- ZIO.when(response != null)(lobby.hub.publish(response.toJson))
                                     _ <- ZIO.unit
 
@@ -97,8 +97,9 @@ object MainApp extends ZIOAppDefault {
                               case clientTick: ClientTick =>
                                 for {
                                   clientId = clientTick.clientId
-                                  //_ <- ZIO.debug(s"Got a Tick from ${clientTick.clientId}")
-                                  _ <- clientStatusRef.update(_ + (clientId -> true))
+                                 // _ <- ZIO.debug(s"Got a Tick from ${clientTick.clientId}")
+                                  _ <- clientStatusRef.update(_ + (clientId -> 0))
+
                                   _ <- ZIO.unit
                                 } yield ()
                               case closeConnection: CloseConnection =>
@@ -118,7 +119,7 @@ object MainApp extends ZIOAppDefault {
                                       } yield ()
                                     clientsInLobbiesRef.update(_ - clientId)
                                   }
-                                  _ <- clientStatusRef.update(_ + (clientId -> true))
+                                  _ <- clientStatusRef.update(_ + (clientId -> 0))
                                   _ <- ZIO.unit
                                 } yield ()
                               case null =>
@@ -150,8 +151,9 @@ object MainApp extends ZIOAppDefault {
 
 
                 _ <- ZIO.succeed(lobby.addClient(clientId))
-                _ <- clientStatusRef.update(_ + (clientId -> true))
-                _ <- ClientChecker.isClientAlive(clientId, clientStatusRef, clientsInLobbiesRef, lobbiesRef).forkDaemon
+                _ <- clientStatusRef.update(_ + (clientId -> 0))
+                clientChecker = ClientChecker(clientId, clientStatusRef, clientsInLobbiesRef, lobbiesRef)
+                _ <- clientChecker.startClientChecker().forkDaemon
                 welcome = ClientInfoMessage("ClientInfoMessage", clientId, lobby.id).toJson
                 _ <- ZIO.succeed(lobby.gameState.addPlayer(clientId))
                 response <- ZIO.succeed(ClientInfoMessage("ClientInfoMessage",clientId,lobby.id).toJson)

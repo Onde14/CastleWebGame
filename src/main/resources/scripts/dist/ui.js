@@ -8,6 +8,7 @@ export var UIStates;
     UIStates[UIStates["EndGame"] = 4] = "EndGame";
     UIStates[UIStates["Leaderboard"] = 5] = "Leaderboard";
     UIStates[UIStates["Matchmaking"] = 6] = "Matchmaking";
+    UIStates[UIStates["Defeated"] = 7] = "Defeated";
 })(UIStates || (UIStates = {}));
 export var ButtonEvent;
 (function (ButtonEvent) {
@@ -62,16 +63,18 @@ export class UserInterface {
     menu;
     matchMaking;
     endGame;
+    defeated;
     constructor(gameWidth, gameHeight) {
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
         this.menu = this.menuConstructor();
         this.matchMaking = this.matchMakingConstructor();
         this.endGame = this.endGameConstructor();
+        this.defeated = this.defeatedConstructor();
     }
     menuConstructor() {
         let menu = new Array();
-        const matchmakingButton = new Button(this.gameWidth * 0.6, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.18, this.gameHeight * 0.5), ButtonEvent.Matchmake, "MATCHMAKE", 80);
+        const matchmakingButton = new Button(this.gameWidth * 0.6, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.18, this.gameHeight * 0.5), ButtonEvent.Matchmake, "MATCHMAKE", 60);
         menu.push(matchmakingButton);
         const usernameField = new TextField(this.gameWidth * 0.4, this.gameHeight * 0.03, new Vector(this.gameWidth * 0.4, this.gameHeight * 0.05), TextFieldEvent.Username, "username", 25);
         usernameField.text = usernameField.label;
@@ -92,6 +95,12 @@ export class UserInterface {
         return matchmaking;
     }
     endGameConstructor() {
+        let endGame = new Array();
+        const menu = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.33, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "Menu", 80);
+        endGame.push(menu);
+        return endGame;
+    }
+    defeatedConstructor() {
         let endGame = new Array();
         const menu = new Button(this.gameWidth * 0.4, this.gameHeight * 0.1, new Vector(this.gameWidth * 0.33, this.gameHeight / 2 * 1.1), ButtonEvent.Menu, "Menu", 80);
         endGame.push(menu);

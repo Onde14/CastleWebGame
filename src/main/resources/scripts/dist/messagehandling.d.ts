@@ -10,5 +10,6 @@ export declare class MessageHandler {
     private handleResponse;
     incoming(msg: string): void;
     send(object: any): void;
+    sendTick(): void;
 }
 //# sourceMappingURL=messagehandling.d.ts.map

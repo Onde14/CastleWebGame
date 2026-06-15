@@ -13,7 +13,7 @@ export class MessageHandler {
     }
     handleResponse(msg) {
         //console.log("TYPE IS ", msg.msgType);
-        if (msg.msgType === undefined)
+        if (msg.msgType === undefined || msg.msgType === null)
             return;
         switch (msg.msgType) {
             case "BuildGameDataMessage":
@@ -54,6 +54,7 @@ export class MessageHandler {
                     this.eventHandler.setCurrentPlayerId(msg.clientId);
                 }
                 console.log(this.myClientId, this.myLobbyId);
+                this.sendTick();
                 break;
             case "GameEndMessage":
                 this.eventHandler.gameEnd(msg.winner);
@@ -62,7 +63,7 @@ export class MessageHandler {
                 console.log("Request was invalid!");
                 break;
             case "CPUUpdateDataMessage":
-                console.log("CPUUpdateDataMessage", msg.soldiers);
+                //console.log("CPUUpdateDataMessage",msg.soldiers!)
                 this.eventHandler.CPUcreateUnit(msg.state, msg.money, msg.soldiers);
                 break;
             default:
@@ -85,6 +86,16 @@ export class MessageHandler {
         object.lobbyId = this.myLobbyId;
         //console.log("Sending object:", object)
         this.webSocketDriver.sendMessage(JSON.stringify(object));
+    }
+    sendTick() {
+        setInterval(() => {
+            const tick = {
+                msgType: "ClientTick",
+                clientId: this.myClientId,
+                lobbyId: this.myLobbyId
+            };
+            this.webSocketDriver.sendMessage(JSON.stringify(tick));
+        }, 1000);
     }
 }
 //# sourceMappingURL=messagehandling.js.map

@@ -10,9 +10,11 @@ export class Controls {
     gameHeight;
     gameState;
     ui;
-    constructor(gameWidth, gameHeight, gameState, ui) {
+    canvas;
+    constructor(gameWidth, gameHeight, canvas, gameState, ui) {
         this.gameWidth = gameWidth;
         this.gameHeight = gameHeight;
+        this.canvas = canvas;
         this.gameState = gameState;
         this.ui = ui;
     }
@@ -20,8 +22,8 @@ export class Controls {
         this.selected = new Map();
     }
     visualVector(v) {
-        const ratioX = window.innerWidth / this.gameWidth;
-        const ratioY = window.innerHeight / this.gameHeight;
+        const ratioX = this.canvas.width / this.gameWidth;
+        const ratioY = this.canvas.height / this.gameHeight;
         return new Vector(v.x * ratioX, v.y * ratioY);
     }
     /*public move_command(target: Vector){
@@ -33,14 +35,15 @@ export class Controls {
   
       */
     isMouseTargetingElement(target, mouse_pos, button) {
-        const visualLengths = this.visualVector(new Vector(button.width, button.height));
+        const visualWidth = button.width * (this.canvas.width / this.gameWidth);
+        const visualHeight = button.height * (this.canvas.width / this.gameWidth);
         //const centerToBorderWidth = button.width / 2;
         //const centerToBorderHeight = button.height / 2;
-        console.log("is_mouse_targeting_button: Target =", target, ", mouse_pos=", mouse_pos, "visualLengths.x", visualLengths.x, "visualLengths.y", visualLengths.y);
+        //console.log("is_mouse_targeting_button: Target =", target, ", mouse_pos=", mouse_pos,"visualLengths.x",visualWidth,"visualLengths.y",visualHeight,"width:",button.width,"height:",button.height)
         return (target.x <= mouse_pos.x &&
-            target.x + visualLengths.x >= mouse_pos.x &&
+            target.x + visualWidth >= mouse_pos.x &&
             target.y <= mouse_pos.y &&
-            target.y + visualLengths.y >= mouse_pos.y);
+            target.y + visualHeight >= mouse_pos.y);
     }
     isMouseTargetingCastle(target, mouse_pos) {
         const centerToBorderWidth = CastleConfig.width / 2;
@@ -89,23 +92,24 @@ export class Controls {
     }
     mouseDownButton(target, buttons) {
         let button = null;
-        buttons.forEach(b => {
+        buttons.some(b => {
             if (b instanceof Button) {
-                //console.log("b.pos:",b.pos,"target:",target)
+                //console.log("BUTTON", b.text)
                 if (this.isMouseTargetingElement(this.visualVector(b.pos), target, b)) {
                     button = b;
-                    return;
+                    //console.log("BUTTON",b.text ,"PRESSED")
+                    return true;
                 }
                 else {
-                    console.log("NO BUTTON");
+                    //console.log("NO BUTTON")
                 }
             }
             else if (b instanceof TextField) {
                 if (this.isMouseTargetingElement(this.visualVector(b.pos), target, b)) {
                     b.active = true;
                     b.text = "";
-                    console.log("TEXTFIELD ACTIVE");
-                    return;
+                    //console.log("TEXTFIELD ACTIVE");
+                    return true;
                 }
                 else {
                     b.active = false;
@@ -142,14 +146,14 @@ export class Controls {
             };
             return orders;
         }
-        console.log("Clicked ", target);
+        //console.log("Clicked ", target);
         let selected_castle = false;
         castles?.forEach((castle, id) => {
             if (this.isMouseTargetingCastle(this.visualVector(castle.pos), target)) {
                 if (castle.owner == playerId) {
                     this.selected.set(castle.id, castle);
                     castle.selected = true;
-                    console.log(castle.id, " is selected", castle.selected);
+                    //console.log(castle.id, " is selected", castle.selected);
                     this.isSelecting = true;
                     selected_castle = true;
                     return;

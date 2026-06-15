@@ -6,41 +6,46 @@ import server.*
 
 import server.MainApp.clientsInLobbiesRef
 
-object ClientChecker {
-  def isClientAlive(clientId: UUID, clientStatusRef: Ref[Map[UUID, Boolean]], clientsInLobbiesRef: Ref[Map[UUID,Lobby]], lobbiesRef: Ref[Set[Lobby]]) =
+class ClientChecker(clientId: UUID, clientStatusRef: Ref[Map[UUID, Int]], clientsInLobbiesRef: Ref[Map[UUID,Lobby]], lobbiesRef: Ref[Set[Lobby]]):
+
+  def startClientChecker() =
     for {
-      _ <- (
+      checker <- checker().repeat(Schedule.fixed(1.seconds))
+    } yield checker
+
+
+  def checker() =
+    for {
+      clientStatus <- clientStatusRef.get
+      status = clientStatus.get(clientId).getOrElse(0)
+      //_ <- ZIO.debug(s"isClientAlive: Checking on $clientId, status: $status")
+      _ <- ZIO.when(status > 10){
         for {
-          //_ <- ZIO.debug(s"isClientAlive: Checking on $clientId")
-          clientStatus <- clientStatusRef.get
-          status = clientStatus.get(clientId).getOrElse(false)
-          _ <- ZIO.when(!status){
-            for {
-              _ <- ZIO.debug(s"isClientAlive: Client $clientId Disconnected.")
-              clientsInLobbies <- clientsInLobbiesRef.get
-              lobby: Lobby = clientsInLobbies.get(clientId).getOrElse(null)
-              _ <- ZIO.when(lobby != null){
-                lobby.removeClient(clientId)
+          _ <- ZIO.debug(s"isClientAlive: Client $clientId DISCONNECTED.")
+          clientsInLobbies <- clientsInLobbiesRef.get
+          lobby: Lobby = clientsInLobbies.get(clientId).getOrElse(null)
+          _ <- ZIO.when(lobby != null){
+            lobby.removeClient(clientId)
 
-                if lobby.ended then
-                  println(s"lobbiesRef: $lobbiesRef")
-                  ZIO.succeed(lobbiesRef.update(_ - lobby))
-                  for {
-                    l <- lobbiesRef.get
-                    _ <- ZIO.debug(s"lobbiesRef: $l")
-                  } yield ()
+            if lobby.ended then
+              println(s"lobbiesRef: $lobbiesRef")
+              ZIO.succeed(lobbiesRef.update(_ - lobby))
+              for {
+                l <- lobbiesRef.get
+                _ <- ZIO.debug(s"lobbiesRef: $l")
+              } yield ()
 
-                clientsInLobbiesRef.update(_ - clientId)
-              }
-              _ <- ZIO.interrupt
-
-            } yield ()
+            clientsInLobbiesRef.update(_ - clientId)
           }
-          newclientStatus <- clientStatusRef.get
-          //_ <- ZIO.debug(s"isClientAlive: Client $clientId is alive")
-          //_ <- ZIO.debug(s"isClientAlive: newclientStatus $newclientStatus")
-          _ <- clientStatusRef.update(_ + (clientId -> false))
+          _ <- ZIO.interrupt
+
         } yield ()
-      ).repeat(Schedule.fixed(5.seconds))
+      }
+      newclientStatus <- clientStatusRef.get
+      //_ <- ZIO.debug(s"isClientAlive: Client $clientId is alive")
+      //_ <- ZIO.debug(s"isClientAlive: newclientStatus $newclientStatus")
+      newClientStatus <- clientStatusRef.get
+      newStatus = newClientStatus.get(clientId).getOrElse(0)
+      _ <- clientStatusRef.update(_ + (clientId -> (newStatus + 1)))
+     // _ <- ZIO.sleep(1.seconds)
     } yield ()
-}

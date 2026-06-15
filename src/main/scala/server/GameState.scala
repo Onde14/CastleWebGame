@@ -28,7 +28,7 @@ class GameState:
   var currentPlayersIds = ArrayBuffer[UUID]()
   private val playerLimit: Int = 2
   private var currentPlayerIterator: Int = 0
-  val colors = List("blue","red","green","purple","yellow","orange")
+  val colors = List("blue","red","green","purple","yellow","black")
   private val soldierSpeed = GameConfig.SoldierSpeed
   var winner: UUID = null
   var CPUs = new ArrayBuffer[Player]()
@@ -313,15 +313,22 @@ class GameState:
 
   def CPUStrategy(): CPUUpdateData =
     val cpu = Random.shuffle(CPUs).head
+    //println("cpu: " + cpu)
     if (cpu.money <= 0) then return null
+    //println("cpu.money: " + cpu.money)
+    //println("cpu.castles: " + cpu.castles)
+    if cpu.castles.isEmpty then return null
     val castle = Random.shuffle(cpu.castles).head
-    val target = castles.find(enemyCas => enemyCas.owner != cpu.id).getOrElse(null)
-   // println("target: " + target)
+    //println("castle: " + castle)
+    val targets = castles.filter(enemyCas => enemyCas.owner != cpu.id)
+    if targets.isEmpty then return null
+    val target = Random.shuffle(targets).head
+    //println("target: " + target)
     if target != null then
       var selected = new ArrayBuffer[UUID]()
       cpu.castles.foreach(c => selected += c.id)
       if (cpu.money >= selected.size) then
-        println(s"${cpu.id} + ${target.id} + ${selected.toList} + ${castle}")
+        //println(s"${cpu.id} + ${target.id} + ${selected.toList} + ${castle}")
         val response: ResponseAttackOrderMessage = createSoldiers(cpu.id,target.id,selected.toList)
         if response != null then
           val cpuUpdate = new CPUUpdateData ("CPUUpdateDataMessage",6,cpu.money,response.soldiers.toList)
@@ -338,6 +345,7 @@ class GameState:
   def update(tick: Int): ArrayBuffer[UpdateData] =
 
     val updates: ArrayBuffer[UpdateData] = moveSoldiers()
+    //println("update")
     //println(s"update: updates = $updates")
     removeSoldiers()
 

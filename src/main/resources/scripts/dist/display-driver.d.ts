@@ -27,6 +27,7 @@ export declare class DisplayDriver {
     drawMatchmakingText(): void;
     drawMenu(): void;
     drawMatchmaking(): void;
+    drawCurrPlayerDefeated(): void;
     drawEndGame(): void;
     draw(): void;
 }

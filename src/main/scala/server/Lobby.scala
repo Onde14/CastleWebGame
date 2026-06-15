@@ -30,7 +30,7 @@ class Lobby(h: Hub[String],g: GameState):
 
   def setStatus() =
     if running then
-      if currSize < 2  then
+      if currSize + gameState.CPUs.length < 2 then
         ended = true
     else
       if clients.isEmpty then
@@ -118,10 +118,11 @@ class Lobby(h: Hub[String],g: GameState):
           // _ <- ZIO.debug(gameState.availablePlayerSlots)
           // _ <- ZIO.debug(s"RUNNING: $running")
             //_ <- ZIO.debug(s"$id: Tick")
-        //  _ <- ZIO.debug(s"$id: Tick")
-            cpuUpdate <- ZIO.when(tick % 50 == 0) (ZIO.attempt(gameState.cpuUpdate(tick)))
-            _ <- ZIO.debug("DEBUG: " + Some(cpuUpdate))
-            _ <- ZIO.when(cpuUpdate != Some(null))(hub.publish(cpuUpdate.toJson))
+            //_ <- ZIO.debug(s"Tick: $tick")
+
+            cpuUpdate <- ZIO.when(tick % 50 == 0) (ZIO.succeed(gameState.cpuUpdate(tick)))
+           // _ <- ZIO.debug("DEBUG: " + Some(cpuUpdate))
+            _ <- ZIO.when(cpuUpdate != Some(null) && cpuUpdate != None && cpuUpdate != Some(None))(hub.publish(cpuUpdate.toJson))
           } yield ()
-        ).repeat(Schedule.fixed(16.millis))
+        ).repeat(Schedule.fixed(8.millis))
       } yield ()

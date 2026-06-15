@@ -57,7 +57,7 @@ export class Gamestate {
   }
   public buildGameState(players: any) {
     this.state = GameStatus.Started
-    console.log("PLAYERS1: ", players);
+    //console.log("PLAYERS1: ", players);
     let playerArray = new Array<Player>();
     players.forEach((player: any) => {
       const id: Int16Array = player.id;
@@ -120,20 +120,20 @@ export class Gamestate {
       playerArray.push(newPlayer);
       if (newPlayer.id == this.currentPlayerId) {
         this.currentPlayer = newPlayer;
-        console.log("if (player.id == this.currentPlayerId): ", this.currentPlayer)
+        //console.log("if (player.id == this.currentPlayerId): ", this.currentPlayer)
       }
     });
     this.players = playerArray;
-    console.log("PLAYERS2: ", this.players);
+    //console.log("PLAYERS2: ", this.players);
   }
 
   public createSoldiers(soldiers: any, money: number) {
     let moneySet = false
-    console.log("STARTING SOLDIER CREATION")
+    //console.log("STARTING SOLDIER CREATION")
     soldiers.forEach((soldier: any) => {
       if (moneySet == false) {
         const player = this.players.find(p => p.id == soldier.owner)
-        console.log("player",player,"money",money,"soldiers",soldiers)
+        //console.log("player",player,"money",money,"soldiers",soldiers)
         player!.money = money
         moneySet = true;
       }
@@ -159,14 +159,14 @@ export class Gamestate {
 
       new_soldier.give_target(new Vector(soldier.target.x, soldier.target.y));
       this.gameObjects.set(new_soldier.id, new_soldier);
-      console.log("NEW SOLDIER CREATED: ", new_soldier);
+      //console.log("NEW SOLDIER CREATED: ", new_soldier);
     });
   }
 
   public update(updates: any, tick: number) {
     this.clock = Math.trunc(tick / 100);
     const cpuUnits = updates.filter((u: any) => u.state == 6)
-    console.log("cpuUnits:",cpuUnits)
+    //console.log("cpuUnits:",cpuUnits)
     cpuUnits.forEach((u: any) => this.createSoldiers(u.soldiers, u.money))
     updates.forEach((u: any) => {
       if (u.money!) {
@@ -180,24 +180,24 @@ export class Gamestate {
       if (u.state == 2) {
         // console.log(3, u.id, this.gameObjects);
         //console.log(object);
-        console.log(4, object);
+        //console.log(4, object);
         if (object.pos === undefined) return;
         object.pos = new Vector(u.updatedPos.x, u.updatedPos.y);
       } if (u.state == 0) {
         let object: any = this.gameObjects.get(u.id);
         if (object instanceof Soldier) {
           const player = this.players.find((p) => p.id == u.playerId);
-          console.log("PLAYER", player)
+          //console.log("PLAYER", player)
           if (player !== undefined) {
             //console.log(6, player);
             player.units = player.units.filter((unit) => unit.id != u.id);
             this.gameObjects.delete(u.id);
             //console.log(6, player.units, this.gameObjects);
           }
-          console.log("IS SOLDIER", object)
+          //console.log("IS SOLDIER", object)
         }
         else if (object instanceof Village) {
-          console.log("IS VILLAGE", object)
+          //console.log("IS VILLAGE", object)
           const player = this.players.find((p) => p.id == u.playerId)!;
           const castle = player.castles.find((c) => c.owner == u.playerId)!;
           castle.villages = castle.villages.filter((v) => v.id != u.id)
@@ -206,7 +206,7 @@ export class Gamestate {
       }
       else {
         //console.log("ELSE: ", object)
-        if (updates.length != 0)console.log(1, updates);
+        if (updates.length != 0)  //console.log(1, updates);
 
         if (object instanceof Castle) {
           const castleOwner = this.players.find((p) => p.id == u.playerId)!;
@@ -227,6 +227,7 @@ export class Gamestate {
       }
     });
     if (this.currentPlayer?.castles.length == 0) this.currentPlayer.state = PlayerState.Defeated
+    if (this.currentPlayer?.state == PlayerState.Defeated) this.ui.state = UIStates.Defeated;
   }
 
   private move_commands() {

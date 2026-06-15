@@ -10,7 +10,8 @@ export declare class Controls {
     gameHeight: number;
     gameState: Gamestate;
     ui: UserInterface;
-    constructor(gameWidth: number, gameHeight: number, gameState: Gamestate, ui: UserInterface);
+    canvas: HTMLCanvasElement;
+    constructor(gameWidth: number, gameHeight: number, canvas: HTMLCanvasElement, gameState: Gamestate, ui: UserInterface);
     deselect(): void;
     visualVector(v: Vector): Vector;
     isMouseTargetingElement(target: Vector, mouse_pos: Vector, button: UIElement): boolean;
