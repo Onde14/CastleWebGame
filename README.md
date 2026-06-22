@@ -13,6 +13,8 @@ Castles produce one money and produce units. They have villages bound to them an
 4. Open browser of your choosing and open "http://localhost:8080/" web page.
 5. Click "Matchmake" button and add other player in another browser tab to start the game.
 
+The game server can be stopped by pressing Enter in the terminal running the server.
+
 ## Work-in-progress
 
 1. Real multiplayer implementation and testing. 
