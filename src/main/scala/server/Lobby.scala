@@ -124,5 +124,5 @@ class Lobby(h: Hub[String],g: GameState):
            // _ <- ZIO.debug("DEBUG: " + Some(cpuUpdate))
             _ <- ZIO.when(cpuUpdate != Some(null) && cpuUpdate != None && cpuUpdate != Some(None))(hub.publish(cpuUpdate.toJson))
           } yield ()
-        ).repeat(Schedule.fixed(8.millis))
+        ).repeat(Schedule.fixed(16.millis))
       } yield ()
