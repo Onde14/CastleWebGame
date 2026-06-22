@@ -11,6 +11,7 @@ Castles produce one money and produce units. They have villages bound to them an
 2. Open a terminal on inside "CastleWebGame" folder.
 3. Type "sbt ~reStart" to start the game server.
 4. Open browser of your choosing and open "http://localhost:8080/" web page.
+5. Click "Matchmake" button and add other player in another browser tab to start the game.
 
 ## Work-in-progress
 
