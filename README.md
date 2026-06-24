@@ -8,7 +8,7 @@ Castles produce one money and produce units. They have villages bound to them an
 ## Requirements
 
 1. Scala3
-2. Simple build tool
+2. simple build tool (sbt)
 
 ## How to run game
 
