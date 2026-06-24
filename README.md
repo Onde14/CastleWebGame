@@ -5,6 +5,11 @@
 
 Castles produce one money and produce units. They have villages bound to them and the villages produce one money each. Units are produced by selecting your own castles and targeting opponents castles. Units first destroy the villages and then conquer the castle. The game is won when one player holds all the castles on the map. 
 
+## Requirements
+
+1. Scala3
+2. Simple build tool
+
 ## How to run game
 
 1. Copy the repository.
